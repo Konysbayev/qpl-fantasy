@@ -45,6 +45,7 @@ export interface TeamPlayers {
 
 export interface FixtureEntry {
   fixture: { id: number; date: string; status: { short: string } };
+  league?: { id: number };
   teams: { home: TeamRef; away: TeamRef };
   goals: { home: number | null; away: number | null };
   events?: EventEntry[];
