@@ -14,7 +14,7 @@ import { ThemeProvider, useTheme } from './theme/ThemeProvider.js';
 const params = new URLSearchParams(location.search);
 (window as unknown as { Telegram: unknown }).Telegram = { WebApp: { initData: 'showcase', colorScheme: params.get('theme') === 'dark' ? 'dark' : 'light' } };
 
-const clubs = new Map((clubsJson as { code: string; logo: string; kit: ClubKit }[]).map((c) => [c.code, c]));
+const clubs = new Map((clubsJson as unknown as { code: string; logo: string; kit: ClubKit }[]).map((c) => [c.code, c]));
 const mk = (name: string, code: string, points: number | null, o: { c?: boolean; v?: boolean; gk?: boolean; pos?: string; bench?: boolean } = {}): PlayerTokenProps => {
   const club = clubs.get(code)!;
   return {
