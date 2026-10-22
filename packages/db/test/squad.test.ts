@@ -77,6 +77,25 @@ describe('createFirstSquad', () => {
     expect(r.ok === false && r.details).toContain('budget');
   });
 
+  it('одновременное создание первого состава: один успех, второй — squad_exists, без 500', async () => {
+    const user = await newUser(sql);
+    const now = at(deadline(1) - HOUR);
+    const other = await import('postgres').then((m) => m.default(process.env.TEST_DATABASE_URL?.replace(/\/[^/]*$/, '/qpl_test_squad') ?? 'postgres://postgres:postgres@localhost:5432/qpl_test_squad', { max: 1, onnotice: () => {} }));
+    try {
+      const results = await Promise.all([createFirstSquad(sql, user, now, standardPicks(L), 1), createFirstSquad(other, user, now, standardPicks(L), 1)]);
+      expect(results.filter((r) => r.ok)).toHaveLength(1);
+      expect(results.find((r) => !r.ok)).toEqual({ ok: false, error: 'invalid_squad', details: ['squad_exists'] });
+    } finally {
+      await other.end();
+    }
+  });
+
+  it('выбывший из лиги игрок (status left) недоступен для выбора', async () => {
+    await sql`update players set status = 'left' where id = ${L.player('FWD', 4)}`;
+    const r = await createFirstSquad(sql, await newUser(sql), at(deadline(1) - HOUR), standardPicks(L), 1);
+    expect(r).toEqual({ ok: false, error: 'invalid_squad', details: ['unavailable'] });
+  });
+
   it('капитан в запасе → invalid_lineup', async () => {
     const picks = standardPicks(L).map((p) => ({ ...p, isCaptain: p.slot === 13 }));
     const r = await createFirstSquad(sql, await newUser(sql), at(deadline(1) - HOUR), picks, 1);
@@ -159,6 +178,13 @@ describe('commitTransfers', () => {
     const r = await commitTransfers(sql, user, at(deadline(2) - HOUR), transfer([L.player('FWD', 4)], [L.player('FWD', 5)], 2));
     expect(r.ok === false && r.error).toBe('invalid_squad');
     expect(r.ok === false && r.details).toContain('budget');
+  });
+
+  it('купить выбывшего игрока (status left) нельзя', async () => {
+    const user = await userWithSquad();
+    await sql`update players set status = 'left' where id = ${L.player('DEF', 5)}`;
+    expect(await commitTransfers(sql, user, at(deadline(2) - HOUR), transfer([L.player('DEF', 4)], [L.player('DEF', 5)], 2)))
+      .toEqual({ ok: false, error: 'invalid_squad', details: ['unavailable'] });
   });
 
   it('четвёртый из клуба → club_limit; чужой игрок в «уходит» → not_owned; другая позиция → invalid_squad', async () => {

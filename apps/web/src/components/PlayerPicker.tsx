@@ -23,9 +23,11 @@ export interface PickerProps {
   lockPosition?: Position | null;
   stateOf: (p: PlayerRow) => RowState;
   onAction: (p: PlayerRow) => void;
+  // Тегін басқанда — ойыншы картасы
+  onInfo?: (p: PlayerRow) => void;
 }
 
-export function PlayerPicker({ players, clubs, lockPosition, stateOf, onAction }: PickerProps) {
+export function PlayerPicker({ players, clubs, lockPosition, stateOf, onAction, onInfo }: PickerProps) {
   const t = useTheme();
   const tr = useT();
   const lang = useLang();
@@ -66,7 +68,7 @@ export function PlayerPicker({ players, clubs, lockPosition, stateOf, onAction }
       </div>
       <ul style={{ listStyle: 'none', margin: '10px 16px 0', background: t.card, borderRadius: 22, padding: '4px 0', boxShadow: t.cardShadow }}>
         {shown.map((p, i) => (
-          <Row key={p.id} p={p} club={clubs.get(p.clubId)} state={stateOf(p)} first={i === 0} onAction={() => onAction(p)} />
+          <Row key={p.id} p={p} club={clubs.get(p.clubId)} state={stateOf(p)} first={i === 0} onAction={() => onAction(p)} onInfo={onInfo ? () => onInfo(p) : undefined} />
         ))}
         {list.length > shown.length && (
           <li style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: t.muted }}>{tr('listMore', { n: list.length - shown.length })}</li>
@@ -76,7 +78,7 @@ export function PlayerPicker({ players, clubs, lockPosition, stateOf, onAction }
   );
 }
 
-function Row({ p, club, state, first, onAction }: { p: PlayerRow; club: ClubRow | undefined; state: RowState; first: boolean; onAction: () => void }) {
+function Row({ p, club, state, first, onAction, onInfo }: { p: PlayerRow; club: ClubRow | undefined; state: RowState; first: boolean; onAction: () => void; onInfo?: () => void }) {
   const t = useTheme();
   const tr = useT();
   const lang = useLang();
@@ -91,7 +93,14 @@ function Row({ p, club, state, first, onAction }: { p: PlayerRow; club: ClubRow 
         <Kit kit={p.position === 'GK' ? GK_KIT : kit} logoUrl={club?.logoUrl ?? null} size={38} armband={null} />
       </div>
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3, opacity: op }}>
-        <span style={{ fontSize: 14, fontWeight: 800, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.lastName}</span>
+        {onInfo ? (
+          <button type="button" aria-label={`${tr('playerCard')}: ${p.lastName}`} onClick={onInfo}
+            style={{ alignSelf: 'flex-start', maxWidth: '100%', border: 0, background: 'none', padding: 0, textAlign: 'left', cursor: 'pointer', fontSize: 14, fontWeight: 800, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {p.lastName}
+          </button>
+        ) : (
+          <span style={{ fontSize: 14, fontWeight: 800, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.lastName}</span>
+        )}
         <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: t.muted, minWidth: 0 }}>
           <span aria-hidden="true" style={{ width: 14, height: 4, flexShrink: 0, borderRadius: 2, background: stripBackground(kit.strip) }} />
           <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

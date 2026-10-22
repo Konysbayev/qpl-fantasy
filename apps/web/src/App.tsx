@@ -119,7 +119,8 @@ function Main({ name, lang, onLang }: { name: string; lang: Lang; onLang: (l: La
   else if (!data || (needPlayers && !players)) screen = <Message text={t('loading')} />;
   else if (building) screen = <Builder view={data.view} players={players!} clubs={data.clubs} api={api} onDone={reload} />;
   else if (tab === 'team') screen = <Team view={data.view} clubs={data.clubs} api={api} onPlayer={(id) => setCard(cardPlayer(id, data.view, players))} onChanged={load} />;
-  else if (tab === 'transfer' && data.view.squad) screen = <Transfer key={transferOut ?? ''} view={data.view} players={players!} clubs={data.clubs} api={api} initialOut={transferOut} onDone={load} />;
+  else if (tab === 'transfer' && data.view.squad) screen = <Transfer key={transferOut ?? ''} view={data.view} players={players!} clubs={data.clubs} api={api} initialOut={transferOut} onDone={load}
+      onPlayer={(id) => { const p = players?.find((x) => x.id === id); if (p) setCard({ id: p.id, firstName: p.firstName, lastName: p.lastName, position: p.position, clubId: p.clubId, price: p.price, selectedPct: p.selectedPct }); }} />;
   else if (tab === 'leagues') screen = <LeaguesSoon />;
   else if (tab === 'schedule' && gameweeks) {
     const initial = data.view.next?.number ?? data.view.last?.number ?? gameweeks[0]?.number ?? 1;

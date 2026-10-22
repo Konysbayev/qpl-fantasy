@@ -60,7 +60,11 @@ export function Team({ view, clubs, api, onPlayer, onChanged }: TeamProps) {
     const r = await api.saveLineup({ gameweek: view.next.number, picks: next });
     setBusy(false);
     if (r.ok) {
-      setNote({ kind: 'ok', text: tr('saved') });
+      // Капитан қосалқыға кетсе, белгі оның орнына кірген ойыншыға өтеді — айтып қоямыз
+      const captainSlot = picks.find((p) => p.isCaptain);
+      const newCaptain = captainSlot ? next.find((p) => p.slot === captainSlot.slot) : undefined;
+      const moved = newCaptain && captainSlot && newCaptain.playerId !== captainSlot.playerId ? picks.find((p) => p.playerId === newCaptain.playerId) : undefined;
+      setNote({ kind: 'ok', text: moved ? tr('captainMoved', { name: moved.lastName }) : tr('saved') });
       setSwapping(false);
       onChanged();
     } else if (r.error === 'deadline_passed') {
