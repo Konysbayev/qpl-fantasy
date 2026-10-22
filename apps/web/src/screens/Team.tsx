@@ -110,10 +110,15 @@ export function Team({ view, clubs, api, onPlayer, onChanged }: TeamProps) {
                 <span style={{ background: t.primary, color: '#FFFFFF', boxShadow: `0 2px 0 ${t.lip}`, fontFamily: FONT_NUM, fontSize: 12, fontWeight: 700, padding: '4px 11px', borderRadius: 999, whiteSpace: 'nowrap' }}>
                   {tr('tourN', { n: last.number })}
                 </span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: t.muted }}>{tr(last.status === 'live' ? 'gwLive' : 'gwFinished')}</span>
+                {last.status === 'live' ? (
+                  <span style={{ background: t.hard[0], color: t.hard[1], fontFamily: FONT_NUM, fontSize: 11, fontWeight: 800, padding: '3px 9px', borderRadius: 999 }}>LIVE</span>
+                ) : (
+                  <span style={{ fontSize: 12, fontWeight: 700, color: t.muted }}>{tr('gwFinished')}</span>
+                )}
               </>
             )}
           </div>
+          {!view.next && <span style={{ fontSize: 12, fontWeight: 800, color: t.muted }}>{tr('seasonOver')}</span>}
           {view.next && (
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, height: 28, padding: '0 11px', borderRadius: 14, background: t.soft, color: t.primaryText, fontSize: 12, fontWeight: 800, whiteSpace: 'nowrap' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
@@ -141,6 +146,7 @@ export function Team({ view, clubs, api, onPlayer, onChanged }: TeamProps) {
             ))}
           </div>
         </div>
+        {last?.status === 'live' && <span style={{ position: 'relative', fontSize: 11, fontWeight: 700, color: t.muted }}>{tr('liveHint')}</span>}
       </section>
 
       <div data-testid="pitch" style={{ flex: '1 0 auto', margin: '12px 16px 0', display: 'flex' }}>
