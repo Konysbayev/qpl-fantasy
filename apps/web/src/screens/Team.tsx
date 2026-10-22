@@ -2,9 +2,10 @@
 import { useState } from 'react';
 import type { PickInput, TeamPick, TeamView } from '../../../../packages/core/src/api-types.js';
 import { isValidFormation } from '../../../../packages/core/src/team-score.js';
-import type { ClubKit, Position } from '../../../../packages/core/src/types.js';
+import type { Position } from '../../../../packages/core/src/types.js';
 import type { Api, ClubRow } from '../api.js';
 import { GK_KIT } from '../components/Kit.js';
+import { NEUTRAL_KIT } from '../components/neutral.js';
 import { Pitch } from '../components/Pitch.js';
 import { PlayerToken, type PlayerTokenProps } from '../components/PlayerToken.js';
 import { SHANYRAK_D, ICONS } from '../components/shapes.js';
@@ -12,8 +13,6 @@ import { POS_LABEL, formatDeadline } from '../format.js';
 import { useLang, useT } from '../i18n/useT.js';
 import { useTheme } from '../theme/ThemeProvider.js';
 import { FONT_NUM } from '../theme/tokens.js';
-
-export const NEUTRAL_KIT: ClubKit = { shirt: '#C9D3DB', sleeves: '#C9D3DB', trim: '#5B6B78', stripes: null, strip: ['#C9D3DB', '#5B6B78'] };
 
 export interface TeamProps {
   view: TeamView;

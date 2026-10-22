@@ -1,12 +1,22 @@
 // Алаң: жеңіл перспектива (шабуылшылар «алыста» және кішірек), шөп жолақтары, ортаңғы шеңберде шаңырақ.
 import { useTheme } from '../theme/ThemeProvider.js';
 import { PlayerToken, type PlayerTokenProps } from './PlayerToken.js';
-import { SHANYRAK_D } from './shapes.js';
+import { SHANYRAK_D, SHIRT_D } from './shapes.js';
+
+// Бос орын (алғашқы құрамды жинағанда): үзік сызықты футболка мен позиция
+export interface EmptySlot {
+  empty: true;
+  label: string;
+  posLabel: string;
+  onClick: () => void;
+}
+
+export type PitchItem = PlayerTokenProps | EmptySlot;
 
 // Жоғарыдан төмен: шабуыл, жартылай қорғаныс, қорғаныс, қақпа
 const ROW_SCALE = [0.86, 0.93, 1, 1];
 
-export function Pitch({ rows }: { rows: PlayerTokenProps[][] }) {
+export function Pitch({ rows }: { rows: PitchItem[][] }) {
   const t = useTheme();
   const line = `2px solid ${t.pitchLine}`;
   return (
@@ -25,12 +35,23 @@ export function Pitch({ rows }: { rows: PlayerTokenProps[][] }) {
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-around', padding: '10px 4px 12px' }}>
         {rows.map((row, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: 'center', gap: 2, transform: `scale(${ROW_SCALE[i] ?? 1})`, transformOrigin: '50% 50%' }}>
-            {row.map((p, j) => (
-              <PlayerToken key={j} {...p} />
-            ))}
+            {row.map((p, j) => ('empty' in p ? <Empty key={j} {...p} /> : <PlayerToken key={j} {...p} />))}
           </div>
         ))}
       </div>
     </div>
+  );
+}
+
+function Empty({ label, posLabel, onClick }: EmptySlot) {
+  const t = useTheme();
+  return (
+    <button type="button" aria-label={label} onClick={onClick}
+      style={{ flex: '0 1 82px', width: 82, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 0, padding: 0, cursor: 'pointer' }}>
+      <svg width="54" height="54" viewBox="0 0 40 40" aria-hidden="true">
+        <path d={SHIRT_D} fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.85)" strokeWidth={1.1} strokeDasharray="2.2 1.8" strokeLinejoin="round" />
+      </svg>
+      <span style={{ background: t.chip, borderRadius: 13, padding: '3px 10px', fontSize: 11, fontWeight: 800, color: t.muted, boxShadow: t.chipShadow }}>{posLabel}</span>
+    </button>
   );
 }

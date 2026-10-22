@@ -1,10 +1,12 @@
 // Қосымша: тема, тіл, Telegram арқылы кіру, деректерді жүктеу және экрандар арасында ауысу.
 import { useCallback, useEffect, useState } from 'react';
-import { api, type ClubRow, type Session, type TeamView } from './api.js';
+import { api, type ClubRow, type PlayerRow, type Session, type TeamView } from './api.js';
 import { BottomNav, type Tab } from './components/BottomNav.js';
 import { Header } from './components/Header.js';
 import { LangProvider, detectLang, useT, type Lang } from './i18n/useT.js';
+import { Builder } from './screens/Builder.js';
 import { Team } from './screens/Team.js';
+import { Transfer } from './screens/Transfer.js';
 import { tg } from './telegram.js';
 import { ThemeProvider, useTheme } from './theme/ThemeProvider.js';
 
@@ -49,7 +51,9 @@ function Main() {
   const t = useT();
   const [tab, setTab] = useState<Tab>('team');
   const [data, setData] = useState<Data | null>(null);
+  const [players, setPlayers] = useState<PlayerRow[] | null>(null);
   const [failed, setFailed] = useState(false);
+  const [transferOut, setTransferOut] = useState<string | null>(null);
 
   const load = useCallback(() => {
     setFailed(false);
@@ -60,17 +64,36 @@ function Main() {
   }, []);
   useEffect(load, [load]);
 
+  // Ойыншылар тізімі трансфер мен алғашқы құрамға ғана керек
+  const building = data !== null && data.view.squad === null && data.view.next !== null;
+  const needPlayers = building || tab === 'transfer';
+  useEffect(() => {
+    if (needPlayers && !players) api.players().then(setPlayers, () => setFailed(true));
+  }, [needPlayers, players]);
+
+  const reload = () => {
+    load();
+    setPlayers(null);
+  };
+
   let screen;
-  if (failed) screen = <Message text={t('errorGeneric')} onRetry={load} />;
-  else if (!data) screen = <Message text={t('loading')} />;
+  if (failed) screen = <Message text={t('errorGeneric')} onRetry={reload} />;
+  else if (!data || (needPlayers && !players)) screen = <Message text={t('loading')} />;
+  else if (building) screen = <Builder view={data.view} players={players!} clubs={data.clubs} api={api} onDone={reload} />;
   else if (tab === 'team') screen = <Team view={data.view} clubs={data.clubs} api={api} onPlayer={() => {}} onChanged={load} />;
+  else if (tab === 'transfer' && data.view.squad) screen = <Transfer key={transferOut ?? ''} view={data.view} players={players!} clubs={data.clubs} api={api} initialOut={transferOut} onDone={load} />;
   else screen = <Message text={t('loading')} />;
+
+  const navigate = (next: Tab) => {
+    setTransferOut(null);
+    setTab(next);
+  };
 
   return (
     <div style={{ minHeight: '100vh', height: '100vh', maxWidth: 480, margin: '0 auto', background: th.bg, color: th.ink, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <Header />
+      {tab === 'team' && !building && <Header />}
       <main style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>{screen}</main>
-      <BottomNav current={tab} onNavigate={setTab} />
+      {!building && <BottomNav current={tab} onNavigate={navigate} />}
     </div>
   );
 }
