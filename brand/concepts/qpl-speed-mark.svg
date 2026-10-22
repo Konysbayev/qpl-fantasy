@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <path d="M8.0 68.8 L52.0 64.0 L52.0 76.0 L8.0 71.2 Z M2.0 94.8 L50.0 88.0 L50.0 104.0 L2.0 97.2 Z M12.0 120.8 L54.0 116.0 L54.0 128.0 L12.0 123.2 Z" fill="#FFC21A"/>
+  <circle cx="126" cy="104" r="66" fill="#061A33"/>
+  
+  <defs>
+    <clipPath id="s1mc"><circle cx="120" cy="96" r="62"/></clipPath>
+    <radialGradient id="s1mg" cx="0.38" cy="0.32" r="0.75">
+      <stop offset="0" stop-color="#FFFFFF"/><stop offset="0.7" stop-color="#EEF3F8"/><stop offset="1" stop-color="#C9D6E2"/>
+    </radialGradient>
+  </defs>
+  <circle cx="120" cy="96" r="62" fill="url(#s1mg)"/>
+  <g clip-path="url(#s1mc)">
+    <path d="M124.4 75.4 L133.5 32.3 M141.0 93.8 L184.7 89.2 M128.6 115.3 L146.5 155.5 M104.3 110.1 L71.6 139.6 M101.7 85.5 L63.6 63.4 " stroke="#0B2545" stroke-width="3.7" fill="none"/>
+    <path d="M155.5 64.1 L152.7 38.0 L176.7 27.3 L194.3 46.8 L181.1 69.5 Z M161.3 119.9 L185.3 109.2 L202.9 128.7 L189.8 151.4 L164.1 146.0 Z M110.1 142.7 L127.6 162.2 L114.5 184.9 L88.8 179.5 L86.1 153.4 Z M72.5 101.0 L59.4 123.7 L33.7 118.3 L31.0 92.2 L55.0 81.5 Z M100.6 52.4 L74.9 46.9 L72.2 20.8 L96.1 10.2 L113.7 29.7 Z " fill="#0B2545"/>
+    <path d="M124.4 75.4 L141.0 93.8 L128.6 115.3 L104.3 110.1 L101.7 85.5 Z" fill="#0B2545"/>
+  </g>
+  <circle cx="120" cy="96" r="62" fill="none" stroke="#0B2545" stroke-width="9.0"/>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <defs>
+    <linearGradient id="m3g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#38B6FF"/><stop offset="1" stop-color="#1479C9"/></linearGradient>
+  </defs>
+  <path d="M204.4 150.3 L150.3 204.4 L73.7 204.4 L19.6 150.3 L19.6 73.7 L73.7 19.6 L150.3 19.6 L204.4 73.7 Z M173.0 137.3 L137.3 173.0 L86.7 173.0 L51.0 137.3 L51.0 86.7 L86.7 51.0 L137.3 51.0 L173.0 86.7 Z" fill="#061A33" fill-rule="evenodd" transform="translate(6 8)"/>
+  <path d="M204.4 150.3 L150.3 204.4 L73.7 204.4 L19.6 150.3 L19.6 73.7 L73.7 19.6 L150.3 19.6 L204.4 73.7 Z M173.0 137.3 L137.3 173.0 L86.7 173.0 L51.0 137.3 L51.0 86.7 L86.7 51.0 L137.3 51.0 L173.0 86.7 Z" fill="url(#m3g)" fill-rule="evenodd" stroke="#0B2545" stroke-width="6" stroke-linejoin="miter"/>
+  
+  <defs>
+    <clipPath id="s3c"><circle cx="112" cy="112" r="56"/></clipPath>
+    <radialGradient id="s3g" cx="0.38" cy="0.32" r="0.75">
+      <stop offset="0" stop-color="#FFFFFF"/><stop offset="0.7" stop-color="#EEF3F8"/><stop offset="1" stop-color="#C9D6E2"/>
+    </radialGradient>
+  </defs>
+  <circle cx="112" cy="112" r="56" fill="url(#s3g)"/>
+  <g clip-path="url(#s3c)">
+    <path d="M116.0 93.4 L124.2 54.5 M130.9 110.0 L170.5 105.9 M119.7 129.4 L135.9 165.7 M97.9 124.7 L68.3 151.3 M95.5 102.5 L61.1 82.6 " stroke="#0B2545" stroke-width="3.4" fill="none"/>
+    <path d="M144.0 83.1 L141.6 59.6 L163.2 49.9 L179.1 67.6 L167.2 88.1 Z M149.3 133.6 L171.0 123.9 L186.9 141.5 L175.0 162.1 L151.8 157.1 Z M103.0 154.2 L118.9 171.8 L107.0 192.3 L83.9 187.4 L81.4 163.8 Z M69.1 116.5 L57.3 137.0 L34.1 132.1 L31.6 108.5 L53.3 98.9 Z M94.5 72.6 L71.3 67.7 L68.8 44.1 L90.5 34.5 L106.3 52.1 Z " fill="#0B2545"/>
+    <path d="M116.0 93.4 L130.9 110.0 L119.7 129.4 L97.9 124.7 L95.5 102.5 Z" fill="#0B2545"/>
+  </g>
+  <circle cx="112" cy="112" r="56" fill="none" stroke="#0B2545" stroke-width="6.0"/>
+  <path d="M150 150 L196 176 L184 184 L232 222 L166 196 L178 188 L140 166 Z" fill="#061A33" transform="translate(5 6)"/>
+  <path d="M150 150 L196 176 L184 184 L232 222 L166 196 L178 188 L140 166 Z" fill="#FFC21A" stroke="#0B2545" stroke-width="5" stroke-linejoin="miter"/>
+</svg>
