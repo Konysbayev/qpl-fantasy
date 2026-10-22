@@ -1,6 +1,11 @@
 // API-Football v3 клиенті. Тек стандартты fetch қолданылады: кейін Supabase Edge Functions (Deno) ішінде де жұмыс істейді.
 
 const DEFAULT_BASE_URL = 'https://v3.football.api-sports.io';
+// Сол API-Football RapidAPI арқылы: басқа мекенжай мен тақырыптар
+const RAPIDAPI_HOST = 'api-football-v1.p.rapidapi.com';
+const RAPIDAPI_BASE_URL = `https://${RAPIDAPI_HOST}/v3`;
+
+export type ApiProvider = 'api-sports' | 'rapidapi';
 
 export type ApiResult<T> =
   | { ok: true; response: T; results: number; raw: unknown }
@@ -11,8 +16,12 @@ export interface ApiFootballClient {
   requestCount(): number;
 }
 
-export function createApiFootballClient(opts: { apiKey: string; baseUrl?: string; fetchImpl?: typeof fetch }): ApiFootballClient {
-  const baseUrl = (opts.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, '');
+export function createApiFootballClient(opts: { apiKey: string; provider?: ApiProvider; baseUrl?: string; fetchImpl?: typeof fetch }): ApiFootballClient {
+  const rapid = opts.provider === 'rapidapi';
+  const baseUrl = (opts.baseUrl ?? (rapid ? RAPIDAPI_BASE_URL : DEFAULT_BASE_URL)).replace(/\/$/, '');
+  const headers: Record<string, string> = rapid
+    ? { 'x-rapidapi-key': opts.apiKey, 'x-rapidapi-host': RAPIDAPI_HOST }
+    : { 'x-apisports-key': opts.apiKey };
   const doFetch = opts.fetchImpl ?? fetch;
   let count = 0;
   // Кілт ешбір мәтінге (қате, сақталатын жауап) түспеуі керек
@@ -25,7 +34,7 @@ export function createApiFootballClient(opts: { apiKey: string; baseUrl?: string
     count++;
     let res: Response;
     try {
-      res = await doFetch(url.toString(), { headers: { 'x-apisports-key': opts.apiKey } });
+      res = await doFetch(url.toString(), { headers });
     } catch (err) {
       return { ok: false, kind: 'network', message: scrub(err instanceof Error ? err.message : String(err)) };
     }

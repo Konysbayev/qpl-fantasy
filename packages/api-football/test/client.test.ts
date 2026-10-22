@@ -20,6 +20,16 @@ describe('createApiFootballClient', () => {
     expect(client.requestCount()).toBe(1);
   });
 
+  it('через RapidAPI: другой адрес и заголовки x-rapidapi-key / x-rapidapi-host', async () => {
+    const calls: Request[] = [];
+    const client = createApiFootballClient({ apiKey: 'RKEY', provider: 'rapidapi', fetchImpl: fakeFetch(calls, 200, { errors: [], results: 0, response: [] }) });
+    await client.get('/status');
+    expect(calls[0].url).toBe('https://api-football-v1.p.rapidapi.com/v3/status');
+    expect(calls[0].headers.get('x-rapidapi-key')).toBe('RKEY');
+    expect(calls[0].headers.get('x-rapidapi-host')).toBe('api-football-v1.p.rapidapi.com');
+    expect(calls[0].headers.get('x-apisports-key')).toBeNull();
+  });
+
   it('пустые errors в виде [] и {} считаются успехом', async () => {
     for (const errors of [[], {}]) {
       const client = createApiFootballClient({ apiKey: 'K', fetchImpl: fakeFetch([], 200, { errors, results: 0, response: [] }) });

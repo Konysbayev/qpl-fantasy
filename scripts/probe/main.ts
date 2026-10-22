@@ -9,18 +9,22 @@ const MAX_REQUESTS = 25;
 const SAMPLE_FIXTURES = 3;
 const PAUSE_MS = 7000; // тегін тариф: минутына 10 сұраныс
 
-const apiKey = process.env.API_FOOTBALL_KEY;
+// Кілт: API_FOOTBALL_KEY (api-sports.io тікелей) немесе RAPIDAPI_KEY (RapidAPI арқылы)
+const directKey = process.env.API_FOOTBALL_KEY;
+const rapidKey = process.env.RAPIDAPI_KEY;
+const apiKey = directKey || rapidKey;
 if (!apiKey) {
-  console.error('Нет ключа API_FOOTBALL_KEY: добавьте его в настройках среды и откройте новую сессию');
+  console.error('Нет ключа: добавьте API_FOOTBALL_KEY (или RAPIDAPI_KEY для RapidAPI) в настройках среды и откройте новую сессию');
   process.exit(1);
 }
+const provider = directKey ? 'api-sports' : 'rapidapi';
 
 const date = new Date().toISOString().slice(0, 10);
 const rawDir = path.join('research', 'raw', date);
 fs.mkdirSync(rawDir, { recursive: true });
 let n = 0;
 
-const findings = await runProbe(createApiFootballClient({ apiKey }), {
+const findings = await runProbe(createApiFootballClient({ apiKey, provider }), {
   targetSeason: new Date().getFullYear(),
   maxRequests: MAX_REQUESTS,
   sampleFixtures: SAMPLE_FIXTURES,

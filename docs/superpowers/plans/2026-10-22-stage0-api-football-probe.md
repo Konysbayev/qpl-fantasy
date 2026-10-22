@@ -62,6 +62,7 @@ qpl-fantasy/
 - [ ] **Шаг 2.** Зарегистрироваться на dashboard.api-football.com (бесплатный тариф) и скопировать API-ключ. **Не присылать ключ в чат.**
 - [ ] **Шаг 3.** В настройках облачной среды (меню среды в заголовке сессии → Edit) добавить ключ в **Network secrets** (если такой раздел есть), иначе как переменную окружения `API_FOOTBALL_KEY`.
 - [ ] **Шаг 4.** Там же в **Network access → Allowed domains** добавить `v3.football.api-sports.io` (и `registry.npmjs.org`, если доступ ограничен).
+- [ ] **Вариант через RapidAPI** (если dashboard.api-football.com не открывается): подписка на API-Football (тариф Basic, $0) на rapidapi.com; ключ — переменная `RAPIDAPI_KEY` вместо `API_FOOTBALL_KEY`; домен — `api-football-v1.p.rapidapi.com` вместо `v3.football.api-sports.io`. Код выбирает поставщика сам: если задан `API_FOOTBALL_KEY` — напрямую, иначе RapidAPI.
 - [ ] **Шаг 5.** Открыть новую сессию с репозиторием `qpl-fantasy`: новые секреты подхватываются только новой сессией.
 
 ---
