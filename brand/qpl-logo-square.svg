@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <title>QPL Fantasy</title>
+  <defs>
+    <linearGradient id="fbg" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#3AA7DF"/><stop offset="1" stop-color="#0A74AA"/>
+    </linearGradient>
+    <linearGradient id="fhi" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.22"/><stop offset="0.35" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="0.75" stop-color="#000000" stop-opacity="0"/><stop offset="1" stop-color="#000000" stop-opacity="0.14"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="240" fill="url(#fbg)"/>
+  <rect width="240" height="240" fill="url(#fhi)"/>
+  
+    <g transform="translate(120 124.375) scale(6.2500) translate(-12 -12)" >
+      <circle cx="12" cy="12" r="9.6" fill="none" stroke="rgba(4,45,75,0.35)" stroke-width="2.4"/>
+      <circle cx="12" cy="12" r="7.6" fill="none" stroke="rgba(4,45,75,0.35)" stroke-width="0.55" opacity="0.8"/>
+      <path d="M5.06 8.90 Q12 12.00 18.94 8.90 M8.90 5.06 Q12.00 12 8.90 18.94 M4.40 12.00 Q12 12.00 19.60 12.00 M12.00 4.40 Q12.00 12 12.00 19.60 M5.06 15.10 Q12 12.00 18.94 15.10 M15.10 5.06 Q12.00 12 15.10 18.94" fill="none" stroke="rgba(4,45,75,0.35)" stroke-width="1.15" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(120 120) scale(6.2500) translate(-12 -12)" >
+      <circle cx="12" cy="12" r="9.6" fill="none" stroke="#FFC83D" stroke-width="2.4"/>
+      <circle cx="12" cy="12" r="7.6" fill="none" stroke="#FFC83D" stroke-width="0.55" opacity="0.8"/>
+      <path d="M5.06 8.90 Q12 12.00 18.94 8.90 M8.90 5.06 Q12.00 12 8.90 18.94 M4.40 12.00 Q12 12.00 19.60 12.00 M12.00 4.40 Q12.00 12 12.00 19.60 M5.06 15.10 Q12 12.00 18.94 15.10 M15.10 5.06 Q12.00 12 15.10 18.94" fill="none" stroke="#FFC83D" stroke-width="1.15" stroke-linecap="round"/>
+    </g>
+</svg>
