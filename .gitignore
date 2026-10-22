@@ -1,2 +1,5 @@
 node_modules
 .env
+.superpowers/
+supabase/functions/*/dist/
+apps/web/dist/
