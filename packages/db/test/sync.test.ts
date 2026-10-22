@@ -93,6 +93,32 @@ describe('upsertMatch', () => {
     expect(new Date(f.kickoff).toISOString()).toBe('2026-06-28T11:00:00.000Z');
   });
 
+  it('матч из тура 25, сыгранный в апреле, попадает в тур 6 по дате; номер тура с сайта сохраняется', async () => {
+    const html = fixture(993);
+    const base = parseMatchPage(html, 993);
+    for (const [i, kickoff] of ['2026-04-18T14:00:00+05:00', '2026-04-19T16:00:00+05:00'].entries()) {
+      await upsertMatch(sql, seasonId, { ...base, sourceId: 5000 + i, tour: 6, kickoff, lineups: [], events: [] }, html);
+    }
+    for (const [i, kickoff] of ['2026-09-12T14:00:00+05:00', '2026-09-12T16:00:00+05:00', '2026-09-13T14:00:00+05:00'].entries()) {
+      await upsertMatch(sql, seasonId, { ...base, sourceId: 5100 + i, tour: 25, kickoff, lineups: [], events: [] }, html);
+    }
+    await upsertMatch(sql, seasonId, { ...base, tour: 25, kickoff: '2026-04-18T19:00:00+05:00' }, html);
+    const [f] = await sql`select f.source_tour, g.number from fixtures f join gameweeks g on g.id = f.gameweek_id where f.source_id = 993`;
+    expect(f).toEqual({ source_tour: 25, number: 6 });
+    const [gw25] = await sql`select deadline from gameweeks where number = 25`;
+    expect(new Date(gw25.deadline).toISOString()).toBe('2026-09-12T08:00:00.000Z');
+  });
+
+  it('зафиксированный дедлайн не меняется при пересинхронизации', async () => {
+    const html = fixture(993);
+    const facts = parseMatchPage(html, 993);
+    await upsertMatch(sql, seasonId, facts, html);
+    await sql`update gameweeks set deadline_locked = true where number = 14`;
+    await upsertMatch(sql, seasonId, { ...facts, kickoff: '2026-06-22T18:00:00+05:00' }, html);
+    const [gw] = await sql`select deadline from gameweeks where number = 14`;
+    expect(new Date(gw.deadline).toISOString()).toBe('2026-06-21T12:00:00.000Z');
+  });
+
   it('будущий матч 1109 сохраняется без статистики игроков', async () => {
     const html = fixture(1109);
     await upsertMatch(sql, seasonId, parseMatchPage(html, 1109), html);
@@ -138,6 +164,17 @@ describe('syncSeason', () => {
     const again = fakeFetcher({ '/sitemap.xml': { status: 200, body: sitemap([993, 2]) } });
     await syncSeason(sql, again, { seasonId, sourceSeasonId: 200, year: 2026 });
     expect(again.paths).toEqual(['/sitemap.xml']);
+  });
+
+  it('недавно сыгранный матч перезагружается (лига могла поправить протокол), старый — нет', async () => {
+    const pages = { '/sitemap.xml': { status: 200, body: sitemap([993]) }, '/ru/matches/993': { status: 200, body: fixture(993) } };
+    await syncSeason(sql, fakeFetcher(pages), { seasonId, sourceSeasonId: 200, year: 2026 });
+    const nextDay = fakeFetcher(pages);
+    await syncSeason(sql, nextDay, { seasonId, sourceSeasonId: 200, year: 2026, now: new Date('2026-06-22T12:00:00Z') });
+    expect(nextDay.paths).toContain('/ru/matches/993');
+    const later = fakeFetcher(pages);
+    await syncSeason(sql, later, { seasonId, sourceSeasonId: 200, year: 2026, now: new Date('2026-07-01T12:00:00Z') });
+    expect(later.paths).toEqual(['/sitemap.xml']);
   });
 
   it('недоступный sitemap → ошибка', async () => {

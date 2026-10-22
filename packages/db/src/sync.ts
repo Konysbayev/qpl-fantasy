@@ -4,6 +4,7 @@ import type { MatchFacts, Position } from '../../core/src/types.js';
 import type { ScoringRules } from '../../core/src/rules.js';
 import { buildPlayerMatchStats } from '../../core/src/match-stats.js';
 import { scorePlayer } from '../../core/src/scoring.js';
+import { assignGameweeks } from '../../core/src/gameweeks.js';
 import { parseMatchPage } from '../../kffleague/src/match.js';
 import { parseSitemapMatches } from '../../kffleague/src/sitemap.js';
 import { RequestLimitError, type PoliteFetcher } from '../../kffleague/src/fetcher.js';
@@ -35,25 +36,14 @@ export async function upsertMatch(sql: postgres.Sql, seasonId: string, facts: Ma
       clubIds.set(t.sourceId, c.id);
     }
 
-    let gameweekId: string | null = null;
-    if (facts.tour !== null) {
-      await tx`insert into gameweeks (season_id, number) values (${seasonId}, ${facts.tour}) on conflict (season_id, number) do nothing`;
-      [{ id: gameweekId }] = await tx`select id from gameweeks where season_id = ${seasonId} and number = ${facts.tour}`;
-    }
-
-    const [old] = await tx`select gameweek_id from fixtures where source_id = ${facts.sourceId}`;
-    const [fixture] = await tx`insert into fixtures (source_id, season_id, gameweek_id, home_club_id, away_club_id, kickoff, status, home_score, away_score, needs_review)
-      values (${facts.sourceId}, ${seasonId}, ${gameweekId}, ${clubIds.get(facts.home.sourceId)!}, ${clubIds.get(facts.away.sourceId)!},
+    const [fixture] = await tx`insert into fixtures (source_id, season_id, source_tour, home_club_id, away_club_id, kickoff, status, home_score, away_score, needs_review)
+      values (${facts.sourceId}, ${seasonId}, ${facts.tour}, ${clubIds.get(facts.home.sourceId)!}, ${clubIds.get(facts.away.sourceId)!},
               ${facts.kickoff}, ${facts.status}, ${facts.homeScore}, ${facts.awayScore}, ${needsReview})
-      on conflict (source_id) do update set season_id = excluded.season_id, gameweek_id = excluded.gameweek_id, home_club_id = excluded.home_club_id,
+      on conflict (source_id) do update set season_id = excluded.season_id, source_tour = excluded.source_tour, home_club_id = excluded.home_club_id,
         away_club_id = excluded.away_club_id, kickoff = excluded.kickoff, status = excluded.status, home_score = excluded.home_score,
         away_score = excluded.away_score, needs_review = excluded.needs_review, updated_at = now()
       returning id`;
-
-    // Тур дедлайны — турдың алғашқы матчынан 1 сағат бұрын (ауыстырылған матчтың ескі туры да қайта есептеледі)
-    for (const gw of new Set([gameweekId, old?.gameweek_id].filter(Boolean))) {
-      await tx`update gameweeks set deadline = (select min(kickoff) - interval '1 hour' from fixtures where gameweek_id = ${gw}) where id = ${gw}`;
-    }
+    await reassignGameweeks(tx, seasonId);
 
     // Әр матчтың тек соңғы шикі беті сақталады
     await tx`delete from source_raw where fixture_source_id = ${facts.sourceId}`;
@@ -79,20 +69,51 @@ export async function upsertMatch(sql: postgres.Sql, seasonId: string, facts: Ma
   return { needsReview };
 }
 
+// Маусымның барлық матчын турларға күні бойынша қайта бөледі, бекітілмеген дедлайндарды жаңартады
+async function reassignGameweeks(tx: postgres.TransactionSql, seasonId: string): Promise<void> {
+  const fixtures = await tx<{ id: string; source_tour: number | null; kickoff: Date }[]>`
+    select id, source_tour, kickoff from fixtures where season_id = ${seasonId}`;
+  const lockedRows = await tx<{ number: number; deadline: Date }[]>`
+    select number, deadline from gameweeks where season_id = ${seasonId} and deadline_locked and deadline is not null`;
+  const { deadlines, assignment } = assignGameweeks(
+    fixtures.map((f) => ({ id: f.id, sourceTour: f.source_tour, kickoff: f.kickoff.toISOString() })),
+    new Map(lockedRows.map((r) => [r.number, r.deadline]))
+  );
+  const ids = new Map<number, string>();
+  for (const [number, deadline] of deadlines) {
+    const [gw] = await tx`insert into gameweeks (season_id, number, deadline) values (${seasonId}, ${number}, ${deadline})
+      on conflict (season_id, number) do update set deadline = case when gameweeks.deadline_locked then gameweeks.deadline else excluded.deadline end
+      returning id`;
+    ids.set(number, gw.id);
+  }
+  for (const f of fixtures) {
+    const n = assignment.get(f.id);
+    await tx`update fixtures set gameweek_id = ${n == null ? null : ids.get(n) ?? null} where id = ${f.id}`;
+  }
+}
+
 export async function syncSeason(
   sql: postgres.Sql,
   fetcher: PoliteFetcher,
-  opts: { seasonId: string; sourceSeasonId: number; year: number; refetchFinished?: boolean }
+  opts: { seasonId: string; sourceSeasonId: number; year: number; refetchFinished?: boolean; refetchRecentDays?: number; now?: Date }
 ): Promise<SyncReport> {
   const report: SyncReport = { stored: [], skipped: [], failed: [], needsReview: [] };
   const map = await fetcher.get('/sitemap.xml');
   if (map.status !== 200) throw new Error(`sitemap недоступен: HTTP ${map.status}`);
 
   const candidates = parseSitemapMatches(map.body).filter((m) => m.date.startsWith(`${opts.year}-`));
+  // Соңғы күндердегі аяқталған матчтар қайта жүктеледі: лига хаттаманы түзетуі мүмкін
+  const now = opts.now ?? new Date();
+  const recentDays = opts.refetchRecentDays ?? 3;
   const skip = new Set((await sql<{ source_id: number }[]>`select source_id from source_skip`).map((r) => r.source_id));
   const finished = opts.refetchFinished
     ? new Set<number>()
-    : new Set((await sql<{ source_id: number }[]>`select source_id from fixtures where status = 'finished'`).map((r) => r.source_id));
+    : new Set(
+        (
+          await sql<{ source_id: number }[]>`select source_id from fixtures where status = 'finished'
+            and kickoff < ${new Date(now.getTime() - recentDays * 24 * 3_600_000)}`
+        ).map((r) => r.source_id)
+      );
 
   for (const { id } of candidates) {
     if (skip.has(id) || finished.has(id)) continue;

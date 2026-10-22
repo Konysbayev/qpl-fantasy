@@ -38,12 +38,12 @@ describe('parseMatchPage', () => {
 
   it('матч 993: гол Оксанена с ассистом Юкколы на 9-й', () => {
     const m = parseMatchPage(fixture(993), 993);
-    expect(m.events).toContainEqual({ kind: 'goal', minute: 9, playerSourceId: 2560, assistSourceId: 2562, teamSourceId: 13 });
+    expect(m.events).toContainEqual({ kind: 'goal', minute: 9, half: 1, playerSourceId: 2560, assistSourceId: 2562, teamSourceId: 13 });
   });
 
   it('матч 993: замена на 33-й — ушёл 2560, вышел 1872', () => {
     const m = parseMatchPage(fixture(993), 993);
-    expect(m.events).toContainEqual({ kind: 'sub', minute: 33, teamSourceId: 13, outSourceId: 2560, inSourceId: 1872 });
+    expect(m.events).toContainEqual({ kind: 'sub', minute: 33, half: 1, teamSourceId: 13, outSourceId: 2560, inSourceId: 1872 });
   });
 
   it('матч 993: 4 гола с игры и 2 пенальти, без дубликатов', () => {
@@ -60,6 +60,12 @@ describe('parseMatchPage', () => {
     expect(sub46).toMatchObject({ teamSourceId: 13, inSourceId: 876 });
     const out = m.lineups.find((p) => p.teamSourceId === 13 && p.number === 9);
     expect(sub46 && 'outSourceId' in sub46 ? sub46.outSourceId : null).toBe(out?.sourceId);
+  });
+
+  it('матч 993: события несут тайм (46-я минута в первом тайме — компенсация)', () => {
+    const m = parseMatchPage(fixture(993), 993);
+    expect(m.events.find((e) => e.kind === 'yellow' && e.minute === 46)).toMatchObject({ half: 1 });
+    expect(m.events.find((e) => e.kind === 'sub' && e.minute === 46)).toMatchObject({ half: 2 });
   });
 
   it('матч 1109 (будущий): upcoming, составов и событий нет', () => {

@@ -77,6 +77,23 @@ describe('buildPlayerMatchStats', () => {
     expect(statOf(m, 23).conceded).toBe(1);
   });
 
+  it('гол в компенсации первого тайма (45+2) не засчитывается вышедшему в перерыве', () => {
+    const m = facts([
+      goal(10, 1, 12), goal(20, 1, 12),
+      { kind: 'goal', minute: 47, half: 1, teamSourceId: 2, playerSourceId: 22, assistSourceId: null },
+      { kind: 'sub', minute: 46, half: 2, teamSourceId: 1, outSourceId: 12, inSourceId: 13 }
+    ]);
+    expect(statOf(m, 12).conceded).toBe(1);
+    expect(statOf(m, 13).conceded).toBe(0);
+  });
+
+  it('идущий матч: минуты считаются до последнего события, а не до 90-й', () => {
+    const m = { ...facts([goal(10, 1, 12), goal(20, 1, 12)], [2, 0]), status: 'live' as const };
+    expect(statOf(m, 21).minutes).toBe(20);
+    expect(statOf(m, 11).minutes).toBe(20);
+    expect(buildPlayerMatchStats(m).needsReview).toEqual([]);
+  });
+
   it('вторая жёлтая: red 1, yellow 0, уход с поля на этой минуте', () => {
     const m = facts([
       ...baseGoals,

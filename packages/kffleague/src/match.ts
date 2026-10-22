@@ -62,6 +62,7 @@ function toEvent(e: Raw, resolve: Resolve): MatchEvent {
   const minute = num(e.minute);
   const teamSourceId = num(e.team_id);
   const playerSourceId = resolve(e.player_id, e.player_number, teamSourceId);
+  const half = num(e.half) ?? undefined;
   const type = String(e.event_type);
   const unknown: MatchEvent = { kind: 'unknown', minute, rawType: type };
   if (minute === null || teamSourceId === null || playerSourceId === null) return unknown;
@@ -70,18 +71,18 @@ function toEvent(e: Raw, resolve: Resolve): MatchEvent {
     case 'penalty':
     case 'own_goal': {
       const kind = type === 'goal' ? 'goal' : type === 'penalty' ? 'penalty_goal' : 'own_goal';
-      return { kind, minute, teamSourceId, playerSourceId, assistSourceId: resolve(e.assist_player_id, e.assist_player_number, teamSourceId) };
+      return { kind, minute, half, teamSourceId, playerSourceId, assistSourceId: resolve(e.assist_player_id, e.assist_player_number, teamSourceId) };
     }
     case 'yellow_card':
-      return { kind: 'yellow', minute, teamSourceId, playerSourceId };
+      return { kind: 'yellow', minute, half, teamSourceId, playerSourceId };
     case 'second_yellow':
-      return { kind: 'second_yellow', minute, teamSourceId, playerSourceId };
+      return { kind: 'second_yellow', minute, half, teamSourceId, playerSourceId };
     case 'red_card':
-      return { kind: 'red', minute, teamSourceId, playerSourceId };
+      return { kind: 'red', minute, half, teamSourceId, playerSourceId };
     case 'substitution': {
       // player_id — алаңнан шыққан, player2_id — алаңға кірген
       const inSourceId = resolve(e.player2_id, e.player2_number, teamSourceId);
-      return inSourceId === null ? unknown : { kind: 'sub', minute, teamSourceId, outSourceId: playerSourceId, inSourceId };
+      return inSourceId === null ? unknown : { kind: 'sub', minute, half, teamSourceId, outSourceId: playerSourceId, inSourceId };
     }
     default:
       return unknown;

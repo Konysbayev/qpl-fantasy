@@ -41,6 +41,15 @@ describe('схема базы', () => {
     expect(club.id).toBeTruthy();
   });
 
+  it('код приглашения в лигу не виден через публичный доступ', async () => {
+    const [u] = await sql`insert into users (telegram_id, display_name) values (77, 'Владелец') returning id`;
+    await sql`insert into leagues (name, invite_code, owner_id) values ('Друзья', 'SECRET1', ${u.id})`;
+    const names = await asRole(sql, 'anon', null, (tx) => tx`select name from leagues`);
+    expect(names.map((r) => r.name)).toContain('Друзья');
+    await expect(asRole(sql, 'anon', null, (tx) => tx`select invite_code from leagues`)).rejects.toThrow(/permission denied/i);
+    await expect(asRole(sql, 'authenticated', null, (tx) => tx`select * from leagues`)).rejects.toThrow(/permission denied/i);
+  });
+
   it('пользователь видит свой состав, а чужой — только после дедлайна', async () => {
     const [season] = await sql`insert into seasons (year, source_season_id, scoring_rules) values (2027, 300, '{}') returning id`;
     const [gw] = await sql`insert into gameweeks (season_id, number, deadline) values (${season.id}, 1, now() + interval '1 day') returning id`;

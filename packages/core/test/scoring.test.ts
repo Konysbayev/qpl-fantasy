@@ -73,6 +73,17 @@ describe('scorePlayer', () => {
     ]);
   });
 
+  it('идущий матч на 20-й минуте: у защитника нет сухого матча и только 1 очко за выход', () => {
+    const m: MatchFacts = {
+      sourceId: 1, seasonSourceId: 200, tour: 1, kickoff: '2026-03-07T14:00:00+05:00', status: 'live',
+      home: { sourceId: 1, name: 'A', nameKz: null, logoUrl: null }, away: { sourceId: 2, name: 'B', nameKz: null, logoUrl: null },
+      homeScore: 0, awayScore: 0,
+      lineups: [{ sourceId: 7, firstName: 'А', lastName: 'Б', number: 7, position: 'DEF', teamSourceId: 1, starter: true, isCaptain: false }],
+      events: [{ kind: 'yellow', minute: 20, teamSourceId: 2, playerSourceId: 99 }]
+    };
+    expect(scorePlayer(buildPlayerMatchStats(m).stats[0], 'DEF', DEFAULT_RULES).total).toBe(1);
+  });
+
   it('не выходил — 0 очков', () => {
     expect(scorePlayer(stat({ minutes: 0, onMinute: null, conceded: 0 }), 'DEF', DEFAULT_RULES)).toEqual({ total: 0, lines: [] });
   });

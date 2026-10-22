@@ -20,10 +20,11 @@ export interface LineupPlayer {
   isCaptain: boolean;
 }
 
+// half — тайм (1 немесе 2). Жоқ болса, минуттан шығарылады: 45-ке дейін — бірінші тайм
 export type MatchEvent =
-  | { kind: 'goal' | 'penalty_goal' | 'own_goal'; minute: number; teamSourceId: number; playerSourceId: number; assistSourceId: number | null }
-  | { kind: 'yellow' | 'second_yellow' | 'red'; minute: number; teamSourceId: number; playerSourceId: number }
-  | { kind: 'sub'; minute: number; teamSourceId: number; outSourceId: number; inSourceId: number }
+  | { kind: 'goal' | 'penalty_goal' | 'own_goal'; minute: number; half?: number; teamSourceId: number; playerSourceId: number; assistSourceId: number | null }
+  | { kind: 'yellow' | 'second_yellow' | 'red'; minute: number; half?: number; teamSourceId: number; playerSourceId: number }
+  | { kind: 'sub'; minute: number; half?: number; teamSourceId: number; outSourceId: number; inSourceId: number }
   | { kind: 'unknown'; minute: number | null; rawType: string };
 
 export type MatchStatus = 'upcoming' | 'live' | 'finished' | 'other';
