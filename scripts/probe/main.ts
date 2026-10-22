@@ -1,0 +1,41 @@
+// Зондты нақты API-ға қосып іске асырады: кілтті ортадан оқиды, шикі жауаптар мен есепті файлға жазады.
+import fs from 'node:fs';
+import path from 'node:path';
+import { createApiFootballClient } from '../../packages/api-football/src/client.js';
+import { runProbe } from './probe.js';
+import { renderReport } from './report.js';
+
+const MAX_REQUESTS = 25;
+const SAMPLE_FIXTURES = 3;
+const PAUSE_MS = 7000; // тегін тариф: минутына 10 сұраныс
+
+// Кілт: API_FOOTBALL_KEY (api-sports.io тікелей) немесе RAPIDAPI_KEY (RapidAPI арқылы)
+const directKey = process.env.API_FOOTBALL_KEY;
+const rapidKey = process.env.RAPIDAPI_KEY;
+const apiKey = directKey || rapidKey || '';
+if (!apiKey) {
+  // Кілт ортада Network secrets ретінде болуы мүмкін: прокси тақырыпты өзі қосады. Болмаса, API token қатесін береді, ол есепте көрінеді.
+  console.warn('Ключ в переменных окружения не найден: запросы идут без ключа, его должна подставить среда (Network secrets).');
+}
+const provider = !directKey && rapidKey ? 'rapidapi' : 'api-sports';
+
+const date = new Date().toISOString().slice(0, 10);
+const rawDir = path.join('research', 'raw', date);
+fs.mkdirSync(rawDir, { recursive: true });
+let n = 0;
+
+const findings = await runProbe(createApiFootballClient({ apiKey, provider }), {
+  targetSeason: new Date().getFullYear(),
+  maxRequests: MAX_REQUESTS,
+  sampleFixtures: SAMPLE_FIXTURES,
+  wait: () => new Promise((resolve) => setTimeout(resolve, PAUSE_MS)),
+  onRaw: (name, body) => {
+    n++;
+    fs.writeFileSync(path.join(rawDir, `${String(n).padStart(2, '0')}-${name}.json`), JSON.stringify(body, null, 2));
+  }
+});
+
+const reportPath = path.join('docs', 'research', `${date}-api-football-kpl.md`);
+fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+fs.writeFileSync(reportPath, renderReport(findings, date));
+console.log(`Отчёт: ${reportPath}`);
