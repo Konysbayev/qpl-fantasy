@@ -19,6 +19,11 @@ export function almaty(iso: string): { day: number; month: number; time: string;
   return { day: d.getUTCDate(), month: d.getUTCMonth(), time: `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`, date: d.toISOString().slice(0, 10) };
 }
 
+export function formatDay(iso: string, lang: Lang): string {
+  const a = almaty(iso);
+  return `${a.day} ${MONTHS[lang][a.month]}`;
+}
+
 export function formatDate(iso: string, lang: Lang): string {
   const a = almaty(iso);
   return `${a.day} ${MONTHS[lang][a.month]}, ${a.time}`;

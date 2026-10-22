@@ -61,6 +61,20 @@ for (const size of SIZES) {
       await shot(page, `transfer-${tag}.png`);
       await page.getByRole('button', { name: `Шығару: ${benchPlayer.lastName}` }).click();
       await shot(page, `transfer-in-${tag}.png`);
+
+      await page.getByRole('button', { name: 'Кесте' }).click();
+      await expect(page.getByTestId('fixture').first()).toBeVisible();
+      await shot(page, `schedule-${tag}.png`);
+
+      await page.getByRole('button', { name: 'Лигалар' }).click();
+      await expect(page.getByText('Жақында: мини-лигалар')).toBeVisible();
+      await shot(page, `leagues-${tag}.png`);
+
+      await page.getByRole('button', { name: 'Команда' }).click();
+      await page.getByRole('button', { name: 'Профиль' }).click();
+      await page.getByRole('button', { name: 'Русский' }).click();
+      await expect(page.getByText('Язык')).toBeVisible();
+      await shot(page, `profile-ru-${tag}.png`);
     });
   }
 }
