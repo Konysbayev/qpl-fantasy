@@ -6,7 +6,8 @@
   "scripts": {
     "test": "vitest run",
     "probe": "NODE_USE_ENV_PROXY=1 tsx scripts/probe/main.ts",
-    "db:test-setup": "service postgresql start && su postgres -c \"psql -c \\\"alter user postgres password 'postgres'\\\"\""
+    "db:test-setup": "service postgresql start && su postgres -c \"psql -c \\\"alter user postgres password 'postgres'\\\"\"",
+    "rehearsal": "NODE_USE_ENV_PROXY=1 tsx scripts/rehearsal/main.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
