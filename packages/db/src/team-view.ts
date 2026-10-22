@@ -2,29 +2,11 @@
 import type postgres from 'postgres';
 import { canUseWildcard } from '../../core/src/squad.js';
 import { scoreGameweekTeam, type Pick, type PlayerGameweek } from '../../core/src/team-score.js';
+import type { TeamPick, TeamView } from '../../core/src/api-types.js';
 import type { Position } from '../../core/src/types.js';
 import { activeSeasonId, currentGameweek, ensureSquad } from './squad.js';
 
-export interface TeamPick {
-  playerId: string;
-  slot: number;
-  isCaptain: boolean;
-  isVice: boolean;
-  firstName: string;
-  lastName: string;
-  position: Position;
-  clubId: string;
-  price: number;
-  // Соңғы өткен турдағы ұпайы (капитан еселенбеген); тур әлі болмаса — null
-  points: number | null;
-}
-
-export interface TeamView {
-  next: { id: string; number: number; deadline: string } | null;
-  last: { number: number; status: 'live' | 'finished'; points: number | null; penalty: number; captainId: string | null; subsIn: string[] } | null;
-  squad: { gameweek: number; bank: number; freeTransfers: number; unlimited: boolean; wildcardActive: boolean; wildcardAvailable: boolean; penalty: number } | null;
-  picks: TeamPick[];
-}
+export type { TeamPick, TeamView };
 
 type SquadRow = { id: string; bank: number; free_transfers: number; chip: string | null; gameweek_id: string; number: number; deadline: Date };
 

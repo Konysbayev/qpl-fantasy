@@ -3,25 +3,9 @@ import type postgres from 'postgres';
 import { canUseWildcard, nextFreeTransfers, transferPenalty, validateSquad, type SquadPlayer } from '../../core/src/squad.js';
 import { isValidFormation } from '../../core/src/team-score.js';
 import type { Position } from '../../core/src/types.js';
+import type { PickInput, Result, SquadFailure, TransferRequest, TransferResult } from '../../core/src/api-types.js';
 
-export type SquadFailure = 'deadline_passed' | 'invalid_squad' | 'invalid_lineup' | 'not_owned' | 'wildcard_unavailable' | 'no_open_gameweek';
-export type Result<T> = { ok: true; value: T } | { ok: false; error: SquadFailure; details?: string[] };
-
-export interface PickInput {
-  playerId: string;
-  slot: number;
-  isCaptain: boolean;
-  isVice: boolean;
-}
-
-export interface TransferRequest {
-  requestId: string;
-  // Клиент өзгертіп отырған тур: ол жабылып қалса — deadline_passed
-  gameweek: number;
-  out: string[];
-  in: string[];
-  wildcard: boolean;
-}
+export type { PickInput, Result, SquadFailure, TransferRequest, TransferResult };
 
 export interface Gameweek {
   id: string;
@@ -184,17 +168,16 @@ export async function saveLineup(sql: postgres.Sql, userId: string, now: Date, p
 
 export async function commitTransfers(
   sql: postgres.Sql, userId: string, now: Date, req: TransferRequest
-): Promise<Result<{ penalty: number; freeLeft: number; bank: number }>> {
+): Promise<Result<TransferResult>> {
   const open = await openGameweek(sql, now, req.gameweek);
   if (!open.ok) return open;
   const gw = open.value;
-  type Value = { penalty: number; freeLeft: number; bank: number };
-  return run<Value>(sql, async (tx) => {
+  return run<TransferResult>(sql, async (tx) => {
     // Сол сұрау қайталанса (желі «жыпылықтаса») — бұрынғы нәтиже, жаңа есептен шығару жоқ
     const [fresh] = await tx`insert into transfer_requests (request_id, user_id, gameweek_id) values (${req.requestId}, ${userId}, ${gw.id})
       on conflict (request_id) do nothing returning request_id`;
     if (!fresh) {
-      const [prev] = await tx<{ user_id: string; result: Result<Value> }[]>`select user_id, result from transfer_requests where request_id = ${req.requestId}`;
+      const [prev] = await tx<{ user_id: string; result: Result<TransferResult> }[]>`select user_id, result from transfer_requests where request_id = ${req.requestId}`;
       return prev.user_id === userId ? prev.result : fail('invalid_squad', ['request_id']);
     }
 
@@ -205,7 +188,7 @@ export async function commitTransfers(
   });
 }
 
-async function applyTransfers(tx: Tx, userId: string, gw: Gameweek, req: TransferRequest): Promise<Result<{ penalty: number; freeLeft: number; bank: number }>> {
+async function applyTransfers(tx: Tx, userId: string, gw: Gameweek, req: TransferRequest): Promise<Result<TransferResult>> {
   const squadId = await ensureSquadTx(tx, userId, gw.id);
   if (!squadId) return fail('invalid_squad', ['no_squad']);
   const [squad] = await tx<{ bank: number; free_transfers: number; chip: string | null }[]>`
