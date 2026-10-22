@@ -17,7 +17,7 @@ if (!apiKey) {
   // Кілт ортада Network secrets ретінде болуы мүмкін: прокси тақырыпты өзі қосады. Болмаса, API token қатесін береді, ол есепте көрінеді.
   console.warn('Ключ в переменных окружения не найден: запросы идут без ключа, его должна подставить среда (Network secrets).');
 }
-const provider = directKey ? 'api-sports' : 'rapidapi';
+const provider = !directKey && rapidKey ? 'rapidapi' : 'api-sports';
 
 const date = new Date().toISOString().slice(0, 10);
 const rawDir = path.join('research', 'raw', date);

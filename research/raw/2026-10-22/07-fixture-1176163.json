@@ -1,0 +1,869 @@
+{
+  "get": "fixtures",
+  "parameters": {
+    "id": "1176163"
+  },
+  "errors": [],
+  "results": 1,
+  "paging": {
+    "current": 1,
+    "total": 1
+  },
+  "response": [
+    {
+      "fixture": {
+        "id": 1176163,
+        "referee": "G. Moskovchenko",
+        "timezone": "UTC",
+        "date": "2024-11-10T09:00:00+00:00",
+        "timestamp": 1731229200,
+        "periods": {
+          "first": 1731229200,
+          "second": 1731232800
+        },
+        "venue": {
+          "id": 3203,
+          "name": "Stadion Qajimuqan Muñaytpasov",
+          "city": "Shymkent"
+        },
+        "status": {
+          "long": "Match Finished",
+          "short": "FT",
+          "elapsed": 90,
+          "extra": 5
+        }
+      },
+      "league": {
+        "id": 389,
+        "name": "Premier League",
+        "country": "Kazakhstan",
+        "logo": "https://media.api-sports.io/football/leagues/389.png",
+        "flag": "https://media.api-sports.io/flags/kz.svg",
+        "season": 2024,
+        "round": "Regular Season - 26",
+        "standings": true
+      },
+      "teams": {
+        "home": {
+          "id": 692,
+          "name": "Ordabasy",
+          "logo": "https://media.api-sports.io/football/teams/692.png",
+          "winner": true
+        },
+        "away": {
+          "id": 21011,
+          "name": "Yelimay Semey",
+          "logo": "https://media.api-sports.io/football/teams/21011.png",
+          "winner": false
+        }
+      },
+      "goals": {
+        "home": 2,
+        "away": 1
+      },
+      "score": {
+        "halftime": {
+          "home": 1,
+          "away": 0
+        },
+        "fulltime": {
+          "home": 2,
+          "away": 1
+        },
+        "extratime": {
+          "home": null,
+          "away": null
+        },
+        "penalty": {
+          "home": null,
+          "away": null
+        }
+      },
+      "events": [
+        {
+          "time": {
+            "elapsed": 25,
+            "extra": null
+          },
+          "team": {
+            "id": 692,
+            "name": "Ordabasy",
+            "logo": "https://media.api-sports.io/football/teams/692.png"
+          },
+          "player": {
+            "id": 56077,
+            "name": "T. Erlanov"
+          },
+          "assist": {
+            "id": null,
+            "name": null
+          },
+          "type": "Card",
+          "detail": "Yellow Card",
+          "comments": null
+        },
+        {
+          "time": {
+            "elapsed": 34,
+            "extra": null
+          },
+          "team": {
+            "id": 692,
+            "name": "Ordabasy",
+            "logo": "https://media.api-sports.io/football/teams/692.png"
+          },
+          "player": {
+            "id": 8476,
+            "name": "I. Plastun"
+          },
+          "assist": {
+            "id": null,
+            "name": null
+          },
+          "type": "Goal",
+          "detail": "Normal Goal",
+          "comments": null
+        },
+        {
+          "time": {
+            "elapsed": 36,
+            "extra": null
+          },
+          "team": {
+            "id": 21011,
+            "name": "Yelimay Semey",
+            "logo": "https://media.api-sports.io/football/teams/21011.png"
+          },
+          "player": {
+            "id": null,
+            "name": "D. Maicom"
+          },
+          "assist": {
+            "id": null,
+            "name": null
+          },
+          "type": "Card",
+          "detail": "Yellow Card",
+          "comments": null
+        },
+        {
+          "time": {
+            "elapsed": 46,
+            "extra": null
+          },
+          "team": {
+            "id": 21011,
+            "name": "Yelimay Semey",
+            "logo": "https://media.api-sports.io/football/teams/21011.png"
+          },
+          "player": {
+            "id": 2246,
+            "name": "R. Murtazaev"
+          },
+          "assist": {
+            "id": 97555,
+            "name": "I. Mashukov"
+          },
+          "type": "subst",
+          "detail": "Substitution 1",
+          "comments": null
+        },
+        {
+          "time": {
+            "elapsed": 54,
+            "extra": null
+          },
+          "team": {
+            "id": 692,
+            "name": "Ordabasy",
+            "logo": "https://media.api-sports.io/football/teams/692.png"
+          },
+          "player": {
+            "id": 111475,
+            "name": "S. Astanov"
+          },
+          "assist": {
+            "id": null,
+            "name": null
+          },
+          "type": "Card",
+          "detail": "Yellow Card",
+          "comments": null
+        },
+        {
+          "time": {
+            "elapsed": 58,
+            "extra": null
+          },
+          "team": {
+            "id": 692,
+            "name": "Ordabasy",
+            "logo": "https://media.api-sports.io/football/teams/692.png"
+          },
+          "player": {
+            "id": 56077,
+            "name": "T. Erlanov"
+          },
+          "assist": {
+            "id": null,
+            "name": null
+          },
+          "type": "Goal",
+          "detail": "Normal Goal",
+          "comments": null
+        },
+        {
+          "time": {
+            "elapsed": 63,
+            "extra": null
+          },
+          "team": {
+            "id": 21011,
+            "name": "Yelimay Semey",
+            "logo": "https://media.api-sports.io/football/teams/21011.png"
+          },
+          "player": {
+            "id": 105909,
+            "name": "A. Darabayev"
+          },
+          "assist": {
+            "id": null,
+            "name": "D. Maicom"
+          },
+          "type": "subst",
+          "detail": "Substitution 2",
+          "comments": null
+        },
+        {
+          "time": {
+            "elapsed": 63,
+            "extra": null
+          },
+          "team": {
+            "id": 21011,
+            "name": "Yelimay Semey",
+            "logo": "https://media.api-sports.io/football/teams/21011.png"
+          },
+          "player": {
+            "id": 105841,
+            "name": "S. Keiler"
+          },
+          "assist": {
+            "id": 111650,
+            "name": "M. Gabyshev"
+          },
+          "type": "subst",
+          "detail": "Substitution 3",
+          "comments": null
+        },
+        {
+          "time": {
+            "elapsed": 63,
+            "extra": null
+          },
+          "team": {
+            "id": 21011,
+            "name": "Yelimay Semey",
+            "logo": "https://media.api-sports.io/football/teams/21011.png"
+          },
+          "player": {
+            "id": 292349,
+            "name": "I. Sviridov"
+          },
+          "assist": {
+            "id": 2236,
+            "name": "Y. Pertsukh"
+          },
+          "type": "subst",
+          "detail": "Substitution 4",
+          "comments": null
+        },
+        {
+          "time": {
+            "elapsed": 70,
+            "extra": null
+          },
+          "team": {
+            "id": 692,
+            "name": "Ordabasy",
+            "logo": "https://media.api-sports.io/football/teams/692.png"
+          },
+          "player": {
+            "id": 9313,
+            "name": "Reginaldo"
+          },
+          "assist": {
+            "id": 111475,
+            "name": "S. Astanov"
+          },
+          "type": "subst",
+          "detail": "Substitution 1",
+          "comments": null
+        },
+        {
+          "time": {
+            "elapsed": 75,
+            "extra": null
+          },
+          "team": {
+            "id": 21011,
+            "name": "Yelimay Semey",
+            "logo": "https://media.api-sports.io/football/teams/21011.png"
+          },
+          "player": {
+            "id": 63473,
+            "name": "China"
+          },
+          "assist": {
+            "id": 214031,
+            "name": "E. Reyes"
+          },
+          "type": "subst",
+          "detail": "Substitution 5",
+          "comments": null
+        },
+        {
+          "time": {
+            "elapsed": 78,
+            "extra": null
+          },
+          "team": {
+            "id": 692,
+            "name": "Ordabasy",
+            "logo": "https://media.api-sports.io/football/teams/692.png"
+          },
+          "player": {
+            "id": 105843,
+            "name": "A. Abiken"
+          },
+          "assist": {
+            "id": 73742,
+            "name": "S. Umarov"
+          },
+          "type": "subst",
+          "detail": "Substitution 2",
+          "comments": null
+        },
+        {
+          "time": {
+            "elapsed": 78,
+            "extra": null
+          },
+          "team": {
+            "id": 692,
+            "name": "Ordabasy",
+            "logo": "https://media.api-sports.io/football/teams/692.png"
+          },
+          "player": {
+            "id": 56081,
+            "name": "M. Fedin"
+          },
+          "assist": {
+            "id": 111549,
+            "name": "S. Zharynbetov"
+          },
+          "type": "subst",
+          "detail": "Substitution 3",
+          "comments": null
+        },
+        {
+          "time": {
+            "elapsed": 78,
+            "extra": null
+          },
+          "team": {
+            "id": 21011,
+            "name": "Yelimay Semey",
+            "logo": "https://media.api-sports.io/football/teams/21011.png"
+          },
+          "player": {
+            "id": 292349,
+            "name": "I. Sviridov"
+          },
+          "assist": {
+            "id": null,
+            "name": null
+          },
+          "type": "Goal",
+          "detail": "Normal Goal",
+          "comments": null
+        },
+        {
+          "time": {
+            "elapsed": 80,
+            "extra": null
+          },
+          "team": {
+            "id": 21011,
+            "name": "Yelimay Semey",
+            "logo": "https://media.api-sports.io/football/teams/21011.png"
+          },
+          "player": {
+            "id": 44518,
+            "name": "N. Korzun"
+          },
+          "assist": {
+            "id": null,
+            "name": null
+          },
+          "type": "Card",
+          "detail": "Yellow Card",
+          "comments": null
+        },
+        {
+          "time": {
+            "elapsed": 85,
+            "extra": null
+          },
+          "team": {
+            "id": 692,
+            "name": "Ordabasy",
+            "logo": "https://media.api-sports.io/football/teams/692.png"
+          },
+          "player": {
+            "id": 45827,
+            "name": "Z. Sehovic"
+          },
+          "assist": {
+            "id": 106045,
+            "name": "Y. Tungyshbayev"
+          },
+          "type": "subst",
+          "detail": "Substitution 4",
+          "comments": null
+        }
+      ],
+      "lineups": [
+        {
+          "team": {
+            "id": 692,
+            "name": "Ordabasy",
+            "logo": "https://media.api-sports.io/football/teams/692.png",
+            "colors": {
+              "player": {
+                "primary": "ffffff",
+                "number": "2049b7",
+                "border": "ffffff"
+              },
+              "goalkeeper": {
+                "primary": "fafb00",
+                "number": "000000",
+                "border": "fafb00"
+              }
+            }
+          },
+          "formation": "4-3-3",
+          "startXI": [
+            {
+              "player": {
+                "id": 111520,
+                "name": "Bekkhan Shayzada",
+                "number": 1,
+                "pos": "G",
+                "grid": "1:1"
+              }
+            },
+            {
+              "player": {
+                "id": 111475,
+                "name": "Sultanbek Astanov",
+                "number": 22,
+                "pos": "M",
+                "grid": "2:4"
+              }
+            },
+            {
+              "player": {
+                "id": 8476,
+                "name": "Igor Plastun",
+                "number": 32,
+                "pos": "D",
+                "grid": "2:3"
+              }
+            },
+            {
+              "player": {
+                "id": 56077,
+                "name": "Temirlan Erlanov",
+                "number": 23,
+                "pos": "D",
+                "grid": "2:2"
+              }
+            },
+            {
+              "player": {
+                "id": 56079,
+                "name": "Gafurzhan Suyumbaev",
+                "number": 5,
+                "pos": "M",
+                "grid": "2:1"
+              }
+            },
+            {
+              "player": {
+                "id": 70345,
+                "name": "Askhat Tagybergen",
+                "number": 8,
+                "pos": "M",
+                "grid": "3:3"
+              }
+            },
+            {
+              "player": {
+                "id": 1426,
+                "name": "Evgeny Makarenko",
+                "number": 19,
+                "pos": "M",
+                "grid": "3:2"
+              }
+            },
+            {
+              "player": {
+                "id": 111549,
+                "name": "Samat Zharynbetov",
+                "number": 14,
+                "pos": "M",
+                "grid": "3:1"
+              }
+            },
+            {
+              "player": {
+                "id": 106045,
+                "name": "Yerkebulan Tungyshbaev",
+                "number": 21,
+                "pos": "F",
+                "grid": "4:3"
+              }
+            },
+            {
+              "player": {
+                "id": 56082,
+                "name": "Bauyrzhan Islamkhan",
+                "number": 9,
+                "pos": "M",
+                "grid": "4:2"
+              }
+            },
+            {
+              "player": {
+                "id": 73742,
+                "name": "Shakhboz Umarov",
+                "number": 7,
+                "pos": "F",
+                "grid": "4:1"
+              }
+            }
+          ],
+          "substitutes": [
+            {
+              "player": {
+                "id": 9313,
+                "name": "Reginaldo",
+                "number": 2,
+                "pos": "M",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 105843,
+                "name": "Aibol Abiken",
+                "number": 6,
+                "pos": "M",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 56081,
+                "name": "Maksim Fedin",
+                "number": 11,
+                "pos": "F",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 45827,
+                "name": "Zlatan Šehović",
+                "number": 17,
+                "pos": "M",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 111716,
+                "name": "Azamat Zhomartov",
+                "number": 35,
+                "pos": "G",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 7905,
+                "name": "Sergey Ignatovich",
+                "number": 71,
+                "pos": "G",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 81631,
+                "name": "Cristian Tovar",
+                "number": 3,
+                "pos": "D",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 56078,
+                "name": "Sergey Maliy",
+                "number": 25,
+                "pos": "D",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 109715,
+                "name": "Lovro Cvek",
+                "number": 4,
+                "pos": "M",
+                "grid": null
+              }
+            }
+          ],
+          "coach": {
+            "id": 14862,
+            "name": "K. Keker",
+            "photo": "https://media.api-sports.io/football/coachs/14862.png"
+          }
+        },
+        {
+          "team": {
+            "id": 21011,
+            "name": "Yelimay Semey",
+            "logo": "https://media.api-sports.io/football/teams/21011.png",
+            "colors": {
+              "player": {
+                "primary": "00897b",
+                "number": "222226",
+                "border": "00897b"
+              },
+              "goalkeeper": {
+                "primary": "f21818",
+                "number": "222226",
+                "border": "f21818"
+              }
+            }
+          },
+          "formation": "4-2-3-1",
+          "startXI": [
+            {
+              "player": {
+                "id": 44502,
+                "name": "Maksym Koval",
+                "number": 35,
+                "pos": "G",
+                "grid": "1:1"
+              }
+            },
+            {
+              "player": {
+                "id": 111650,
+                "name": "Mikhail Gabyshev",
+                "number": 19,
+                "pos": "D",
+                "grid": "2:4"
+              }
+            },
+            {
+              "player": {
+                "id": 8191,
+                "name": "Samuel Odeyobo",
+                "number": 3,
+                "pos": "D",
+                "grid": "2:3"
+              }
+            },
+            {
+              "player": {
+                "id": 7299,
+                "name": "Ivan Šaravanja",
+                "number": 63,
+                "pos": "D",
+                "grid": "2:2"
+              }
+            },
+            {
+              "player": {
+                "id": 43402,
+                "name": "Daniil Penchikov",
+                "number": 4,
+                "pos": "D",
+                "grid": "2:1"
+              }
+            },
+            {
+              "player": {
+                "id": 44518,
+                "name": "Nikita Korzun",
+                "number": 81,
+                "pos": "M",
+                "grid": "3:2"
+              }
+            },
+            {
+              "player": {
+                "id": 391788,
+                "name": "Maicom David",
+                "number": 23,
+                "pos": "M",
+                "grid": "3:1"
+              }
+            },
+            {
+              "player": {
+                "id": 111499,
+                "name": "Zhan-Ali Payruz",
+                "number": 22,
+                "pos": "M",
+                "grid": "4:3"
+              }
+            },
+            {
+              "player": {
+                "id": 2236,
+                "name": "Yuriy Pertsukh",
+                "number": 8,
+                "pos": "M",
+                "grid": "4:2"
+              }
+            },
+            {
+              "player": {
+                "id": 214031,
+                "name": "Edarlyn Reyes",
+                "number": 24,
+                "pos": "M",
+                "grid": "4:1"
+              }
+            },
+            {
+              "player": {
+                "id": 97555,
+                "name": "Islam Mashukov",
+                "number": 9,
+                "pos": "F",
+                "grid": "5:1"
+              }
+            }
+          ],
+          "substitutes": [
+            {
+              "player": {
+                "id": 2246,
+                "name": "Roman Murtazaev",
+                "number": 7,
+                "pos": "M",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 105841,
+                "name": "Sergey Keiler",
+                "number": 5,
+                "pos": "D",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 105909,
+                "name": "Aslan Darabaev",
+                "number": 12,
+                "pos": "M",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 292349,
+                "name": "Ivan Sviridov",
+                "number": 11,
+                "pos": "F",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 63473,
+                "name": "China",
+                "number": 20,
+                "pos": "M",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 7979,
+                "name": "Denis Kavlinov",
+                "number": 78,
+                "pos": "G",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 111544,
+                "name": "Dmitry Schmidt",
+                "number": 15,
+                "pos": "D",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 8011,
+                "name": "Dmitri Yashin",
+                "number": 88,
+                "pos": "D",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 2231,
+                "name": "Dmitriy Shomko",
+                "number": 77,
+                "pos": "D",
+                "grid": null
+              }
+            },
+            {
+              "player": {
+                "id": 111479,
+                "name": "Erkebulan Nurgaliyev",
+                "number": 10,
+                "pos": "M",
+                "grid": null
+              }
+            }
+          ],
+          "coach": {
+            "id": 7404,
+            "name": "A. Karpovich",
+            "photo": "https://media.api-sports.io/football/coachs/7404.png"
+          }
+        }
+      ],
+      "statistics": [],
+      "players": []
+    }
+  ]
+}

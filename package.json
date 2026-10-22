@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "probe": "tsx scripts/probe/main.ts"
+    "probe": "NODE_USE_ENV_PROXY=1 tsx scripts/probe/main.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
