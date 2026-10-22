@@ -50,6 +50,7 @@ export interface FixtureEntry {
   goals: { home: number | null; away: number | null };
   events?: EventEntry[];
   lineups?: unknown[];
+  statistics?: { team: TeamRef; statistics: { type: string; value: number | string | null }[] }[];
   players?: TeamPlayers[];
 }
 

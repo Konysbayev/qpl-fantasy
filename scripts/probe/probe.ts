@@ -7,7 +7,7 @@ export interface ProbeFindings {
   account: { plan: string; requestsToday: number; limitDay: number } | null;
   league: { id: number; name: string } | null;
   seasons: SeasonCoverage[];
-  target: { year: number; accessible: boolean; blockedMessage?: string };
+  target: { year: number; accessible: boolean; blockedBy?: 'plan' | 'other'; blockedMessage?: string };
   sampleSeason: number | null;
   fixturesInSeason: number;
   fixtures: FixtureAssessment[];
@@ -27,6 +27,15 @@ export interface ProbeOptions {
 const FINISHED = new Set(['FT', 'AET', 'PEN']);
 
 class LimitReached extends Error {}
+
+// /status жауабында аккаунт иесінің аты мен email-і бар: оны сақталатын файлдарға жібермейміз
+function withoutAccount(raw: unknown): unknown {
+  if (!raw || typeof raw !== 'object') return raw;
+  const body = raw as { response?: unknown };
+  if (!body.response || typeof body.response !== 'object' || Array.isArray(body.response) || !('account' in body.response)) return raw;
+  const { account: _account, ...rest } = body.response as Record<string, unknown>;
+  return { ...body, response: rest };
+}
 
 export function parseAllowedSeasons(message: string): { from: number; to: number } | null {
   const m = /from (\d{4}) to (\d{4})/i.exec(message);
@@ -52,7 +61,7 @@ export async function runProbe(client: ApiFootballClient, opts: ProbeOptions): P
     if (client.requestCount() >= opts.maxRequests) throw new LimitReached();
     if (client.requestCount() > 0) await opts.wait();
     const r = await client.get<T>(path, params);
-    if (r.raw !== undefined) opts.onRaw(name, r.raw);
+    if (r.raw !== undefined) opts.onRaw(name, withoutAccount(r.raw));
     return r;
   }
 
@@ -86,6 +95,7 @@ export async function runProbe(client: ApiFootballClient, opts: ProbeOptions): P
       f.target.accessible = true;
     } else {
       f.target.blockedMessage = list.message;
+      f.target.blockedBy = list.errorKey === 'plan' ? 'plan' : 'other';
       const allowed = list.errorKey === 'plan' ? parseAllowedSeasons(list.message) : null;
       f.sampleSeason = allowed?.to ?? null;
       if (!allowed) {

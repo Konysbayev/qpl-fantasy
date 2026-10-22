@@ -26,7 +26,7 @@ function routes(map: Record<string, unknown>): typeof fetch {
 }
 
 const baseRoutes = {
-  '/status': ok({ subscription: { plan: 'Free' }, requests: { current: 3, limit_day: 100 } }),
+  '/status': ok({ account: { firstname: 'Nurlan', lastname: 'B', email: 'owner@example.com' }, subscription: { plan: 'Free' }, requests: { current: 3, limit_day: 100 } }),
   '/leagues?country=Kazakhstan': ok(kazLeagues),
   '/fixtures?league=389&season=2026': ok([
     listItem(1001, '2026-09-01T15:00:00+00:00', 'FT'),
@@ -80,6 +80,7 @@ describe('runProbe', () => {
       '/fixtures?league=389&season=2023': ok([listItem(1001, '2023-09-01T15:00:00+00:00', 'FT')])
     }).run();
     expect(f.target.accessible).toBe(false);
+    expect(f.target.blockedBy).toBe('plan');
     expect(f.target.blockedMessage).toContain('Free plans');
     expect(f.sampleSeason).toBe(2023);
     expect(f.fixtures).toHaveLength(1);
@@ -115,11 +116,20 @@ describe('runProbe', () => {
     expect(f.problems.join(' ')).toContain('не найдена');
   });
 
-  it('сырые ответы сохраняются без ключа', async () => {
+  it('сырые ответы сохраняются без ключа и без личных данных аккаунта', async () => {
     const s = setup(baseRoutes);
     await s.run();
     expect(s.raws.length).toBeGreaterThan(0);
-    expect(JSON.stringify(s.raws)).not.toContain(KEY);
+    const all = JSON.stringify(s.raws);
+    expect(all).not.toContain(KEY);
+    expect(all).not.toContain('owner@example.com');
+    expect(all).not.toContain('Nurlan');
+  });
+
+  it('сезон не получен не из-за тарифа (неверный ключ): причина — other', async () => {
+    const f = await setup({ ...baseRoutes, '/fixtures?league=389&season=2026': fail({ token: 'Error/Missing application key.' }) }).run();
+    expect(f.target).toMatchObject({ accessible: false, blockedBy: 'other' });
+    expect(f.sampleSeason).toBeNull();
   });
 });
 

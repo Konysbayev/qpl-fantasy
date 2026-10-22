@@ -21,31 +21,52 @@ describe('seasonCoverage', () => {
 });
 
 describe('assessFixture', () => {
-  it('оценивает матч: голы с ассистом считаются без автоголов и незабитых пенальти', () => {
+  it('оценивает матч: голы с ассистом считаются без автоголов, пенальти и незабитых пенальти', () => {
     const a = assessFixture(finishedFixture, finishedFixture.players!);
     expect(a).toMatchObject({
       fixtureId: 1001,
       label: 'Kairat – Astana 2:1',
       status: 'FT',
       goalEvents: 2,
+      assistableGoals: 1,
       goalEventsWithAssist: 1,
       cardEvents: 3,
       substEvents: 4,
       bundled: true,
       lineups: true,
+      playersListed: 26,
       playersWithMinutes: 24
     });
-    expect(a.rates.rating).toBeCloseTo(0.5, 2);
-    expect(a.rates.savesGk).toBe(1);
-    expect(a.rates.conceded).toBe(1);
     expect(a.rates.minutes).toBe(1);
-    expect(a.rates.cards).toBe(1);
-    expect(a.rates.assistsField).toBe(0);
+    expect(a.rates.rating).toBeCloseTo(0.5, 2);
+  });
+
+  it('null в статистике игрока означает ноль: полные данные дают 100% по сверке с событиями', () => {
+    const a = assessFixture(finishedFixture, finishedFixture.players!);
+    expect(a.rates).toMatchObject({ assistsField: 1, cards: 1, conceded: 1, savesGk: 1 });
+  });
+
+  it('сверка ловит пропавшие данные: нет ассистов, карточек, пропущенных и сейвов', () => {
+    const players = structuredClone(finishedFixture.players!);
+    for (const t of players) for (const p of t.players) {
+      const s = p.statistics[0];
+      s.goals.assists = null;
+      s.goals.saves = null;
+      s.goals.conceded = 0;
+      s.cards.yellow = 0;
+      s.cards.red = 0;
+    }
+    expect(assessFixture(finishedFixture, players).rates).toMatchObject({ assistsField: 0, cards: 0, conceded: 0, savesGk: 0 });
+  });
+
+  it('нечего сверять: показатель не оценивается (null), а не 0', () => {
+    const quiet = { ...finishedFixture, goals: { home: 0, away: 0 }, events: [], statistics: [] };
+    const a = assessFixture(quiet, quiet.players!);
+    expect(a.rates).toMatchObject({ assistsField: null, cards: null, conceded: null, savesGk: null });
   });
 
   it('доли считаются только по игрокам, которые выходили на поле', () => {
     const players = structuredClone(finishedFixture.players!);
-    // Ещё два игрока с 0 минут и без рейтинга: доля рейтинга не должна измениться
     players[0].players.push({ player: { id: 900, name: 'Zero' }, statistics: [stat({ minutes: 0, rating: null })] });
     players[1].players.push({ player: { id: 901, name: 'Zero' }, statistics: [stat({ minutes: 0, rating: null })] });
     const a = assessFixture(finishedFixture, players);
@@ -57,10 +78,12 @@ describe('assessFixture', () => {
     expect(assessFixture(finishedFixture, null).playersWithMinutes).toBe(24);
   });
 
-  it('матч без игроков: доли 0, не NaN', () => {
+  it('матч без игроков: ничего не NaN, минуты 0', () => {
     const a = assessFixture({ ...finishedFixture, players: [] }, null);
+    expect(a.playersListed).toBe(0);
     expect(a.playersWithMinutes).toBe(0);
-    expect(Object.values(a.rates).every((v) => v === 0)).toBe(true);
+    expect(a.rates.minutes).toBe(0);
+    expect(Object.values(a.rates).some((v) => Number.isNaN(v))).toBe(false);
     expect(a.bundled).toBe(false);
   });
 });
