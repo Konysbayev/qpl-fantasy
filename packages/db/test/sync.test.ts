@@ -177,6 +177,15 @@ describe('syncSeason', () => {
     expect(later.paths).toEqual(['/sitemap.xml']);
   });
 
+  it('когда все матчи сезона Премьер-лиги собраны, другие турниры не скачиваются', async () => {
+    const pages = { '/sitemap.xml': { status: 200, body: sitemap([993, 7001, 7002]) }, '/ru/matches/993': { status: 200, body: fixture(993) } };
+    const f = fakeFetcher(pages);
+    const r = await syncSeason(sql, f, { seasonId, sourceSeasonId: 200, year: 2026, expectedMatches: 1, now: new Date('2026-10-22T00:00:00Z') });
+    expect(f.paths).toEqual(['/sitemap.xml', '/ru/matches/993']);
+    expect(r.skipped).toEqual([7001, 7002]);
+    expect((await sql`select source_id from source_skip order by source_id`).map((x) => x.source_id)).toEqual([7001, 7002]);
+  });
+
   it('недоступный sitemap → ошибка', async () => {
     await expect(syncSeason(sql, fakeFetcher({}), { seasonId, sourceSeasonId: 200, year: 2026 })).rejects.toThrow(/sitemap/);
   });

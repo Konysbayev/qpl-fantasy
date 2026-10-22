@@ -95,7 +95,7 @@ async function reassignGameweeks(tx: postgres.TransactionSql, seasonId: string):
 export async function syncSeason(
   sql: postgres.Sql,
   fetcher: PoliteFetcher,
-  opts: { seasonId: string; sourceSeasonId: number; year: number; refetchFinished?: boolean; refetchRecentDays?: number; now?: Date }
+  opts: { seasonId: string; sourceSeasonId: number; year: number; refetchFinished?: boolean; refetchRecentDays?: number; now?: Date; expectedMatches?: number }
 ): Promise<SyncReport> {
   const report: SyncReport = { stored: [], skipped: [], failed: [], needsReview: [] };
   const map = await fetcher.get('/sitemap.xml');
@@ -115,8 +115,17 @@ export async function syncSeason(
         ).map((r) => r.source_id)
       );
 
+  // Тек Премьер-лига керек: маусымның барлық матчы (16 клуб × 30 тур / 2 = 240) жиналса, жаңа беттер басқа турнирлердікі
+  const expected = opts.expectedMatches ?? 240;
+  const known = new Set((await sql<{ source_id: number }[]>`select source_id from fixtures where season_id = ${opts.seasonId}`).map((r) => r.source_id));
+
   for (const { id } of candidates) {
     if (skip.has(id) || finished.has(id)) continue;
+    if (!known.has(id) && known.size >= expected) {
+      await sql`insert into source_skip (source_id, reason) values (${id}, 'не Премьер-лига: все матчи сезона уже собраны') on conflict do nothing`;
+      report.skipped.push(id);
+      continue;
+    }
     let page: { status: number; body: string };
     try {
       page = await fetcher.get(`/ru/matches/${id}`);
@@ -140,6 +149,7 @@ export async function syncSeason(
       }
       const { needsReview } = await upsertMatch(sql, opts.seasonId, facts, page.body);
       report.stored.push(id);
+      known.add(id);
       if (needsReview.length > 0) report.needsReview.push({ id, reasons: needsReview });
     } catch (err) {
       report.failed.push({ id, error: err instanceof Error ? err.message : String(err) });
