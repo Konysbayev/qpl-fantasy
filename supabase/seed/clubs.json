@@ -1,0 +1,18 @@
+[
+  { "source_id": 13, "code": "ҚАЙ", "name_kz": "Қайрат", "logo": "/clubs/13.png", "kit": { "shirt": "#F4C430", "sleeves": "#F4C430", "trim": "#141414", "stripes": "#141414", "strip": ["#F4C430", "#141414"] }, "verify": false },
+  { "source_id": 51, "code": "АҚТ", "name_kz": "Ақтөбе", "logo": "/clubs/51.png", "kit": { "shirt": "#D7262E", "sleeves": "#D7262E", "trim": "#FFFFFF", "stripes": null, "strip": ["#D7262E", "#D7262E"] }, "verify": false },
+  { "source_id": 94, "code": "ҚСР", "name_kz": "Қайсар", "logo": "/clubs/94.webp", "kit": { "shirt": "#E0262B", "sleeves": "#E0262B", "trim": "#141414", "stripes": null, "strip": ["#E0262B", "#141414"] }, "verify": false },
+  { "source_id": 90, "code": "ТОБ", "name_kz": "Тобыл", "logo": "/clubs/90.png", "kit": { "shirt": "#1B8A3C", "sleeves": "#1B8A3C", "trim": "#F2D21B", "stripes": null, "strip": ["#1B8A3C", "#F2D21B"] }, "verify": false },
+  { "source_id": 93, "code": "ЕЛМ", "name_kz": "Елімай", "logo": "/clubs/93.webp", "kit": { "shirt": "#17673F", "sleeves": "#17673F", "trim": "#C8A464", "stripes": null, "strip": ["#17673F", "#C8A464"] }, "verify": false },
+  { "source_id": 81, "code": "ОРД", "name_kz": "Ордабасы", "logo": "/clubs/81.webp", "kit": { "shirt": "#1F5AA8", "sleeves": "#1F5AA8", "trim": "#FFFFFF", "stripes": null, "strip": ["#1F5AA8", "#E02B2B"] }, "verify": false },
+  { "source_id": 91, "code": "АСТ", "name_kz": "Астана", "logo": "/clubs/91.webp", "kit": { "shirt": "#0E9BB5", "sleeves": "#0E9BB5", "trim": "#F2C200", "stripes": null, "strip": ["#0E9BB5", "#F2C200"] }, "verify": true },
+  { "source_id": 318, "code": "ОҚЖ", "name_kz": "Оқжетпес", "logo": "/clubs/318.webp", "kit": { "shirt": "#4A4AA6", "sleeves": "#4A4AA6", "trim": "#FFFFFF", "stripes": null, "strip": ["#4A4AA6", "#FFFFFF"] }, "verify": true },
+  { "source_id": 47, "code": "КСП", "name_kz": "Каспий", "logo": "/clubs/47.png", "kit": { "shirt": "#1A1A1A", "sleeves": "#1A1A1A", "trim": "#3FA9E0", "stripes": null, "strip": ["#1A1A1A", "#3FA9E0"] }, "verify": true },
+  { "source_id": 49, "code": "АТЫ", "name_kz": "Атырау", "logo": "/clubs/49.webp", "kit": { "shirt": "#0E7A3E", "sleeves": "#0E7A3E", "trim": "#FFFFFF", "stripes": "#FFFFFF", "strip": ["#0E7A3E", "#FFFFFF"] }, "verify": true },
+  { "source_id": 595, "code": "ЕРТ", "name_kz": "Ертіс", "logo": "/clubs/595.png", "kit": { "shirt": "#1E3A96", "sleeves": "#1E3A96", "trim": "#FFFFFF", "stripes": null, "strip": ["#1E3A96", "#FFFFFF"] }, "verify": true },
+  { "source_id": 87, "code": "ҚЫЗ", "name_kz": "Қызылжар", "logo": "/clubs/87.png", "kit": { "shirt": "#1A1A1A", "sleeves": "#1A1A1A", "trim": "#D7192B", "stripes": null, "strip": ["#1A1A1A", "#D7192B"] }, "verify": true },
+  { "source_id": 92, "code": "ЖЕҢ", "name_kz": "Жеңіс", "logo": "/clubs/92.webp", "kit": { "shirt": "#141414", "sleeves": "#141414", "trim": "#F2D21B", "stripes": "#F2D21B", "strip": ["#141414", "#F2D21B"] }, "verify": true },
+  { "source_id": 45, "code": "ЖЕТ", "name_kz": "Жетісу", "logo": "/clubs/45.webp", "kit": { "shirt": "#0B3A55", "sleeves": "#0B3A55", "trim": "#F2D800", "stripes": null, "strip": ["#0B3A55", "#F2D800"] }, "verify": true },
+  { "source_id": 293, "code": "ҰЛТ", "name_kz": "Ұлытау", "logo": "/clubs/293.webp", "kit": { "shirt": "#1B2259", "sleeves": "#1B2259", "trim": "#5FC0F0", "stripes": null, "strip": ["#1B2259", "#5FC0F0"] }, "verify": true },
+  { "source_id": 295, "code": "АЛТ", "name_kz": "Алтай", "logo": "/clubs/295.png", "kit": { "shirt": "#0B2350", "sleeves": "#0B2350", "trim": "#E4174F", "stripes": null, "strip": ["#0B2350", "#E4174F"] }, "verify": true }
+]
