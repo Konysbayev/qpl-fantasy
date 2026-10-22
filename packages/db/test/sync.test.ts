@@ -8,7 +8,7 @@ import type { PoliteFetcher } from '../../kffleague/src/fetcher.js';
 import { buildPlayerMatchStats } from '../../core/src/match-stats.js';
 import { scorePlayer } from '../../core/src/scoring.js';
 import { DEFAULT_RULES } from '../../core/src/rules.js';
-import { recordRequest, syncSeason, upsertMatch } from '../src/sync.js';
+import { rebuildFromRaw, recordRequest, syncSeason, upsertMatch } from '../src/sync.js';
 import { freshDb } from './helpers.js';
 
 const fixture = (id: number) =>
@@ -179,6 +179,21 @@ describe('syncSeason', () => {
 
   it('недоступный sitemap → ошибка', async () => {
     await expect(syncSeason(sql, fakeFetcher({}), { seasonId, sourceSeasonId: 200, year: 2026 })).rejects.toThrow(/sitemap/);
+  });
+});
+
+describe('rebuildFromRaw', () => {
+  it('пересчитывает матчи из сохранённых страниц без запросов к сайту', async () => {
+    const html = fixture(993);
+    await upsertMatch(sql, seasonId, parseMatchPage(html, 993), html);
+    const before = await sql`select player_id, points from player_match_stats order by player_id`;
+    await sql`update player_match_stats set points = 0`;
+    await sql`update fixtures set gameweek_id = null`;
+    const r = await rebuildFromRaw(sql, seasonId, 200);
+    expect(r).toEqual({ rebuilt: [993], failed: [] });
+    expect(await sql`select player_id, points from player_match_stats order by player_id`).toEqual(before);
+    const [f] = await sql`select gameweek_id from fixtures`;
+    expect(f.gameweek_id).not.toBeNull();
   });
 });
 

@@ -7,7 +7,7 @@ import type { PointsLine } from '../../packages/core/src/scoring.js';
 import type { Position } from '../../packages/core/src/types.js';
 import { createPoliteFetcher } from '../../packages/kffleague/src/fetcher.js';
 import { applyMigrations } from '../../packages/db/src/migrate.js';
-import { recordRequest, syncSeason } from '../../packages/db/src/sync.js';
+import { rebuildFromRaw, recordRequest, syncSeason } from '../../packages/db/src/sync.js';
 import { renderRehearsalReport, type RehearsalData } from './report.js';
 
 const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5432/qpl_rehearsal';
@@ -35,6 +35,10 @@ await applyMigrations(sql, path.join(import.meta.dirname, '..', '..', 'supabase'
 await sql`insert into seasons (year, source_season_id, scoring_rules, status)
   values (${YEAR}, ${SOURCE_SEASON_ID}, ${sql.json(DEFAULT_RULES as never)}, 'finished') on conflict (source_season_id) do nothing`;
 const [{ id: seasonId }] = await sql`select id from seasons where source_season_id = ${SOURCE_SEASON_ID}`;
+
+// Алдымен сақталған беттерден қайта есептейміз (талдағыш пен ережелер жаңарған болуы мүмкін), сосын тек жаңасын жүктейміз
+const rebuilt = await rebuildFromRaw(sql, seasonId, SOURCE_SEASON_ID);
+console.log(`пересчитано из сохранённых страниц: ${rebuilt.rebuilt.length}, ошибок: ${rebuilt.failed.length}`);
 
 const fetcher = createPoliteFetcher({
   minIntervalMs: PAUSE_MS,
@@ -99,7 +103,7 @@ const report = renderRehearsalReport({
   sync: {
     stored: stored.map((r) => r.source_id),
     skipped: sync.skipped,
-    failed: sync.failed,
+    failed: [...rebuilt.failed, ...sync.failed],
     needsReview: review.map((r) => ({ id: r.source_id, reasons: r.needs_review }))
   },
   tours,

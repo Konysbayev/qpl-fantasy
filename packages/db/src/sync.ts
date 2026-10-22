@@ -147,3 +147,23 @@ export async function syncSeason(
   }
   return report;
 }
+
+// Сақталған шикі беттерден матчтарды қайта құрады (ереже немесе талдағыш өзгергенде; сайтқа сұрау жоқ)
+export async function rebuildFromRaw(sql: postgres.Sql, seasonId: string, sourceSeasonId: number): Promise<{ rebuilt: number[]; failed: { id: number; error: string }[] }> {
+  const out = { rebuilt: [] as number[], failed: [] as { id: number; error: string }[] };
+  const ids = await sql<{ fixture_source_id: number }[]>`
+    select r.fixture_source_id from source_raw r join fixtures f on f.source_id = r.fixture_source_id
+    where f.season_id = ${seasonId} order by r.fixture_source_id`;
+  for (const { fixture_source_id: id } of ids) {
+    const [{ body }] = await sql<{ body: string }[]>`select body from source_raw where fixture_source_id = ${id}`;
+    try {
+      const facts = parseMatchPage(body, id);
+      if (facts.seasonSourceId !== sourceSeasonId) throw new Error(`сезон ${facts.seasonSourceId}`);
+      await upsertMatch(sql, seasonId, facts, body);
+      out.rebuilt.push(id);
+    } catch (err) {
+      out.failed.push({ id, error: err instanceof Error ? err.message : String(err) });
+    }
+  }
+  return out;
+}
