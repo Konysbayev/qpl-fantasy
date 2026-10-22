@@ -5,3 +5,7 @@ project_id = "qpl-fantasy"
 [functions.health]
 verify_jwt = false
 entrypoint = "./functions/health/dist/index.js"
+
+[functions.auth-telegram]
+verify_jwt = false
+entrypoint = "./functions/auth-telegram/dist/index.js"
