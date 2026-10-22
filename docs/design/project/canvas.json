@@ -1,0 +1,37 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-22T09:05:00Z" },
+  "title": "Fantasy ҚПЛ — дизайн бағыттары",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 390, "h": 844, "title": "A · Дала түні" },
+    "Match.dc.html": { "x": 470, "y": 0, "w": 390, "h": 844, "title": "B · Матч күні" },
+    "Sky.dc.html": { "x": 940, "y": 0, "w": 390, "h": 844, "title": "C · Таза аспан" },
+    "SkyV2.dc.html": { "x": 0, "y": 1300, "w": 390, "h": 844, "title": "C 2.0 · Жарық" },
+    "SkyV2Dark.dc.html": { "x": 470, "y": 1300, "w": 390, "h": 844, "title": "C 2.0 · Қараңғы" },
+    "SkyV3.dc.html": { "x": 0, "y": 2600, "w": 390, "h": 844, "title": "C 3.0 · Жарық" },
+    "SkyV3Dark.dc.html": { "x": 470, "y": 2600, "w": 390, "h": 844, "title": "C 3.0 · Қараңғы" },
+    "SkyV3Chest.dc.html": { "x": 1020, "y": 2600, "w": 390, "h": 844, "title": "C 3.1 · Эмблема кеудеде · Жарық" },
+    "SkyV3ChestDark.dc.html": { "x": 1490, "y": 2600, "w": 390, "h": 844, "title": "C 3.1 · Эмблема кеудеде · Қараңғы" },
+    "Transfer.dc.html": { "x": 0, "y": 3900, "w": 390, "h": 844, "title": "Трансфер · Жарық" },
+    "TransferDark.dc.html": { "x": 470, "y": 3900, "w": 390, "h": 844, "title": "Трансфер · Қараңғы" },
+    "League.dc.html": { "x": 940, "y": 3900, "w": 390, "h": 844, "title": "Мини-лига · Жарық" },
+    "LeagueDark.dc.html": { "x": 1410, "y": 3900, "w": 390, "h": 844, "title": "Мини-лига · Қараңғы" },
+    "Player.dc.html": { "x": 1880, "y": 3900, "w": 390, "h": 844, "title": "Ойыншы картасы · Жарық" },
+    "PlayerDark.dc.html": { "x": 2350, "y": 3900, "w": 390, "h": 844, "title": "Ойыншы картасы · Қараңғы" },
+    "LogoSun.dc.html": { "x": 0, "y": 5400, "w": 480, "h": 600, "title": "Логотип 1 · Күн-шаңырақ" },
+    "LogoQ.dc.html": { "x": 560, "y": 5400, "w": 480, "h": 600, "title": "Логотип 2 · Q әрпі" },
+    "LogoShield.dc.html": { "x": 1120, "y": 5400, "w": 480, "h": 600, "title": "Логотип 3 · Қалқан-эмблема" },
+    "LogoShieldSun.dc.html": { "x": 1680, "y": 5400, "w": 480, "h": 600, "title": "Логотип 4 · Қалқан + күн" }
+  },
+  "order": ["Main.dc.html", "Match.dc.html", "Sky.dc.html", "SkyV2.dc.html", "SkyV2Dark.dc.html", "SkyV3.dc.html", "SkyV3Dark.dc.html", "SkyV3Chest.dc.html", "SkyV3ChestDark.dc.html", "Transfer.dc.html", "TransferDark.dc.html", "League.dc.html", "LeagueDark.dc.html", "Player.dc.html", "PlayerDark.dc.html", "LogoSun.dc.html", "LogoQ.dc.html", "LogoShield.dc.html", "LogoShieldSun.dc.html"],
+  "notes": {
+    "heading": { "x": 0, "y": -300, "text": "«Менің командам» экраны — үш дизайн бағыты", "kind": "title1", "maxW": 1330 },
+    "headingV2": { "x": 0, "y": 1000, "text": "C 2.0 — шаңырақ, клуб формалары, қараңғы режим", "kind": "title1", "maxW": 860 },
+    "headingV3": { "x": 0, "y": 2300, "text": "C 3.0 — эмблема ортада  ·  C 3.1 — эмблема кеудеде", "kind": "title1", "maxW": 1880 },
+    "headingScreens": { "x": 0, "y": 3600, "text": "Негізгі экрандар — C 3.1 стилі", "kind": "title1", "maxW": 2740 },
+    "headingLogos": { "x": 0, "y": 5100, "text": "QPL Fantasy — логотип нұсқалары", "kind": "title1", "maxW": 2160 }
+  },
+  "designSystems": []
+}
