@@ -1,0 +1,23 @@
+# Supabase жобасы. Функциялар scripts/deploy/deploy-functions.ts арқылы жиналып, Management API-мен жарияланады.
+project_id = "qpl-fantasy"
+
+# Шлюз JWT тексермейді: әр функция Telegram сессиясын өзі тексереді (packages/auth)
+[functions.health]
+verify_jwt = false
+entrypoint = "./functions/health/dist/index.js"
+
+[functions.auth-telegram]
+verify_jwt = false
+entrypoint = "./functions/auth-telegram/dist/index.js"
+
+[functions.team-view]
+verify_jwt = false
+entrypoint = "./functions/team-view/dist/index.js"
+
+[functions.squad-save]
+verify_jwt = false
+entrypoint = "./functions/squad-save/dist/index.js"
+
+[functions.transfer-commit]
+verify_jwt = false
+entrypoint = "./functions/transfer-commit/dist/index.js"

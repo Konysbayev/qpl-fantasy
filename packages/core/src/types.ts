@@ -68,3 +68,12 @@ export interface MatchStatsResult {
   stats: PlayerMatchStat[];
   needsReview: string[];
 }
+
+// Клуб формасы: stripes — тік жолақтардың түсі (жоқ болса null), strip — ойыншы жазуының астындағы екі түсті жолақ
+export interface ClubKit {
+  shirt: string;
+  sleeves: string;
+  trim: string;
+  stripes: string | null;
+  strip: [string, string];
+}

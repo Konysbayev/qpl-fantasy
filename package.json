@@ -7,15 +7,30 @@
     "test": "vitest run",
     "probe": "NODE_USE_ENV_PROXY=1 tsx scripts/probe/main.ts",
     "db:test-setup": "service postgresql start && su postgres -c \"psql -c \\\"alter user postgres password 'postgres'\\\"\"",
-    "rehearsal": "NODE_USE_ENV_PROXY=1 tsx scripts/rehearsal/main.ts"
+    "rehearsal": "NODE_USE_ENV_PROXY=1 tsx scripts/rehearsal/main.ts",
+    "deploy:migrate": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/migrate-remote.ts",
+    "deploy:functions": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/deploy-functions.ts",
+    "web:dev": "npm run dev -w @qpl/web",
+    "web:build": "npm run build -w @qpl/web",
+    "web:screens": "npm run screens -w @qpl/web",
+    "deploy:secrets": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/set-secrets.ts",
+    "deploy:seed": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/seed-remote.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
+    "esbuild": "^0.24.2",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3",
     "vitest": "^2.1.8"
   },
   "dependencies": {
     "postgres": "3.4.7"
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "overrides": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   }
 }
