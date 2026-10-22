@@ -30,6 +30,13 @@ describe('createApiFootballClient', () => {
     expect(calls[0].headers.get('x-apisports-key')).toBeNull();
   });
 
+  it('без ключа заголовок не отправляется (ключ подставляет среда)', async () => {
+    const calls: Request[] = [];
+    const client = createApiFootballClient({ apiKey: '', fetchImpl: fakeFetch(calls, 200, { errors: [], results: 0, response: [] }) });
+    await client.get('/status');
+    expect(calls[0].headers.has('x-apisports-key')).toBe(false);
+  });
+
   it('пустые errors в виде [] и {} считаются успехом', async () => {
     for (const errors of [[], {}]) {
       const client = createApiFootballClient({ apiKey: 'K', fetchImpl: fakeFetch([], 200, { errors, results: 0, response: [] }) });

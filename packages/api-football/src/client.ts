@@ -19,9 +19,12 @@ export interface ApiFootballClient {
 export function createApiFootballClient(opts: { apiKey: string; provider?: ApiProvider; baseUrl?: string; fetchImpl?: typeof fetch }): ApiFootballClient {
   const rapid = opts.provider === 'rapidapi';
   const baseUrl = (opts.baseUrl ?? (rapid ? RAPIDAPI_BASE_URL : DEFAULT_BASE_URL)).replace(/\/$/, '');
-  const headers: Record<string, string> = rapid
-    ? { 'x-rapidapi-key': opts.apiKey, 'x-rapidapi-host': RAPIDAPI_HOST }
-    : { 'x-apisports-key': opts.apiKey };
+  // Кілт бос болса, тақырып жіберілмейді: оны орта (Network secrets) өзі қосады
+  const headers: Record<string, string> = !opts.apiKey
+    ? {}
+    : rapid
+      ? { 'x-rapidapi-key': opts.apiKey, 'x-rapidapi-host': RAPIDAPI_HOST }
+      : { 'x-apisports-key': opts.apiKey };
   const doFetch = opts.fetchImpl ?? fetch;
   let count = 0;
   // Кілт ешбір мәтінге (қате, сақталатын жауап) түспеуі керек
