@@ -70,7 +70,7 @@ export interface PlayerMatchRow {
 }
 
 // Сервердің пән саласындағы қатесінен басқа: сессия жоқ немесе желі үзілді
-export type ApiResult<T> = Result<T> | { ok: false; error: 'unauthorized' | 'network' };
+export type ApiResult<T> = Result<T> | { ok: false; error: 'unauthorized' | 'network' | 'rate_limited' };
 
 export interface ApiConfig {
   supabaseUrl: string;

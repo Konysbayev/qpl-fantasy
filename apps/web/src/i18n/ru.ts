@@ -97,6 +97,7 @@ export const ru: Record<keyof typeof kk, string> = {
   seasonOver: 'Сезон завершён',
   liveHint: 'Очки обновляются каждые несколько минут',
   seasonOverWait: 'Сезон завершён. Собрать состав можно будет к началу нового сезона.',
+  rateLimited: 'Слишком часто. Повторите через минуту',
   close: 'Закрыть',
   errorGeneric: 'Что-то пошло не так. Попробуйте ещё раз.',
   deadlinePassed: 'Дедлайн прошёл',
