@@ -5,7 +5,14 @@ import { pathToFileURL } from 'node:url';
 import { envOpts, literal, runQuery, type ManagementOpts } from './management.js';
 
 export async function migrateRemote(opts: ManagementOpts & { dir: string }): Promise<string[]> {
-  await runQuery(opts, 'create table if not exists schema_migrations (name text primary key, applied_at timestamptz not null default now())', 'schema_migrations');
+  // Supabase-те public схемасындағы жаңа кесте anon-ға ашық болады: есеп кестесін бірден жабамыз
+  await runQuery(
+    opts,
+    `create table if not exists schema_migrations (name text primary key, applied_at timestamptz not null default now());
+alter table schema_migrations enable row level security;
+revoke all on schema_migrations from anon, authenticated;`,
+    'schema_migrations'
+  );
   const done = new Set((await runQuery<{ name: string }>(opts, 'select name from schema_migrations', 'schema_migrations')).map((r) => r.name));
   const files = fs.readdirSync(opts.dir).filter((f) => f.endsWith('.sql')).sort();
   const applied: string[] = [];

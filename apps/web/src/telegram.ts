@@ -11,6 +11,7 @@ interface WebApp {
   onEvent?(name: string, cb: () => void): void;
   offEvent?(name: string, cb: () => void): void;
   HapticFeedback?: { impactOccurred(style: string): void; notificationOccurred(type: string): void };
+  BackButton?: { show(): void; hide(): void; onClick(cb: () => void): void; offClick(cb: () => void): void };
 }
 
 export interface Tg {
@@ -22,6 +23,10 @@ export interface Tg {
   // Жазылудан бас тарту функциясын қайтарады
   onTheme(cb: () => void): () => void;
   setColors(bg: string): void;
+  // Іске қосылғанда: дайын екенін хабарлау және терезені толық биіктікке ашу
+  init(): void;
+  // Telegram «артқа» батырмасы: көрсетеді, басқанда cb шақырады; қайтарған функция жасырады
+  backButton(cb: () => void): () => void;
 }
 
 function webApp(): WebApp | null {
@@ -39,7 +44,9 @@ export function tg(): Tg {
       languageCode: null,
       haptic: () => {},
       onTheme: () => () => {},
-      setColors: () => {}
+      setColors: () => {},
+      init: () => {},
+      backButton: () => () => {}
     };
   }
   return {
@@ -58,6 +65,20 @@ export function tg(): Tg {
     setColors(bg) {
       w.setHeaderColor?.(bg);
       w.setBackgroundColor?.(bg);
+    },
+    init() {
+      w.ready?.();
+      w.expand?.();
+    },
+    backButton(cb) {
+      const b = w.BackButton;
+      if (!b) return () => {};
+      b.onClick(cb);
+      b.show();
+      return () => {
+        b.offClick(cb);
+        b.hide();
+      };
     }
   };
 }

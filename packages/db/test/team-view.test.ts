@@ -80,7 +80,13 @@ describe('loadTeamView', () => {
 });
 
 describe('player_selection', () => {
-  it('% выбора: доля участников, у кого игрок в последнем составе; доступно анониму', async () => {
+  const selection = () =>
+    sql.begin(async (tx) => {
+      await tx.unsafe('set local role anon');
+      return tx<{ player_id: string; selected_pct: number }[]>`select player_id, selected_pct from player_selection`;
+    });
+
+  it('% выбора считается только по составам после дедлайна: чужой состав до дедлайна не виден; доступно анониму', async () => {
     // Туры в будущем относительно часов базы: представление считает по now()
     await sql`update gameweeks set deadline = now() + (number || ' days')::interval`;
     const now = new Date();
@@ -89,15 +95,25 @@ describe('player_selection', () => {
     await createFirstSquad(sql, a, now, standardPicks(L), 1);
     const picksB = standardPicks(L).map((p) => (p.playerId === L.player('FWD', 4) ? { ...p, playerId: L.player('FWD', 5) } : p));
     await createFirstSquad(sql, b, now, picksB, 1);
+    expect(await selection()).toEqual([]);
 
-    const rows = await sql.begin(async (tx) => {
-      await tx.unsafe('set local role anon');
-      return tx<{ player_id: string; selected_pct: number }[]>`select player_id, selected_pct from player_selection`;
-    });
-    const pct = new Map(rows.map((r) => [r.player_id, r.selected_pct]));
+    // Дедлайн 1-го тура прошёл — составы заморожены и попадают в проценты
+    await sql`update gameweeks set deadline = now() - interval '1 hour' where number = 1`;
+    const pct = new Map((await selection()).map((r) => [r.player_id, r.selected_pct]));
     expect(pct.get(L.player('GK', 0))).toBe(100);
     expect(pct.get(L.player('FWD', 4))).toBe(50);
     expect(pct.get(L.player('FWD', 5))).toBe(50);
     expect(pct.has(L.player('DEF', 5))).toBe(false);
+  });
+
+  it('составы неактивного сезона не учитываются', async () => {
+    await sql`update gameweeks set deadline = now() - interval '1 hour' where number = 1`;
+    await sql`update gameweeks set deadline = now() + (number || ' days')::interval where number > 1`;
+    const a = await newUser(sql);
+    await sql`update gameweeks set deadline = now() + interval '1 hour' where number = 1`;
+    await createFirstSquad(sql, a, new Date(), standardPicks(L), 1);
+    await sql`update gameweeks set deadline = now() - interval '1 hour' where number = 1`;
+    await sql`update seasons set status = 'finished'`;
+    expect(await selection()).toEqual([]);
   });
 });

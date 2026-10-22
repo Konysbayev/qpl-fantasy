@@ -131,6 +131,24 @@ describe('commitTransfers', () => {
     expect((await sql`select count(*)::int as n, sum(penalty)::int as p from transfers where user_id = ${user}`)[0]).toEqual({ n: 2, p: -4 });
   });
 
+  it('повтор успешного запроса уже после дедлайна возвращает прежний успех, а не deadline_passed', async () => {
+    const user = await userWithSquad();
+    const req = transfer([L.player('DEF', 4)], [L.player('DEF', 5)], 2);
+    const first = await commitTransfers(sql, user, at(deadline(2) - SEC), req);
+    expect(first.ok).toBe(true);
+    expect(await commitTransfers(sql, user, at(deadline(2) + SEC), req)).toEqual(first);
+  });
+
+  it('Wildcard в том же туре снимает уже взятые штрафы −4', async () => {
+    const user = await userWithSquad();
+    const now = at(deadline(2) - HOUR);
+    const hit = await commitTransfers(sql, user, now, transfer([L.player('DEF', 4), L.player('FWD', 4)], [L.player('DEF', 5), L.player('FWD', 5)], 2));
+    expect(hit.ok && hit.value.penalty).toBe(-4);
+    const wc = await commitTransfers(sql, user, now, transfer([L.player('MID', 4)], [L.player('MID', 5)], 2, { wildcard: true }));
+    expect(wc.ok && wc.value.penalty).toBe(0);
+    expect((await sql`select coalesce(sum(penalty), 0)::int as p from transfers where user_id = ${user}`)[0].p).toBe(0);
+  });
+
   it('продажа по текущей цене; не хватает банка → invalid_squad с budget', async () => {
     const user = await userWithSquad();
     await sql`update players set price = 70 where id = ${L.player('DEF', 4)}`;

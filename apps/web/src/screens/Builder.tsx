@@ -80,7 +80,8 @@ export function Builder({ view, players, clubs, api, onDone }: BuilderProps) {
     setBusy(true);
     const r = await api.saveLineup({ gameweek: view.next.number, picks: arrangePicks(picked) });
     setBusy(false);
-    if (r.ok) onDone();
+    // Алдыңғы сақтаудың жауабы жоғалса, қайталау squad_exists алады — құрам бар, командаға өтеміз
+    if (r.ok || (r.error === 'invalid_squad' && 'details' in r && r.details?.includes('squad_exists'))) onDone();
     else setError(errorText(r, tr));
   }
 

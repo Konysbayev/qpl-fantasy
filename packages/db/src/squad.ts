@@ -169,6 +169,10 @@ export async function saveLineup(sql: postgres.Sql, userId: string, now: Date, p
 export async function commitTransfers(
   sql: postgres.Sql, userId: string, now: Date, req: TransferRequest
 ): Promise<Result<TransferResult>> {
+  // Бұрын орындалған сұрау қайталанса — дедлайн өтіп кетсе де, сол нәтиже
+  const [done] = await sql<{ user_id: string; result: Result<TransferResult> | null }[]>`
+    select user_id, result from transfer_requests where request_id = ${req.requestId}`;
+  if (done?.result) return done.user_id === userId ? done.result : fail('invalid_squad', ['request_id']);
   const open = await openGameweek(sql, now, req.gameweek);
   if (!open.ok) return open;
   const gw = open.value;
@@ -221,6 +225,8 @@ async function applyTransfers(tx: Tx, userId: string, gw: Gameweek, req: Transfe
       where s.user_id = ${userId} and s.chip = 'wildcard' and g.season_id = (select season_id from gameweeks where id = ${gw.id})`;
     if (!canUseWildcard(gw.number, used.map((u) => u.number))) return fail('wildcard_unavailable');
     chip = 'wildcard';
+    // Wildcard — турдың барлық трансфері тегін: осы турда бұрын алынған −4 жойылады
+    await tx`update transfers set penalty = 0 where user_id = ${userId} and gameweek_id = ${gw.id}`;
   }
 
   const { penalty, freeLeft } = transferPenalty(n, { freeTransfers: squad.free_transfers, unlimited, wildcard: chip === 'wildcard' });

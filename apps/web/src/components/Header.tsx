@@ -8,8 +8,9 @@ export function Header({ onProfile }: { onProfile?: () => void }) {
   const t = useTheme();
   const tr = useT();
   return (
-    <header style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 66, padding: '6px 16px 2px', flexShrink: 0 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+    // Екі жақтан профиль батырмасының орны қалдырылады: тар экранда жазу батырма астына кірмейді
+    <header style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 66, padding: '6px 62px 2px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 11, minWidth: 0 }}>
         <div style={{ width: 46, height: 46, borderRadius: 16, background: `linear-gradient(160deg, ${t.markTop}, ${t.markBottom})`, boxShadow: `0 4px 0 ${t.lip}, inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -8px 14px rgba(0,0,0,0.14)`, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: 'rotate(-6deg)' }}>
           <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true" style={{ filter: 'drop-shadow(0 1px 0 rgba(4,45,75,0.35))' }}>
             <circle cx="12" cy="12" r="9.6" fill="none" stroke="#FFC83D" strokeWidth={2.4} />
@@ -17,11 +18,11 @@ export function Header({ onProfile }: { onProfile?: () => void }) {
             <path d={SHANYRAK_TILE_D} fill="none" stroke="#FFC83D" strokeWidth={1.15} strokeLinecap="round" />
           </svg>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-          <span style={{ fontFamily: FONT_NUM, fontWeight: 900, fontSize: 25, letterSpacing: '-0.015em', lineHeight: 1 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4, minWidth: 0 }}>
+          <span style={{ fontFamily: FONT_NUM, fontWeight: 900, fontSize: 'clamp(20px, 6.4vw, 25px)', letterSpacing: '-0.015em', lineHeight: 1, whiteSpace: 'nowrap' }}>
             <span style={{ color: t.primaryText, textShadow: `0 2px 0 ${t.numShadow}` }}>QPL</span> Fantasy
           </span>
-          <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: t.muted, lineHeight: 1 }}>{tr('tagline')}</span>
+          <span style={{ maxWidth: '100%', fontSize: 'clamp(8px, 2.6vw, 10px)', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: t.muted, lineHeight: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tr('tagline')}</span>
         </div>
       </div>
       {onProfile && (

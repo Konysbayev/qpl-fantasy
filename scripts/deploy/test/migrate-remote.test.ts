@@ -57,6 +57,15 @@ describe('migrateRemote', () => {
     expect(api.calls.every((c) => c.auth === `Bearer ${TOKEN}`)).toBe(true);
   });
 
+  it('таблица учёта миграций закрыта от anon и authenticated (RLS), иначе её видно через публичный ключ', async () => {
+    const api = fakeApi([]);
+    await migrateRemote({ projectRef: 'abc', token: TOKEN, fetchImpl: api.fetchImpl, dir });
+    const q = api.calls[0].query;
+    expect(q).toContain('create table if not exists schema_migrations');
+    expect(q).toContain('alter table schema_migrations enable row level security');
+    expect(q).toContain('revoke all on schema_migrations from anon, authenticated');
+  });
+
   it('HTTP-ошибка → исключение с текстом ответа, без токена в сообщении', async () => {
     const api = fakeApi([], { match: 'create table b', status: 400, body: `{"message":"syntax error at or near \\"b\\" (token ${TOKEN.slice(0, 3)})"}` });
     const err = await migrateRemote({ projectRef: 'abc', token: TOKEN, fetchImpl: api.fetchImpl, dir }).catch((e: Error) => e);

@@ -1,5 +1,6 @@
 import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { tg } from '../src/telegram.js';
 import { DARK, LIGHT } from '../src/theme/tokens.js';
 import { ThemeProvider, useTheme } from '../src/theme/ThemeProvider.js';
 import { fakeTelegram } from './telegram-fake.js';
@@ -35,5 +36,13 @@ describe('тема', () => {
   it('вне Telegram — светлая тема', () => {
     render(<ThemeProvider><Probe /></ThemeProvider>);
     expect(screen.getByTestId('bg').textContent).toBe(LIGHT.bg);
+  });
+});
+
+describe('Telegram', () => {
+  it('при запуске сообщает Telegram о готовности и разворачивает окно на всю высоту', () => {
+    const fake = fakeTelegram();
+    tg().init();
+    expect(fake.calls).toEqual(['ready', 'expand']);
   });
 });

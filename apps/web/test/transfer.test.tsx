@@ -105,6 +105,58 @@ describe('Transfer', () => {
     expect(scroll.mock.contexts.at(-1)).toBe(screen.getByTestId('swap-card'));
   });
 
+  it('после сбоя сети повторное «Растау» шлёт тот же requestId (сервер не спишет дважды)', async () => {
+    const transfer = vi.fn()
+      .mockResolvedValueOnce({ ok: false, error: 'network' })
+      .mockResolvedValueOnce({ ok: true, value: { penalty: 0, freeLeft: 0, bank: 250 } });
+    const { onDone } = setup(view(), transfer);
+    fireEvent.click(screen.getByRole('button', { name: 'Шығару: DEF40' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Қосу: DEF50' }));
+    fireEvent.click(confirmButton());
+    await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy());
+    fireEvent.click(confirmButton());
+    await waitFor(() => expect(onDone).toHaveBeenCalled());
+    expect(transfer).toHaveBeenCalledTimes(2);
+    expect(transfer.mock.calls[1][0].requestId).toBe(transfer.mock.calls[0][0].requestId);
+  });
+
+  it('новое намерение — новый requestId', async () => {
+    const transfer = vi.fn().mockResolvedValue({ ok: true, value: { penalty: 0, freeLeft: 0, bank: 250 } });
+    setup(view({ freeTransfers: 2 }), transfer);
+    fireEvent.click(screen.getByRole('button', { name: 'Шығару: DEF40' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Қосу: DEF50' }));
+    fireEvent.click(confirmButton());
+    await waitFor(() => expect(transfer).toHaveBeenCalledOnce());
+    fireEvent.click(await screen.findByRole('button', { name: 'Шығару: FWD40' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Қосу: FWD50' }));
+    fireEvent.click(confirmButton());
+    await waitFor(() => expect(transfer).toHaveBeenCalledTimes(2));
+    expect(transfer.mock.calls[1][0].requestId).not.toBe(transfer.mock.calls[0][0].requestId);
+  });
+
+  it('без crypto.randomUUID (старый WebView) запрос всё равно уходит с корректным id', async () => {
+    const original = crypto.randomUUID;
+    Object.defineProperty(crypto, 'randomUUID', { value: undefined, configurable: true });
+    try {
+      const { transfer } = setup();
+      fireEvent.click(screen.getByRole('button', { name: 'Шығару: DEF40' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Қосу: DEF50' }));
+      fireEvent.click(confirmButton());
+      await waitFor(() => expect(transfer).toHaveBeenCalledOnce());
+      expect(transfer.mock.calls[0][0].requestId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    } finally {
+      Object.defineProperty(crypto, 'randomUUID', { value: original, configurable: true });
+    }
+  });
+
+  it('not_owned (состав уже изменился) — перечитать данные', async () => {
+    const { onDone } = setup(view(), vi.fn().mockResolvedValue({ ok: false, error: 'not_owned' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Шығару: DEF40' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Қосу: DEF50' }));
+    fireEvent.click(confirmButton());
+    await waitFor(() => expect(onDone).toHaveBeenCalled());
+  });
+
   it('ошибка сервера deadline_passed показывается текстом', async () => {
     setup(view(), vi.fn().mockResolvedValue({ ok: false, error: 'deadline_passed' }));
     fireEvent.click(screen.getByRole('button', { name: 'Шығару: DEF40' }));
@@ -163,6 +215,16 @@ describe('Builder', () => {
     expect([12, 13, 14, 15].map(pos)).toEqual(['GK', 'DEF', 'MID', 'FWD']);
     expect(picks.filter((p: { isCaptain: boolean }) => p.isCaptain)).toHaveLength(1);
     expect(picks.filter((p: { isVice: boolean }) => p.isVice)).toHaveLength(1);
+  });
+
+  it('ответ на первое сохранение потерялся, повтор получил squad_exists — состав уже есть, переходим к команде', async () => {
+    const saveLineup = vi.fn().mockResolvedValue({ ok: false, error: 'invalid_squad', details: ['squad_exists'] });
+    const onDone = vi.fn();
+    const v: TeamView = { next: { id: 'g1', number: 1, deadline: '2026-03-07T09:00:00.000Z' }, last: null, squad: null, picks: [] };
+    wrap(<Builder view={v} players={PLAYERS} clubs={CLUBS} api={{ saveLineup }} onDone={onDone} />);
+    for (const p of OWNED) add(p);
+    fireEvent.click(save());
+    await waitFor(() => expect(onDone).toHaveBeenCalled());
   });
 
   it('нажатие на выбранного игрока на поле убирает его', () => {

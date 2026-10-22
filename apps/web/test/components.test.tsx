@@ -11,6 +11,7 @@ import { Sheet } from '../src/components/Sheet.js';
 import { LangProvider } from '../src/i18n/useT.js';
 import { ThemeProvider } from '../src/theme/ThemeProvider.js';
 import { LIGHT } from '../src/theme/tokens.js';
+import { fakeTelegram } from './telegram-fake.js';
 
 afterEach(cleanup);
 
@@ -109,6 +110,19 @@ describe('Sheet', () => {
     expect(onClose).toHaveBeenCalledTimes(2);
     rerender(<ThemeProvider><LangProvider lang="kk"><Sheet open={false} onClose={onClose} label="Ойыншы картасы"><p>Мазмұны</p></Sheet></LangProvider></ThemeProvider>);
     expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('кнопка «назад» Telegram закрывает шторку, а не всё приложение', () => {
+    const fake = fakeTelegram();
+    const onClose = vi.fn();
+    const { unmount } = wrap(<Sheet open onClose={onClose} label="Карта"><p>x</p></Sheet>);
+    expect(fake.back.visible).toBe(true);
+    fake.back.handlers.forEach((h) => h());
+    expect(onClose).toHaveBeenCalledOnce();
+    unmount();
+    expect(fake.back.visible).toBe(false);
+    expect(fake.back.handlers).toHaveLength(0);
+    delete (window as { Telegram?: unknown }).Telegram;
   });
 
   it('свайп вниз по верхней части закрывает шторку', () => {

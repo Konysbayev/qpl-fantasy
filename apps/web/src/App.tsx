@@ -38,6 +38,8 @@ export function App() {
   const [lang, setLang] = useState<Lang>(() => savedLang() ?? detectLang(tg().languageCode));
   const [boot, setBoot] = useState<Boot>({ state: 'loading' });
 
+  useEffect(() => tg().init(), []);
+
   const login = useCallback(() => {
     if (!tg().initData) {
       setBoot({ state: 'outside' });
@@ -130,7 +132,8 @@ function Main({ name, lang, onLang }: { name: string; lang: Lang; onLang: (l: La
   };
 
   return (
-    <div style={{ minHeight: '100vh', height: '100vh', maxWidth: 480, margin: '0 auto', background: th.bg, color: th.ink, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    // Telegram терезесінің нақты биіктігі (жартылай ашылғанда да мәзір мен батырмалар көрінеді)
+    <div style={{ height: 'var(--tg-viewport-stable-height, 100vh)', maxWidth: 480, margin: '0 auto', background: th.bg, color: th.ink, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {tab === 'team' && !building && <Header onProfile={() => setProfile(true)} />}
       <main style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>{screen}</main>
       {!building && <BottomNav current={tab} onNavigate={navigate} />}

@@ -2,12 +2,24 @@
 export function fakeTelegram(opts: { colorScheme?: 'light' | 'dark'; languageCode?: string; initData?: string } = {}) {
   const handlers = new Map<string, (() => void)[]>();
   const haptics: string[] = [];
+  const calls: string[] = [];
+  const back = { visible: false, handlers: [] as (() => void)[] };
   const webApp = {
     initData: opts.initData ?? 'query_id=1&hash=abc',
     initDataUnsafe: { user: opts.languageCode === undefined ? { id: 1 } : { id: 1, language_code: opts.languageCode } },
     colorScheme: opts.colorScheme ?? 'light',
-    ready() {},
-    expand() {},
+    ready() {
+      calls.push('ready');
+    },
+    expand() {
+      calls.push('expand');
+    },
+    BackButton: {
+      show: () => (back.visible = true),
+      hide: () => (back.visible = false),
+      onClick: (cb: () => void) => back.handlers.push(cb),
+      offClick: (cb: () => void) => (back.handlers = back.handlers.filter((h) => h !== cb))
+    },
     setHeaderColor() {},
     setBackgroundColor() {},
     onEvent(name: string, cb: () => void) {
@@ -25,6 +37,8 @@ export function fakeTelegram(opts: { colorScheme?: 'light' | 'dark'; languageCod
   return {
     webApp,
     haptics,
+    calls,
+    back,
     setScheme(s: 'light' | 'dark') {
       webApp.colorScheme = s;
       for (const h of handlers.get('themeChanged') ?? []) h();

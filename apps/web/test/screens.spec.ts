@@ -33,6 +33,18 @@ async function pitchFits(page: Page) {
   expect(clipped).toEqual([]);
 }
 
+// Шапка: логотип мен жазу профиль батырмасының астына кірмейді
+async function headerClear(page: Page) {
+  const overlap = await page.evaluate(() => {
+    const button = document.querySelector('header button[aria-label]')!.getBoundingClientRect();
+    return [...document.querySelectorAll('header span')].some((el) => {
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.right > button.left + 0.5 && r.left < button.right && r.bottom > button.top && r.top < button.bottom;
+    });
+  });
+  expect(overlap).toBe(false);
+}
+
 async function shot(page: Page, name: string) {
   await page.evaluate(() => document.fonts.ready);
   await noOverflow(page);
@@ -48,6 +60,7 @@ for (const size of SIZES) {
       await page.goto('/');
       await expect(page.getByTestId('pitch')).toBeVisible();
       await pitchFits(page);
+      await headerClear(page);
       await shot(page, `team-${tag}.png`);
 
       await page.getByRole('button', { name: new RegExp(`^${captain.lastName},`) }).first().click();

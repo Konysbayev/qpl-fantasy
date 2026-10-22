@@ -1,6 +1,7 @@
 // Төменнен шығатын парақ (ойыншы картасы т.б.): «Жабу» батырмасы, Escape және жоғарғы бөлікті төмен сырғыту жабады.
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useT } from '../i18n/useT.js';
+import { tg } from '../telegram.js';
 import { useTheme } from '../theme/ThemeProvider.js';
 import { ICONS } from './shapes.js';
 
@@ -12,6 +13,14 @@ export function Sheet({ open, onClose, label, children }: { open: boolean; onClo
   const tr = useT();
   const [drag, setDrag] = useState(0);
   const start = useRef<number | null>(null);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+
+  // Android-тағы «артқа» бүкіл қосымшаны емес, парақты жабады
+  useEffect(() => {
+    if (!open) return;
+    return tg().backButton(() => closeRef.current());
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;

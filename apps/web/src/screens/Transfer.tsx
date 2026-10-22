@@ -10,6 +10,7 @@ import { ICONS } from '../components/shapes.js';
 import { errorText } from '../errors.js';
 import { formatDeadline, price } from '../format.js';
 import { useLang, useT } from '../i18n/useT.js';
+import { newRequestId } from '../uuid.js';
 import { useTheme } from '../theme/ThemeProvider.js';
 import { FONT_NUM } from '../theme/tokens.js';
 
@@ -43,6 +44,18 @@ export function Transfer({ view, players, clubs, api, initialOut, onDone }: Tran
   const [busy, setBusy] = useState(false);
   const sending = useRef(false);
   const swapRef = useRef<HTMLElement>(null);
+  // Бір ниетке (шығатын, кіретін, Wildcard) — бір requestId: желі үзілсе, қайталау сол id-мен кетеді
+  const request = useRef<{ key: string; id: string } | null>(null);
+
+  // Сервер деректері жаңарса (қайта жүктеу) — жергілікті күй солармен теңеседі
+  useEffect(() => {
+    if (!view.squad) return;
+    setOwned(view.picks.map((p) => ({ id: p.playerId, lastName: p.lastName, position: p.position, clubId: p.clubId, price: p.price })));
+    setBank(view.squad.bank);
+    setFree(view.squad.freeTransfers);
+    setPenaltyTotal(view.squad.penalty);
+    setWildcardActive(view.squad.wildcardActive);
+  }, [view]);
   const [note, setNote] = useState<Note>(null);
 
   // Тізім төмен айналған болса — «Шығады → Кіреді» картасына қайтамыз
@@ -75,14 +88,25 @@ export function Transfer({ view, players, clubs, api, initialOut, onDone }: Tran
     sending.current = true;
     setBusy(true);
     const wildcard = wildcardOn;
-    // Бір растауға бір requestId: желі «жыпылықтаса», сервер екінші рет есептен шығармайды
-    const r = await api.transfer({ requestId: crypto.randomUUID(), gameweek: view.next.number, out: [out.id], in: [inn.id], wildcard });
-    sending.current = false;
-    setBusy(false);
+    const key = `${out.id}|${inn.id}|${wildcard}`;
+    if (request.current?.key !== key) request.current = { key, id: newRequestId() };
+    let r: Awaited<ReturnType<typeof api.transfer>>;
+    try {
+      // Бір растауға бір requestId: желі «жыпылықтаса», сервер екінші рет есептен шығармайды
+      r = await api.transfer({ requestId: request.current.id, gameweek: view.next.number, out: [out.id], in: [inn.id], wildcard });
+    } finally {
+      sending.current = false;
+      setBusy(false);
+    }
     if (!r.ok) {
       setNote({ kind: 'error', text: errorText(r, tr) });
+      // Сервер жауабы келсе, келесі әрекет — жаңа ниет; желі үзілсе — сол id сақталады
+      if (r.error !== 'network') request.current = null;
+      // Құрам басқа жерде өзгерген — серверден қайта оқимыз
+      if (r.error === 'not_owned') onDone();
       return;
     }
+    request.current = null;
     setOwned(owned.map((o) => (o.id === out.id ? { id: inn.id, lastName: inn.lastName, position: inn.position, clubId: inn.clubId, price: inn.price } : o)));
     setBank(r.value.bank);
     setFree(r.value.freeLeft);

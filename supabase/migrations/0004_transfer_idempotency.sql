@@ -9,14 +9,14 @@ create table transfer_requests (
 alter table transfer_requests enable row level security;
 revoke all on transfer_requests from anon, authenticated;
 
--- Ойыншыны таңдағандар үлесі (%): әр қатысушының ағымдағы ашық турға дейінгі соңғы құрамы бойынша; жеке дерек жоқ, тек жиынтық
+-- Ойыншыны таңдағандар үлесі (%): белсенді маусымдағы әр қатысушының дедлайны өткен соңғы құрамы бойынша.
+-- Ашық турдың құрамдары кірмейді: бөтен құрам дедлайнға дейін көрінбеуі керек (спецификация 8), аз қатысушыда пайыздан қалпына келтіріледі.
 create view player_selection as
-with open_gw as (
-  select g.deadline from gameweeks g join seasons s on s.id = g.season_id and s.status = 'active'
-  where g.deadline > now() order by g.deadline limit 1
-), latest as (
-  select distinct on (sq.user_id) sq.id from squads sq join gameweeks g on g.id = sq.gameweek_id
-  where g.deadline <= (select deadline from open_gw) order by sq.user_id, g.deadline desc
+with latest as (
+  select distinct on (sq.user_id) sq.id from squads sq
+  join gameweeks g on g.id = sq.gameweek_id
+  join seasons s on s.id = g.season_id and s.status = 'active'
+  where g.deadline <= now() order by sq.user_id, g.deadline desc
 )
 select p.player_id, round(100.0 * count(*) / (select count(*) from latest), 1)::float8 as selected_pct
 from squad_picks p where p.squad_id in (select id from latest) group by p.player_id;
