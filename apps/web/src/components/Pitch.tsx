@@ -13,14 +13,14 @@ export interface EmptySlot {
 
 export type PitchItem = PlayerTokenProps | EmptySlot;
 
-// Жоғарыдан төмен: шабуыл, жартылай қорғаныс, қорғаныс, қақпа
+// Жоғарыдан төмен: шабуыл, жартылай қорғаныс, қорғаныс, қақпа. Алаң ойыншыларды ешқашан кеспейді (биіктігі — мазмұнынан кем емес)
 const ROW_SCALE = [0.86, 0.93, 1, 1];
 
 export function Pitch({ rows }: { rows: PitchItem[][] }) {
   const t = useTheme();
   const line = `2px solid ${t.pitchLine}`;
   return (
-    <div style={{ flex: 1, minHeight: 300, position: 'relative', borderRadius: 28, overflow: 'hidden', background: `linear-gradient(180deg, ${t.surroundTop}, ${t.surroundBottom})`, boxShadow: t.pitchShadow, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ flex: 1, minHeight: 'min-content', position: 'relative', borderRadius: 28, overflow: 'hidden', background: `linear-gradient(180deg, ${t.surroundTop}, ${t.surroundBottom})`, boxShadow: t.pitchShadow, display: 'flex', flexDirection: 'column' }}>
       <div aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, top: -34, bottom: -6, transform: 'perspective(560px) rotateX(20deg)', transformOrigin: '50% 100%', background: `repeating-linear-gradient(180deg, ${t.grass1} 0px, ${t.grass1} 46px, ${t.grass2} 46px, ${t.grass2} 92px)` }}>
         <div style={{ position: 'absolute', top: 16, left: 16, right: 16, bottom: 22, border: line, borderRadius: 6 }} />
         <div style={{ position: 'absolute', left: 16, right: 16, top: '50%', borderTop: line }} />

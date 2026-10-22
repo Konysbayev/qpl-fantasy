@@ -5,6 +5,7 @@ import { BottomNav, type Tab } from './components/BottomNav.js';
 import { Header } from './components/Header.js';
 import { LangProvider, detectLang, useT, type Lang } from './i18n/useT.js';
 import { Builder } from './screens/Builder.js';
+import { PlayerCard, type CardPlayer } from './screens/PlayerCard.js';
 import { Team } from './screens/Team.js';
 import { Transfer } from './screens/Transfer.js';
 import { tg } from './telegram.js';
@@ -54,6 +55,7 @@ function Main() {
   const [players, setPlayers] = useState<PlayerRow[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [transferOut, setTransferOut] = useState<string | null>(null);
+  const [card, setCard] = useState<CardPlayer | null>(null);
 
   const load = useCallback(() => {
     setFailed(false);
@@ -80,7 +82,7 @@ function Main() {
   if (failed) screen = <Message text={t('errorGeneric')} onRetry={reload} />;
   else if (!data || (needPlayers && !players)) screen = <Message text={t('loading')} />;
   else if (building) screen = <Builder view={data.view} players={players!} clubs={data.clubs} api={api} onDone={reload} />;
-  else if (tab === 'team') screen = <Team view={data.view} clubs={data.clubs} api={api} onPlayer={() => {}} onChanged={load} />;
+  else if (tab === 'team') screen = <Team view={data.view} clubs={data.clubs} api={api} onPlayer={(id) => setCard(cardPlayer(id, data.view, players))} onChanged={load} />;
   else if (tab === 'transfer' && data.view.squad) screen = <Transfer key={transferOut ?? ''} view={data.view} players={players!} clubs={data.clubs} api={api} initialOut={transferOut} onDone={load} />;
   else screen = <Message text={t('loading')} />;
 
@@ -94,8 +96,23 @@ function Main() {
       {tab === 'team' && !building && <Header />}
       <main style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>{screen}</main>
       {!building && <BottomNav current={tab} onNavigate={navigate} />}
+      {card && data && (
+        <PlayerCard player={card} view={data.view} clubs={data.clubs} api={api} onClose={() => setCard(null)} onChanged={load}
+          onTransferOut={(id) => {
+            setCard(null);
+            setTransferOut(id);
+            setTab('transfer');
+          }} />
+      )}
     </div>
   );
+}
+
+function cardPlayer(id: string, view: TeamView, players: PlayerRow[] | null): CardPlayer | null {
+  const p = view.picks.find((x) => x.playerId === id);
+  if (!p) return null;
+  const pct = players?.find((x) => x.id === id)?.selectedPct ?? null;
+  return { id, firstName: p.firstName, lastName: p.lastName, position: p.position, clubId: p.clubId, price: p.price, selectedPct: pct };
 }
 
 function Message({ text, onRetry }: { text: string; onRetry?: () => void }) {

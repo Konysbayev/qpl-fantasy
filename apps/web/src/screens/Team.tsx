@@ -94,7 +94,7 @@ export function Team({ view, clubs, api, onPlayer, onChanged }: TeamProps) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-      <section style={{ position: 'relative', overflow: 'hidden', margin: '4px 16px 0', background: t.card, borderRadius: 26, padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', gap: 10, boxShadow: t.cardShadow }}>
+      <section style={{ position: 'relative', flexShrink: 0, overflow: 'hidden', margin: '4px 16px 0', background: t.card, borderRadius: 26, padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', gap: 10, boxShadow: t.cardShadow }}>
         <svg width="170" height="170" viewBox="0 0 24 24" aria-hidden="true" style={{ position: 'absolute', right: -50, bottom: -64, opacity: t.watermarkOp }}>
           <circle cx="12" cy="12" r="9" fill="none" stroke={t.primaryText} strokeWidth={1} />
           <path d={SHANYRAK_D} fill="none" stroke={t.primaryText} strokeWidth={0.9} strokeLinecap="round" />
@@ -139,11 +139,11 @@ export function Team({ view, clubs, api, onPlayer, onChanged }: TeamProps) {
         </div>
       </section>
 
-      <div data-testid="pitch" style={{ flex: 1, minHeight: 300, margin: '12px 16px 0', display: 'flex' }}>
+      <div data-testid="pitch" style={{ flex: '1 0 auto', margin: '12px 16px 0', display: 'flex' }}>
         <Pitch rows={ROWS.map((pos) => xi.filter((p) => p.position === pos).map((p) => token(p, 'pitch')))} />
       </div>
 
-      <section data-testid="bench" style={{ margin: '12px 16px 0', background: t.card, borderRadius: 24, padding: '10px 8px 12px', display: 'flex', flexDirection: 'column', gap: 6, boxShadow: t.cardShadow }}>
+      <section data-testid="bench" style={{ flexShrink: 0, margin: '12px 16px 12px', background: t.card, borderRadius: 24, padding: '10px 8px 12px', display: 'flex', flexDirection: 'column', gap: 6, boxShadow: t.cardShadow }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 8px', gap: 8 }}>
           <span style={{ fontFamily: FONT_NUM, fontSize: 14, fontWeight: 700 }}>{tr('bench')}</span>
           {view.next && (

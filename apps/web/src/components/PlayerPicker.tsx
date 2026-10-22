@@ -43,7 +43,7 @@ export function PlayerPicker({ players, clubs, lockPosition, stateOf, onAction }
     const disabled = Boolean(lockPosition) && !on;
     return (
       <button key={label} type="button" aria-pressed={on} disabled={disabled} onClick={() => setFilter(value)}
-        style={{ height: 44, padding: '0 12px', borderRadius: 15, border: 0, background: on ? t.primary : t.card, color: on ? '#FFFFFF' : t.ink, boxShadow: on ? `0 3px 0 ${t.lip}` : t.buttonShadow, fontFamily: FONT_NUM, fontSize: 13, fontWeight: 700, cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.45 : 1, flexShrink: 0 }}>
+        style={{ height: 44, padding: '0 9px', minWidth: 44, borderRadius: 15, border: 0, background: on ? t.primary : t.card, color: on ? '#FFFFFF' : t.ink, boxShadow: on ? `0 3px 0 ${t.lip}` : t.buttonShadow, fontFamily: FONT_NUM, fontSize: 13, fontWeight: 700, cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.45 : 1, flexShrink: 0 }}>
         {label}
       </button>
     );

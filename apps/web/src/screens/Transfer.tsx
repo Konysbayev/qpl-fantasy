@@ -1,5 +1,5 @@
 // Трансфер (макет Transfer.dc.html): банк, тегін трансферлер, шегерім; «Шығады → Кіреді»; іздеу мен тізім; айыппұл алдын ала көрсетіледі.
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { TeamView } from '../../../../packages/core/src/api-types.js';
 import { transferPenalty } from '../../../../packages/core/src/squad.js';
 import type { Api, ClubRow, PlayerRow } from '../api.js';
@@ -42,7 +42,13 @@ export function Transfer({ view, players, clubs, api, initialOut, onDone }: Tran
   const [inId, setInId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const sending = useRef(false);
+  const swapRef = useRef<HTMLElement>(null);
   const [note, setNote] = useState<Note>(null);
+
+  // Тізім төмен айналған болса — «Шығады → Кіреді» картасына қайтамыз
+  useEffect(() => {
+    if (outId) swapRef.current?.scrollIntoView?.({ block: 'start' });
+  }, [outId]);
 
   const out = owned.find((o) => o.id === outId) ?? null;
   const inn = players.find((p) => p.id === inId) ?? null;
@@ -146,7 +152,7 @@ export function Transfer({ view, players, clubs, api, initialOut, onDone }: Tran
           )}
         </div>
       )}
-      <section style={{ margin: '10px 16px 0', background: t.card, borderRadius: 22, padding: 10, display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 30px minmax(0, 1fr)', alignItems: 'center', gap: 4, boxShadow: t.cardShadow }}>
+      <section ref={swapRef} data-testid="swap-card" style={{ scrollMarginTop: 12, margin: '10px 16px 0', background: t.card, borderRadius: 22, padding: 10, display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 30px minmax(0, 1fr)', alignItems: 'center', gap: 4, boxShadow: t.cardShadow }}>
         {swapCard('out', out)}
         <span aria-hidden="true" style={{ width: 30, height: 30, borderRadius: 15, background: t.primary, boxShadow: `0 2px 0 ${t.lip}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="16" height="16" viewBox="0 0 24 24"><path d="M5 12 H19 M13 6 L19 12 L13 18" fill="none" stroke="#FFFFFF" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" /></svg>

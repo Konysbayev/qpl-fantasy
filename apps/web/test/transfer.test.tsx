@@ -96,6 +96,15 @@ describe('Transfer', () => {
     await act(async () => resolve({ ok: true, value: { penalty: 0, freeLeft: 0, bank: 250 } }));
   });
 
+  it('после выбора уходящего экран возвращается к карточке «Шығады → Кіреді»', () => {
+    const scroll = vi.fn();
+    Element.prototype.scrollIntoView = scroll;
+    setup();
+    fireEvent.click(screen.getByRole('button', { name: 'Шығару: DEF40' }));
+    expect(scroll).toHaveBeenCalled();
+    expect(scroll.mock.contexts.at(-1)).toBe(screen.getByTestId('swap-card'));
+  });
+
   it('ошибка сервера deadline_passed показывается текстом', async () => {
     setup(view(), vi.fn().mockResolvedValue({ ok: false, error: 'deadline_passed' }));
     fireEvent.click(screen.getByRole('button', { name: 'Шығару: DEF40' }));
