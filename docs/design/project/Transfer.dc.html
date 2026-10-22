@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<title>Трансфер — ойыншы ауыстыру</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700;800;900&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: {{t.bg}}; color: {{t.ink}}; font-family: Nunito, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+
+  <svg width="0" height="0" aria-hidden="true" style="position: absolute">
+    <defs>
+      <linearGradient id="kitShade" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" style="stop-color: #FFFFFF; stop-opacity: 0.5"></stop>
+        <stop offset="0.42" style="stop-color: #FFFFFF; stop-opacity: 0"></stop>
+        <stop offset="1" style="stop-color: #000000; stop-opacity: 0.3"></stop>
+      </linearGradient>
+      <linearGradient id="sleeveShade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color: #000000; stop-opacity: 0"></stop>
+        <stop offset="1" style="stop-color: #000000; stop-opacity: 0.22"></stop>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <header style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 4px">
+    <h1 style="margin: 0; font-family: Rubik, system-ui, sans-serif; font-weight: 800; font-size: 26px; line-height: 1; letter-spacing: -0.01em">Трансфер</h1>
+    <span style="display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 15px; background: {{t.soft}}; color: {{t.primaryText}}; font-size: 12px; font-weight: 800">
+      <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="{{t.primaryText}}" style="stroke-width: 2.4"></circle><path d="M12 7 V12 L15.5 14" fill="none" stroke="{{t.primaryText}}" style="stroke-width: 2.4; stroke-linecap: round"></path></svg>
+      <span>13-тур · сб 17:30</span>
+    </span>
+  </header>
+
+  <section style="margin: 10px 16px 0; background: {{t.card}}; border-radius: 22px; padding: 10px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; box-shadow: {{t.cardShadow}}">
+    <div style="background: {{t.card2}}; border-radius: 16px; padding: 9px 12px 10px; display: flex; flex-direction: column; gap: 4px; box-shadow: inset 0 -2px 0 {{t.tileLip}}">
+      <span style="font-size: 11px; font-weight: 700; color: {{t.muted}}">Банк</span>
+      <span style="display: flex; align-items: baseline; gap: 4px"><span style="font-family: Rubik, system-ui, sans-serif; font-size: 20px; font-weight: 800; line-height: 1">4.0</span><span style="font-size: 11px; font-weight: 800; color: {{t.muted}}">млн</span></span>
+    </div>
+    <div style="background: {{t.card2}}; border-radius: 16px; padding: 9px 12px 10px; display: flex; flex-direction: column; gap: 4px; box-shadow: inset 0 -2px 0 {{t.tileLip}}">
+      <span style="font-size: 11px; font-weight: 700; color: {{t.muted}}">Тегін трансфер</span>
+      <span style="font-family: Rubik, system-ui, sans-serif; font-size: 20px; font-weight: 800; line-height: 1">1</span>
+    </div>
+    <div style="background: {{t.card2}}; border-radius: 16px; padding: 9px 12px 10px; display: flex; flex-direction: column; gap: 4px; box-shadow: inset 0 -2px 0 {{t.tileLip}}">
+      <span style="font-size: 11px; font-weight: 700; color: {{t.muted}}">Шегерім</span>
+      <span style="display: flex; align-items: baseline; gap: 4px"><span style="font-family: Rubik, system-ui, sans-serif; font-size: 20px; font-weight: 800; line-height: 1">0</span><span style="font-size: 11px; font-weight: 800; color: {{t.muted}}">ұпай</span></span>
+    </div>
+  </section>
+
+  <section style="margin: 10px 16px 0; background: {{t.card}}; border-radius: 22px; padding: 10px; display: grid; grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr); align-items: center; gap: 4px; box-shadow: {{t.cardShadow}}">
+    <sc-for list="{{swapOut}}" as="r" hint-placeholder-count="1">
+      <div style="display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 16px; background: {{t.card2}}; min-width: 0">
+        <div style="position: relative; width: 38px; height: 38px; flex-shrink: 0">
+          <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true">
+            <path d="{{shirtD}}" fill="{{r.kit.base}}"></path>
+            <path d="{{stripeD}}" fill="{{r.kit.stripe}}"></path>
+            <path d="{{sleeveD}}" fill="{{r.kit.sleeve}}"></path>
+            <path d="M14 3.5 Q20 8 26 3.5" fill="none" stroke="{{r.kit.trim}}" style="stroke-width: 2.2; stroke-linecap: round"></path>
+            <path d="M2.5 11.5 L6.5 18 M37.5 11.5 L33.5 18" fill="none" stroke="{{r.kit.trim}}" style="stroke-width: 2"></path>
+            <path d="{{shirtD}}" fill="none" stroke="{{t.kitLine}}" style="stroke-width: 0.9; stroke-linejoin: round"></path>
+          </svg>
+          <img src="{{r.logo}}" alt="{{r.clubName}}" style="position: absolute; left: 19px; top: 8px; width: 9px; height: 9px; object-fit: contain">
+          <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true" style="position: absolute; left: 0; top: 0; pointer-events: none">
+            <path d="{{sleeveD}}" fill="url(#sleeveShade) none"></path>
+            <path d="{{shirtD}}" fill="url(#kitShade) none"></path>
+          </svg>
+        </div>
+        <div style="min-width: 0; display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: {{t.muted}}">Шығады</span>
+          <span style="font-size: 13px; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.name}}</span>
+          <span style="font-size: 11px; font-weight: 700; color: {{t.muted}}">{{r.code}} · {{r.price}}</span>
+        </div>
+      </div>
+    </sc-for>
+    <span aria-hidden="true" style="width: 30px; height: 30px; border-radius: 15px; background: {{t.chipBg}}; box-shadow: 0 2px 0 {{t.lip}}; display: flex; align-items: center; justify-content: center">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path d="M5 12 H19 M13 6 L19 12 L13 18" fill="none" stroke="#FFFFFF" style="stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+    </span>
+    <sc-for list="{{swapIn}}" as="r" hint-placeholder-count="1">
+      <div style="display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 16px; background: {{t.soft}}; box-shadow: inset 0 0 0 2px {{t.chipBg}}; min-width: 0">
+        <div style="position: relative; width: 38px; height: 38px; flex-shrink: 0">
+          <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true">
+            <path d="{{shirtD}}" fill="{{r.kit.base}}"></path>
+            <path d="{{stripeD}}" fill="{{r.kit.stripe}}"></path>
+            <path d="{{sleeveD}}" fill="{{r.kit.sleeve}}"></path>
+            <path d="M14 3.5 Q20 8 26 3.5" fill="none" stroke="{{r.kit.trim}}" style="stroke-width: 2.2; stroke-linecap: round"></path>
+            <path d="M2.5 11.5 L6.5 18 M37.5 11.5 L33.5 18" fill="none" stroke="{{r.kit.trim}}" style="stroke-width: 2"></path>
+            <path d="{{shirtD}}" fill="none" stroke="{{t.kitLine}}" style="stroke-width: 0.9; stroke-linejoin: round"></path>
+          </svg>
+          <img src="{{r.logo}}" alt="{{r.clubName}}" style="position: absolute; left: 19px; top: 8px; width: 9px; height: 9px; object-fit: contain">
+          <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true" style="position: absolute; left: 0; top: 0; pointer-events: none">
+            <path d="{{sleeveD}}" fill="url(#sleeveShade) none"></path>
+            <path d="{{shirtD}}" fill="url(#kitShade) none"></path>
+          </svg>
+        </div>
+        <div style="min-width: 0; display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: {{t.primaryText}}">Кіреді</span>
+          <span style="font-size: 13px; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.name}}</span>
+          <span style="font-size: 11px; font-weight: 700; color: {{t.primaryText}}">{{r.code}} · {{r.price}}</span>
+        </div>
+      </div>
+    </sc-for>
+  </section>
+
+  <div style="position: relative; margin: 12px 16px 0">
+    <label for="player-search" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">Ойыншы іздеу</label>
+    <input id="player-search" type="search" placeholder="Ойыншы іздеу" style="width: 100%; height: 46px; box-sizing: border-box; border-radius: 16px; border: 0; background: {{t.card}}; box-shadow: {{t.buttonShadow}}; padding: 0 14px 0 42px; font-family: Nunito, system-ui, sans-serif; font-size: 14px; font-weight: 700; color: {{t.ink}}">
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; left: 14px; top: 14px"><circle cx="11" cy="11" r="7" fill="none" stroke="{{t.muted}}" style="stroke-width: 2.4"></circle><path d="M16.5 16.5 L21 21" fill="none" stroke="{{t.muted}}" style="stroke-width: 2.4; stroke-linecap: round"></path></svg>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 6px; margin: 10px 16px 0">
+    <sc-for list="{{filters}}" as="f" hint-placeholder-count="5">
+      <button aria-pressed="{{f.pressed}}" style="height: 44px; padding: 0 12px; border-radius: 15px; border: 0; background: {{f.bg}}; color: {{f.fg}}; box-shadow: {{f.shadow}}; font-family: Rubik, system-ui, sans-serif; font-size: 13px; font-weight: 700; cursor: pointer">{{f.label}}</button>
+    </sc-for>
+    <button aria-label="Сүзгі: клуб пен баға" style="margin-left: auto; width: 44px; height: 44px; border-radius: 15px; border: 0; background: {{t.card}}; box-shadow: {{t.buttonShadow}}; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer">
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7 H14 M18 7 H20 M4 17 H8 M12 17 H20" fill="none" stroke="{{t.ink}}" style="stroke-width: 2.2; stroke-linecap: round"></path><circle cx="16" cy="7" r="2.2" fill="none" stroke="{{t.ink}}" style="stroke-width: 2.2"></circle><circle cx="10" cy="17" r="2.2" fill="none" stroke="{{t.ink}}" style="stroke-width: 2.2"></circle></svg>
+    </button>
+  </div>
+
+  <section style="flex: 1; min-height: 0; overflow: hidden; margin: 10px 16px 0; background: {{t.card}}; border-radius: 22px; padding: 4px 0; box-shadow: {{t.cardShadow}}">
+    <sc-for list="{{players}}" as="r" hint-placeholder-count="6">
+      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 12px; margin: 0 4px; border-radius: 16px; background: {{r.rowBg}}; border-top: 1px solid {{r.divider}}">
+        <div style="position: relative; width: 38px; height: 38px; flex-shrink: 0; opacity: {{r.op}}">
+          <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true">
+            <path d="{{shirtD}}" fill="{{r.kit.base}}"></path>
+            <path d="{{stripeD}}" fill="{{r.kit.stripe}}"></path>
+            <path d="{{sleeveD}}" fill="{{r.kit.sleeve}}"></path>
+            <path d="M14 3.5 Q20 8 26 3.5" fill="none" stroke="{{r.kit.trim}}" style="stroke-width: 2.2; stroke-linecap: round"></path>
+            <path d="M2.5 11.5 L6.5 18 M37.5 11.5 L33.5 18" fill="none" stroke="{{r.kit.trim}}" style="stroke-width: 2"></path>
+            <path d="{{shirtD}}" fill="none" stroke="{{t.kitLine}}" style="stroke-width: 0.9; stroke-linejoin: round"></path>
+          </svg>
+          <img src="{{r.logo}}" alt="{{r.clubName}}" style="position: absolute; left: 19px; top: 8px; width: 9px; height: 9px; object-fit: contain">
+          <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true" style="position: absolute; left: 0; top: 0; pointer-events: none">
+            <path d="{{sleeveD}}" fill="url(#sleeveShade) none"></path>
+            <path d="{{shirtD}}" fill="url(#kitShade) none"></path>
+          </svg>
+        </div>
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; opacity: {{r.op}}">
+          <span style="font-size: 14px; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.name}}</span>
+          <span style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: {{t.muted}}">
+            <span aria-hidden="true" style="width: 14px; height: 4px; border-radius: 2px; background: {{r.stripBg}}"></span>
+            <span>{{r.code}} · ШАБ · {{r.owned}} таңдаған</span>
+          </span>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px; opacity: {{r.op}}">
+          <span style="font-family: Rubik, system-ui, sans-serif; font-size: 15px; font-weight: 800; line-height: 1.1">{{r.price}}</span>
+          <span style="font-size: 11px; font-weight: 700; color: {{t.muted}}">{{r.pts}}</span>
+        </div>
+        <sc-if value="{{r.isAdd}}" hint-placeholder-val="{{ true }}">
+          <button aria-label="{{r.addLabel}}" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 15px; border: 0; background: {{t.soft}}; box-shadow: 0 2px 0 {{t.softLip}}; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer">
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5 V19 M5 12 H19" fill="none" stroke="{{t.primaryText}}" style="stroke-width: 2.8; stroke-linecap: round"></path></svg>
+          </button>
+        </sc-if>
+        <sc-if value="{{r.isSel}}" hint-placeholder-val="{{ false }}">
+          <button aria-label="{{r.selLabel}}" aria-pressed="true" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 15px; border: 0; background: {{t.chipBg}}; box-shadow: 0 2px 0 {{t.lip}}; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer">
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19 7" fill="none" stroke="#FFFFFF" style="stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+          </button>
+        </sc-if>
+        <sc-if value="{{r.isFull}}" hint-placeholder-val="{{ false }}">
+          <span style="width: 44px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 10px; font-weight: 800; line-height: 1.15; color: {{t.muted}}; text-align: center"><span>{{r.code}}</span><span>3/3</span></span>
+        </sc-if>
+      </div>
+    </sc-for>
+  </section>
+
+  <div style="margin: 10px 16px 0">
+    <button style="width: 100%; height: 52px; border-radius: 18px; border: 0; background: {{t.chipBg}}; box-shadow: 0 4px 0 {{t.lip}}, inset 0 1px 0 rgba(255,255,255,0.25); color: #FFFFFF; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer">
+      <span style="font-family: Rubik, system-ui, sans-serif; font-weight: 800; font-size: 16px">Трансферді растау</span>
+      <span style="font-family: Nunito, system-ui, sans-serif; font-weight: 800; font-size: 12px">· шегерім жоқ</span>
+    </button>
+  </div>
+
+  <nav style="display: flex; margin: 14px 16px 12px; padding: 6px; background: {{t.card}}; border-radius: 24px; box-shadow: {{t.navShadow}}">
+    <sc-for list="{{tabs}}" as="tab" hint-placeholder-count="4">
+      <a href="#" aria-current="{{tab.current}}" style="flex: 1; height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; color: {{tab.color}}; font-size: 11px; font-weight: 800; border-radius: 18px">
+        <span style="width: 46px; height: 28px; border-radius: 14px; background: {{tab.pill}}; box-shadow: {{tab.lip}}; display: flex; align-items: center; justify-content: center">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{tab.icon}}" fill="none" stroke="{{tab.iconColor}}" style="stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+        </span>
+        <span>{{tab.label}}</span>
+      </a>
+    </sc-for>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = this.props.dark ?? false;
+    const t = dark ? {
+      bg: '#0E1621', card: '#18232E', card2: '#213040', ink: '#EEF3F7', muted: '#93A4B2', line: '#263546',
+      chipBg: '#176C99', lip: '#0F4E70', soft: '#1C3446', softLip: '#122535', primaryText: '#8ED0F2',
+      cardShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 0 rgba(0,0,0,0.25)',
+      buttonShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 3px 0 rgba(0,0,0,0.35)',
+      navShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 24px rgba(0,0,0,0.45)',
+      tileLip: 'rgba(0,0,0,0.25)', kitLine: 'rgba(0,0,0,0.55)', selRow: '#1C3446'
+    } : {
+      bg: '#EAF2F8', card: '#FFFFFF', card2: '#F2F7FB', ink: '#0F1C26', muted: '#5B6B78', line: '#E1EAF1',
+      chipBg: '#0A74AA', lip: '#075A85', soft: '#DDEFF8', softLip: '#BCDDEE', primaryText: '#08608E',
+      cardShadow: '0 4px 0 #D3E1EB, 0 10px 24px rgba(15,28,38,0.06)',
+      buttonShadow: '0 3px 0 #D3E1EB, 0 6px 14px rgba(15,28,38,0.06)',
+      navShadow: '0 4px 0 #D3E1EB, 0 12px 28px rgba(15,28,38,0.12)',
+      tileLip: '#DCE7EF', kitLine: 'rgba(15,28,38,0.35)', selRow: '#EEF7FC'
+    };
+    const clubs = {
+      'ҚАЙ': { name: 'Қайрат', logo: '/_blob/a8859c111a874082c57ecaec6a6860ee', kit: { base: '#F4C430', stripe: '#141414', sleeve: '#F4C430', trim: '#141414' }, strip: ['#F4C430', '#141414'] },
+      'АҚТ': { name: 'Ақтөбе', logo: '/_blob/7c9171842a43ec5391afe0ea94aa3ed1', kit: { base: '#D7262E', stripe: 'none', sleeve: '#D7262E', trim: '#FFFFFF' }, strip: ['#D7262E', '#D7262E'] },
+      'ҚСР': { name: 'Қайсар', logo: '/_blob/b4cb3317c5cff4a49aa7b3f43db372f4', kit: { base: '#E0262B', stripe: 'none', sleeve: '#E0262B', trim: '#141414' }, strip: ['#E0262B', '#141414'] },
+      'ТОБ': { name: 'Тобыл', logo: '/_blob/1231d7be11eb046011d15dd9543a58b8', kit: { base: '#1B8A3C', stripe: 'none', sleeve: '#1B8A3C', trim: '#F2D21B' }, strip: ['#1B8A3C', '#F2D21B'] },
+      'ЕЛМ': { name: 'Елімай', logo: '/_blob/6ab22260e6619c09cae57216a13de6a2', kit: { base: '#17673F', stripe: 'none', sleeve: '#17673F', trim: '#C8A464' }, strip: ['#17673F', '#C8A464'] },
+      'ОРД': { name: 'Ордабасы', logo: '/_blob/6d94975b167cf1f8fba587157d7cb9cf', kit: { base: '#1F5AA8', stripe: 'none', sleeve: '#1F5AA8', trim: '#FFFFFF' }, strip: ['#1F5AA8', '#E02B2B'] }
+    };
+    // Ойыншы жолы. state: 'add' — қосуға болады, 'sel' — таңдалды, 'full' — клубтан 3 ойыншы бар
+    const player = (name, code, price, pts, owned, state, first) => {
+      const c = clubs[code];
+      return {
+        name: name, code: code, price: price, pts: pts + ' ұпай', owned: owned + '%',
+        kit: c.kit, logo: c.logo, clubName: c.name,
+        stripBg: 'linear-gradient(90deg, ' + c.strip[0] + ' 0%, ' + c.strip[0] + ' 50%, ' + c.strip[1] + ' 50%, ' + c.strip[1] + ' 100%)',
+        isAdd: state === 'add', isSel: state === 'sel', isFull: state === 'full',
+        op: state === 'full' ? '0.45' : '1',
+        rowBg: state === 'sel' ? t.selRow : 'transparent',
+        divider: first || state === 'sel' ? 'transparent' : t.line,
+        addLabel: 'Қосу: ' + name, selLabel: 'Таңдалды: ' + name
+      };
+    };
+    const players = [
+      player('Жұмабеков', 'ҚАЙ', '8.5', 64, 31, 'full', true),
+      player('Тілеуов', 'АҚТ', '7.0', 52, 18, 'add'),
+      player('Есенов', 'ЕЛМ', '6.5', 47, 12, 'sel'),
+      player('Бақытов', 'ОРД', '6.0', 41, 9, 'full'),
+      player('Құдайбергенов', 'ҚСР', '5.5', 38, 6, 'add'),
+      player('Сұлтанов', 'ҚСР', '4.5', 29, 3, 'add')
+    ];
+    const swapOut = [player('Мұратов', 'АҚТ', '6.0', 0, 0, 'add')];
+    const swapIn = [player('Есенов', 'ЕЛМ', '6.5', 0, 0, 'sel')];
+    const filters = ['Барлығы', 'ҚҚ', 'ҚОР', 'ЖҚ', 'ШАБ'].map((label) => {
+      const on = label === 'ШАБ';
+      return {
+        label: label, pressed: on ? 'true' : 'false',
+        bg: on ? t.chipBg : t.card, fg: on ? '#FFFFFF' : t.ink,
+        shadow: on ? '0 3px 0 ' + t.lip : t.buttonShadow
+      };
+    });
+    const tab = (label, icon, active) => ({
+      label: label, icon: icon,
+      current: active ? 'page' : 'false',
+      color: active ? t.primaryText : t.muted,
+      iconColor: active ? '#FFFFFF' : t.muted,
+      pill: active ? t.chipBg : 'transparent',
+      lip: active ? '0 2px 0 ' + t.lip : 'none'
+    });
+    const tabs = [
+      tab('Команда', 'M8 3 L4 5 L2 9 L5 11 L6 10 V21 H18 V10 L19 11 L22 9 L20 5 L16 3 Q12 6 8 3 Z', false),
+      tab('Трансфер', 'M4 7 H20 M16 3 L20 7 L16 11 M20 17 H4 M8 13 L4 17 L8 21', true),
+      tab('Лигалар', 'M8 4 H16 V9 A4 4 0 0 1 8 9 Z M8 6 H5 A3 3 0 0 0 8 11 M16 6 H19 A3 3 0 0 1 16 11 M12 13 V17 M8 21 H16 M9.5 17 H14.5 V21 H9.5 Z', false),
+      tab('Кесте', 'M4 6 H20 V20 H4 Z M4 10 H20 M8 3 V7 M16 3 V7', false)
+    ];
+    const shirtD = 'M14 3.5 L9 5.5 L2.5 11.5 L6.5 18 L10.5 15.5 L10.5 36.5 Q20 38 29.5 36.5 L29.5 15.5 L33.5 18 L37.5 11.5 L31 5.5 L26 3.5 Q20 8 14 3.5 Z';
+    const sleeveD = 'M9 5.5 L2.5 11.5 L6.5 18 L10.5 15.5 Z M31 5.5 L37.5 11.5 L33.5 18 L29.5 15.5 Z';
+    const stripeD = 'M12.6 7 H15.2 V36.6 H12.6 Z M18.7 7.5 H21.3 V37 H18.7 Z M24.8 7 H27.4 V36.6 H24.8 Z';
+    return { t: t, players: players, swapOut: swapOut, swapIn: swapIn, filters: filters, tabs: tabs, shirtD: shirtD, sleeveD: sleeveD, stripeD: stripeD };
+  }
+}
+</script>
+</body>
+</html>

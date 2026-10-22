@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<title>Таза аспан 3.1 — эмблема кеудеде</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700;800;900&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: {{t.bg}}; color: {{t.ink}}; font-family: Nunito, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+
+  <svg width="0" height="0" aria-hidden="true" style="position: absolute">
+    <defs>
+      <linearGradient id="kitShade" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" style="stop-color: #FFFFFF; stop-opacity: 0.5"></stop>
+        <stop offset="0.42" style="stop-color: #FFFFFF; stop-opacity: 0"></stop>
+        <stop offset="1" style="stop-color: #000000; stop-opacity: 0.3"></stop>
+      </linearGradient>
+      <linearGradient id="sleeveShade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color: #000000; stop-opacity: 0"></stop>
+        <stop offset="1" style="stop-color: #000000; stop-opacity: 0.22"></stop>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <header style="position: relative; display: flex; align-items: center; justify-content: center; height: 66px; padding: 6px 16px 2px; box-sizing: border-box">
+    <div style="display: flex; align-items: center; gap: 11px">
+      <div style="width: 46px; height: 46px; border-radius: 16px; background: linear-gradient(160deg, {{t.markTop}}, {{t.markBottom}}); box-shadow: 0 4px 0 {{t.lip}}, inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -8px 14px rgba(0,0,0,0.14); display: flex; align-items: center; justify-content: center; transform: rotate(-6deg)">
+        <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true" style="filter: drop-shadow(0 1px 0 rgba(4,45,75,0.35))"><circle cx="12" cy="12" r="9.6" fill="none" stroke="#FFC83D" style="stroke-width: 2.4"></circle><circle cx="12" cy="12" r="7.6" fill="none" stroke="#FFC83D" style="stroke-width: 0.55; opacity: 0.8"></circle><path d="{{shanyrakTileD}}" fill="none" stroke="#FFC83D" style="stroke-width: 1.15; stroke-linecap: round"></path></svg>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px">
+        <span style="font-family: Rubik, system-ui, sans-serif; font-weight: 900; font-size: 25px; letter-spacing: -0.015em; line-height: 1"><span style="color: {{t.primaryText}}; text-shadow: 0 2px 0 {{t.numShadow}}">QPL</span> Fantasy</span>
+        <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: {{t.muted}}; line-height: 1">Қазақстан Премьер-Лигасы</span>
+      </div>
+    </div>
+    <button aria-label="Профиль" style="position: absolute; right: 16px; top: 50%; margin-top: -20px; width: 44px; height: 44px; border-radius: 22px; border: 0; background: {{t.card}}; box-shadow: {{t.buttonShadow}}; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; color: inherit; font-family: inherit">
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="{{t.ink}}" style="stroke-width: 2"></circle><path d="M4 21 C4 16.5 7.6 14 12 14 C16.4 14 20 16.5 20 21" fill="none" stroke="{{t.ink}}" style="stroke-width: 2; stroke-linecap: round"></path></svg>
+    </button>
+  </header>
+
+  <section style="position: relative; overflow: hidden; margin: 4px 16px 0; background: {{t.card}}; border-radius: 26px; padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: {{t.cardShadow}}">
+    <svg width="170" height="170" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; right: -50px; bottom: -64px; opacity: {{t.watermarkOp}}"><circle cx="12" cy="12" r="9" fill="none" stroke="{{t.primaryText}}" style="stroke-width: 1"></circle><path d="{{shanyrakD}}" fill="none" stroke="{{t.primaryText}}" style="stroke-width: 0.9; stroke-linecap: round"></path></svg>
+    <div style="position: relative; display: flex; align-items: center; justify-content: space-between">
+      <div style="display: flex; align-items: center; gap: 8px">
+        <span style="background: {{t.chipBg}}; color: #FFFFFF; box-shadow: 0 2px 0 {{t.lip}}; font-family: Rubik, system-ui, sans-serif; font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 999px">12-тур</span>
+        <span style="font-size: 12px; font-weight: 700; color: {{t.muted}}">Аяқталды</span>
+      </div>
+      <span style="display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px; border-radius: 14px; background: {{t.soft}}; color: {{t.primaryText}}; font-size: 12px; font-weight: 800">
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="{{t.primaryText}}" style="stroke-width: 2.4"></circle><path d="M12 7 V12 L15.5 14" fill="none" stroke="{{t.primaryText}}" style="stroke-width: 2.4; stroke-linecap: round"></path></svg>
+        <span>13-тур · сб 17:30</span>
+      </span>
+    </div>
+    <div style="position: relative; display: flex; align-items: flex-end; justify-content: space-between">
+      <div style="display: flex; align-items: baseline; gap: 6px">
+        <span style="font-family: Rubik, system-ui, sans-serif; font-weight: 900; font-size: 52px; line-height: 0.9; letter-spacing: -0.02em; text-shadow: 0 3px 0 {{t.numShadow}}">67</span>
+        <span style="font-size: 15px; font-weight: 800; color: {{t.muted}}">ұпай</span>
+      </div>
+      <div style="display: flex; gap: 8px">
+        <div style="background: {{t.card2}}; border-radius: 16px; padding: 8px 12px 9px; display: flex; flex-direction: column; gap: 3px; min-width: 64px; box-shadow: inset 0 -2px 0 {{t.tileLip}}">
+          <span style="font-size: 11px; font-weight: 700; color: {{t.muted}}">Орташа</span>
+          <span style="font-family: Rubik, system-ui, sans-serif; font-size: 19px; font-weight: 800; line-height: 1">48</span>
+        </div>
+        <div style="background: {{t.card2}}; border-radius: 16px; padding: 8px 12px 9px; display: flex; flex-direction: column; gap: 3px; min-width: 64px; box-shadow: inset 0 -2px 0 {{t.tileLip}}">
+          <span style="font-size: 11px; font-weight: 700; color: {{t.muted}}">Ең жоғары</span>
+          <span style="font-family: Rubik, system-ui, sans-serif; font-size: 19px; font-weight: 800; line-height: 1">112</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div style="flex: 1; min-height: 0; margin: 12px 16px 0; position: relative; border-radius: 28px; overflow: hidden; background: linear-gradient(180deg, {{t.surroundTop}}, {{t.surroundBottom}}); box-shadow: {{t.pitchShadow}}; display: flex; flex-direction: column">
+    <div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: -34px; bottom: -6px; transform: perspective(560px) rotateX(20deg); transform-origin: 50% 100%; background: repeating-linear-gradient(180deg, {{t.pitch1}} 0px, {{t.pitch1}} 46px, {{t.pitch2}} 46px, {{t.pitch2}} 92px)">
+      <div style="position: absolute; top: 16px; left: 16px; right: 16px; bottom: 22px; border: 2px solid {{t.pitchLine}}; border-radius: 6px"></div>
+      <div style="position: absolute; left: 16px; right: 16px; top: 50%; border-top: 2px solid {{t.pitchLine}}"></div>
+      <div style="position: absolute; left: 50%; top: 16px; width: 184px; height: 62px; margin-left: -92px; border: 2px solid {{t.pitchLine}}; border-top: 0"></div>
+      <div style="position: absolute; left: 50%; bottom: 22px; width: 184px; height: 62px; margin-left: -92px; border: 2px solid {{t.pitchLine}}; border-bottom: 0"></div>
+      <svg width="116" height="116" viewBox="0 0 24 24" style="position: absolute; left: 50%; top: 50%; margin: -58px 0 0 -58px"><circle cx="12" cy="12" r="9" fill="{{t.pitch2}}" stroke="{{t.pitchLine}}" style="stroke-width: 0.4"></circle><path d="{{shanyrakD}}" fill="none" stroke="{{t.pitchLine}}" style="stroke-width: 0.34; stroke-linecap: round"></path></svg>
+    </div>
+    <div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 32%)"></div>
+
+    <div style="position: relative; flex: 1; display: flex; flex-direction: column; justify-content: space-around; padding: 10px 4px 12px">
+      <sc-for list="{{rows}}" as="row" hint-placeholder-count="4">
+        <div style="display: flex; justify-content: center; gap: 2px; transform: scale({{row.scale}}); transform-origin: 50% 50%">
+          <sc-for list="{{row.players}}" as="p" hint-placeholder-count="4">
+            <button style="width: 82px; display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; border: 0; padding: 0; cursor: pointer; color: inherit; font-family: inherit">
+              <div style="position: relative; width: 54px; height: 54px">
+                <div aria-hidden="true" style="position: absolute; left: 10px; right: 10px; bottom: -1px; height: 9px; border-radius: 50%; background: rgba(0,0,0,0.32); filter: blur(3px)"></div>
+                <svg width="54" height="54" viewBox="0 0 40 40" aria-hidden="true" style="position: relative">
+                  <path d="{{shirtD}}" fill="{{p.kit.base}}"></path>
+                  <path d="{{stripeD}}" fill="{{p.kit.stripe}}"></path>
+                  <path d="{{sleeveD}}" fill="{{p.kit.sleeve}}"></path>
+                  <path d="M33.9 8.2 L36.1 10.2 L32.6 17.45 L31.3 16.6 Z" fill="{{p.band}}" stroke="{{p.bandEdge}}" style="stroke-width: 0.5"></path>
+                  <path d="M14 3.5 Q20 8 26 3.5" fill="none" stroke="{{p.kit.trim}}" style="stroke-width: 2.2; stroke-linecap: round"></path>
+                  <path d="M2.5 11.5 L6.5 18 M37.5 11.5 L33.5 18" fill="none" stroke="{{p.kit.trim}}" style="stroke-width: 2"></path>
+                  <path d="{{shirtD}}" fill="none" stroke="{{t.kitLine}}" style="stroke-width: 0.9; stroke-linejoin: round"></path>
+                </svg>
+                <img src="{{p.logo}}" alt="{{p.clubName}}" style="position: absolute; left: 27px; top: 11px; width: 13px; height: 13px; object-fit: contain; filter: drop-shadow(0 0.5px 0.5px rgba(0,0,0,0.45))">
+                <svg width="54" height="54" viewBox="0 0 40 40" aria-hidden="true" style="position: absolute; left: 0; top: 0; pointer-events: none">
+                  <path d="{{sleeveD}}" fill="url(#sleeveShade) none"></path>
+                  <path d="{{shirtD}}" fill="url(#kitShade) none"></path>
+                  <path d="M15.5 21 Q17.3 27 15.6 34 M25 22 Q23.4 27.5 25 33.5" fill="none" stroke="rgba(0,0,0,0.13)" style="stroke-width: 0.8; stroke-linecap: round"></path>
+                </svg>
+              </div>
+              <div style="position: relative; overflow: hidden; width: 78px; box-sizing: border-box; background: {{t.chip}}; border-radius: 13px; padding: 4px 4px 8px; display: flex; flex-direction: column; align-items: center; gap: 3px; box-shadow: {{p.chipShadow}}">
+                <div style="max-width: 72px; display: flex; align-items: center; justify-content: center; gap: 3px">
+                  <sc-if value="{{p.badge}}" hint-placeholder-val="{{ false }}">
+                    <span style="flex-shrink: 0; width: 15px; height: 15px; border-radius: 8px; background: {{p.badgeBg}}; box-shadow: 0 1px 0 {{p.badgeLip}}; color: {{p.badgeFg}}; font-family: Rubik, system-ui, sans-serif; font-size: 8.5px; font-weight: 900; display: flex; align-items: center; justify-content: center">{{p.badge}}</span>
+                  </sc-if>
+                  <span style="min-width: 0; font-size: 11px; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{p.name}}</span>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 5px">
+                  <span style="font-family: Rubik, system-ui, sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.02em; color: {{t.muted}}">{{p.code}}</span>
+                  <span style="min-width: 30px; box-sizing: border-box; background: {{p.ptsBg}}; color: {{p.ptsFg}}; box-shadow: 0 2px 0 {{p.ptsLip}}; font-family: Rubik, system-ui, sans-serif; font-size: 11px; font-weight: 700; line-height: 1.45; padding: 0 8px; border-radius: 999px; text-align: center">{{p.pts}}</span>
+                </div>
+                <span aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: {{p.stripBg}}"></span>
+              </div>
+            </button>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <section style="margin: 12px 16px 0; background: {{t.card}}; border-radius: 24px; padding: 10px 8px 12px; display: flex; flex-direction: column; gap: 6px; box-shadow: {{t.cardShadow}}">
+    <span style="padding: 0 8px; font-family: Rubik, system-ui, sans-serif; font-size: 14px; font-weight: 700">Запас</span>
+    <div style="display: flex; justify-content: center; gap: 2px">
+      <sc-for list="{{bench}}" as="p" hint-placeholder-count="4">
+        <button style="width: 82px; display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; border: 0; padding: 0; cursor: pointer; color: inherit; font-family: inherit">
+          <div style="position: relative; width: 40px; height: 40px">
+            <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
+              <path d="{{shirtD}}" fill="{{p.kit.base}}"></path>
+              <path d="{{stripeD}}" fill="{{p.kit.stripe}}"></path>
+              <path d="{{sleeveD}}" fill="{{p.kit.sleeve}}"></path>
+              <path d="M14 3.5 Q20 8 26 3.5" fill="none" stroke="{{p.kit.trim}}" style="stroke-width: 2.2; stroke-linecap: round"></path>
+              <path d="M2.5 11.5 L6.5 18 M37.5 11.5 L33.5 18" fill="none" stroke="{{p.kit.trim}}" style="stroke-width: 2"></path>
+              <path d="{{shirtD}}" fill="none" stroke="{{t.kitLine}}" style="stroke-width: 0.9; stroke-linejoin: round"></path>
+            </svg>
+            <img src="{{p.logo}}" alt="{{p.clubName}}" style="position: absolute; left: 20px; top: 8px; width: 10px; height: 10px; object-fit: contain; filter: drop-shadow(0 0.5px 0.5px rgba(0,0,0,0.45))">
+            <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" style="position: absolute; left: 0; top: 0; pointer-events: none">
+              <path d="{{sleeveD}}" fill="url(#sleeveShade) none"></path>
+              <path d="{{shirtD}}" fill="url(#kitShade) none"></path>
+            </svg>
+          </div>
+          <div style="position: relative; overflow: hidden; width: 78px; box-sizing: border-box; background: {{t.card2}}; border-radius: 12px; padding: 4px 4px 7px; display: flex; flex-direction: column; align-items: center; gap: 2px">
+            <span style="max-width: 70px; font-size: 11px; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{p.name}}</span>
+            <span style="font-size: 10px; font-weight: 700; color: {{t.muted}}; line-height: 1.2">{{p.pos}} · {{p.code}} · {{p.pts}}</span>
+            <span aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: {{p.stripBg}}"></span>
+          </div>
+        </button>
+      </sc-for>
+    </div>
+  </section>
+
+  <nav style="display: flex; margin: 10px 16px 12px; padding: 6px; background: {{t.card}}; border-radius: 24px; box-shadow: {{t.navShadow}}">
+    <sc-for list="{{tabs}}" as="tab" hint-placeholder-count="4">
+      <a href="#" aria-current="{{tab.current}}" style="flex: 1; height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; color: {{tab.color}}; font-size: 11px; font-weight: 800; border-radius: 18px">
+        <span style="width: 46px; height: 28px; border-radius: 14px; background: {{tab.pill}}; box-shadow: {{tab.lip}}; display: flex; align-items: center; justify-content: center">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="{{tab.icon}}" fill="none" stroke="{{tab.iconColor}}" style="stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+        </span>
+        <span>{{tab.label}}</span>
+      </a>
+    </sc-for>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = this.props.dark ?? false;
+    const t = dark ? {
+      bg: '#0E1621', card: '#18232E', card2: '#213040', ink: '#EEF3F7', muted: '#93A4B2', line: '#263546',
+      chipBg: '#176C99', lip: '#0F4E70', soft: '#1C3446', softLip: '#122535', primaryText: '#8ED0F2',
+      markTop: '#3AA7DF', markBottom: '#176C99',
+      gold: '#F2C14E', goldLip: '#B98A1C', onGold: '#3D2A00',
+      pitch1: '#2B7A48', pitch2: '#276F42', surroundTop: '#123F25', surroundBottom: '#1A5532', pitchLine: 'rgba(255,255,255,0.36)',
+      chip: '#18232E', chipShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 3px 0 rgba(0,0,0,0.35), 0 6px 14px rgba(0,0,0,0.4)',
+      cardShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 0 rgba(0,0,0,0.25)',
+      buttonShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 3px 0 rgba(0,0,0,0.35)',
+      navShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 24px rgba(0,0,0,0.45)',
+      pitchShadow: '0 4px 0 rgba(0,0,0,0.3)',
+      tileLip: 'rgba(0,0,0,0.25)', numShadow: 'rgba(142,208,242,0.18)',
+      kitLine: 'rgba(0,0,0,0.55)', vice: '#93A4B2', viceLip: '#5E6E7B', onVice: '#0E1621', watermarkOp: '0.12'
+    } : {
+      bg: '#EAF2F8', card: '#FFFFFF', card2: '#F2F7FB', ink: '#0F1C26', muted: '#5B6B78', line: '#E1EAF1',
+      chipBg: '#0A74AA', lip: '#075A85', soft: '#DDEFF8', softLip: '#BCDDEE', primaryText: '#08608E',
+      markTop: '#3AA7DF', markBottom: '#0A74AA',
+      gold: '#F5BF2E', goldLip: '#C48A08', onGold: '#3D2A00',
+      pitch1: '#52B66F', pitch2: '#4BAE67', surroundTop: '#2C8447', surroundBottom: '#3A9A57', pitchLine: 'rgba(255,255,255,0.62)',
+      chip: '#FFFFFF', chipShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 3px 0 rgba(15,28,38,0.12), 0 6px 12px rgba(15,28,38,0.2)',
+      cardShadow: '0 4px 0 #D3E1EB, 0 10px 24px rgba(15,28,38,0.06)',
+      buttonShadow: '0 3px 0 #D3E1EB, 0 6px 14px rgba(15,28,38,0.06)',
+      navShadow: '0 4px 0 #D3E1EB, 0 12px 28px rgba(15,28,38,0.12)',
+      pitchShadow: '0 4px 0 #2A7A42',
+      tileLip: '#DCE7EF', numShadow: 'rgba(10,116,170,0.16)',
+      kitLine: 'rgba(15,28,38,0.35)', vice: '#5B6B78', viceLip: '#3E4C57', onVice: '#FFFFFF', watermarkOp: '0.07'
+    };
+    // Клубтар: name — атауы, logo — эмблема, kit — форма
+    const clubs = {
+      'ҚАЙ': { name: 'Қайрат', logo: '/_blob/a8859c111a874082c57ecaec6a6860ee', kit: { base: '#F4C430', stripe: '#141414', sleeve: '#F4C430', trim: '#141414' }, ring: '#141414' },
+      'АҚТ': { name: 'Ақтөбе', logo: '/_blob/7c9171842a43ec5391afe0ea94aa3ed1', kit: { base: '#D7262E', stripe: 'none', sleeve: '#D7262E', trim: '#FFFFFF' }, ring: '#D7262E' },
+      'ҚСР': { name: 'Қайсар', logo: '/_blob/b4cb3317c5cff4a49aa7b3f43db372f4', kit: { base: '#E0262B', stripe: 'none', sleeve: '#E0262B', trim: '#141414' }, ring: '#141414' },
+      'ТОБ': { name: 'Тобыл', logo: '/_blob/1231d7be11eb046011d15dd9543a58b8', kit: { base: '#1B8A3C', stripe: 'none', sleeve: '#1B8A3C', trim: '#F2D21B' }, ring: '#1B8A3C' },
+      'ЕЛМ': { name: 'Елімай', logo: '/_blob/6ab22260e6619c09cae57216a13de6a2', kit: { base: '#17673F', stripe: 'none', sleeve: '#17673F', trim: '#C8A464' }, ring: '#C8A464' },
+      'ОРД': { name: 'Ордабасы', logo: '/_blob/6d94975b167cf1f8fba587157d7cb9cf', kit: { base: '#1F5AA8', stripe: 'none', sleeve: '#1F5AA8', trim: '#FFFFFF' }, ring: '#1F5AA8' }
+    };
+    // Ойыншы жазуының астындағы клуб жолағы: екі түс
+    const strips = {
+      'ҚАЙ': ['#F4C430', '#141414'],
+      'АҚТ': ['#D7262E', '#D7262E'],
+      'ҚСР': ['#E0262B', '#141414'],
+      'ТОБ': ['#1B8A3C', '#F2D21B'],
+      'ЕЛМ': ['#17673F', '#C8A464'],
+      'ОРД': ['#1F5AA8', '#E02B2B']
+    };
+    const gkKit = { base: '#2F3A44', stripe: 'none', sleeve: '#2F3A44', trim: '#9ED3F0' };
+    const mk = (name, code, pts, o) => {
+      o = o || {};
+      const c = clubs[code];
+      const s = strips[code];
+      return {
+        name: name, code: code, pts: String(pts), pos: o.pos || '',
+        kit: o.gk ? gkKit : c.kit, logo: c.logo, clubName: c.name,
+        stripBg: 'linear-gradient(90deg, ' + s[0] + ' 0%, ' + s[0] + ' 50%, ' + s[1] + ' 50%, ' + s[1] + ' 100%)',
+        badge: o.c ? 'К' : (o.v ? 'В' : ''),
+        // Капитан — алтын, вице-капитан — күміс білезік (жеңде)
+        band: o.c ? t.gold : (o.v ? (dark ? '#A9B6C1' : '#C3CDD5') : 'none'),
+        bandEdge: o.c ? t.goldLip : (o.v ? (dark ? '#6E7C88' : '#8D99A3') : 'none'),
+        chipShadow: o.c ? '0 0 0 2px ' + t.gold + ', ' + t.chipShadow : t.chipShadow,
+        badgeBg: o.c ? t.gold : t.vice,
+        badgeLip: o.c ? t.goldLip : t.viceLip,
+        badgeFg: o.c ? t.onGold : t.onVice,
+        ptsBg: o.c ? t.gold : t.soft,
+        ptsLip: o.c ? t.goldLip : t.softLip,
+        ptsFg: o.c ? t.onGold : t.primaryText
+      };
+    };
+    const rows = [
+      { scale: '0.86', players: [mk('Дәулетов', 'ҚСР', 18, { c: true }), mk('Мұратов', 'АҚТ', 4)] },
+      { scale: '0.93', players: [mk('Әбілов', 'ҚАЙ', 3), mk('Тоқтаров', 'ҚАЙ', 12), mk('Рахимов', 'ОРД', 5, { v: true }), mk('Қасымов', 'АҚТ', 2)] },
+      { scale: '1', players: [mk('Ахметов', 'ЕЛМ', 2), mk('Жақсылықов', 'ЕЛМ', 8), mk('Серікбаев', 'АҚТ', 1), mk('Омаров', 'ТОБ', 6)] },
+      { scale: '1', players: [mk('Сейітов', 'ҚАЙ', 6, { gk: true })] }
+    ];
+    const bench = [
+      mk('Ержанов', 'ТОБ', 0, { gk: true, pos: 'ҚҚ' }),
+      mk('Сәрсенов', 'ОРД', 1, { pos: 'ҚОР' }),
+      mk('Исаев', 'ТОБ', 2, { pos: 'ЖҚ' }),
+      mk('Байжанов', 'ОРД', 0, { pos: 'ШАБ' })
+    ];
+    const tab = (label, icon, active) => ({
+      label: label, icon: icon,
+      current: active ? 'page' : 'false',
+      color: active ? t.primaryText : t.muted,
+      iconColor: active ? '#FFFFFF' : t.muted,
+      pill: active ? t.chipBg : 'transparent',
+      lip: active ? '0 2px 0 ' + t.lip : 'none'
+    });
+    const tabs = [
+      tab('Команда', 'M8 3 L4 5 L2 9 L5 11 L6 10 V21 H18 V10 L19 11 L22 9 L20 5 L16 3 Q12 6 8 3 Z', true),
+      tab('Трансфер', 'M4 7 H20 M16 3 L20 7 L16 11 M20 17 H4 M8 13 L4 17 L8 21', false),
+      tab('Лигалар', 'M8 4 H16 V9 A4 4 0 0 1 8 9 Z M8 6 H5 A3 3 0 0 0 8 11 M16 6 H19 A3 3 0 0 1 16 11 M12 13 V17 M8 21 H16 M9.5 17 H14.5 V21 H9.5 Z', false),
+      tab('Кесте', 'M4 6 H20 V20 H4 Z M4 10 H20 M8 3 V7 M16 3 V7', false)
+    ];
+    const shanyrakD = 'M3.5 9.3 Q12 13.6 20.5 9.3 M3.5 14.7 Q12 10.4 20.5 14.7 M9.3 3.5 Q13.6 12 9.3 20.5 M14.7 3.5 Q10.4 12 14.7 20.5';
+    // Логотиптегі толық шаңырақ: екі жақтан үш-үштен, ортаға қарай иілген күлдіреуіш
+    const shanyrakTileD = 'M5.06 8.90 Q12 12.00 18.94 8.90 M8.90 5.06 Q12.00 12 8.90 18.94 M4.40 12.00 Q12 12.00 19.60 12.00 M12.00 4.40 Q12.00 12 12.00 19.60 M5.06 15.10 Q12 12.00 18.94 15.10 M15.10 5.06 Q12.00 12 15.10 18.94';
+    const shirtD = 'M14 3.5 L9 5.5 L2.5 11.5 L6.5 18 L10.5 15.5 L10.5 36.5 Q20 38 29.5 36.5 L29.5 15.5 L33.5 18 L37.5 11.5 L31 5.5 L26 3.5 Q20 8 14 3.5 Z';
+    const sleeveD = 'M9 5.5 L2.5 11.5 L6.5 18 L10.5 15.5 Z M31 5.5 L37.5 11.5 L33.5 18 L29.5 15.5 Z';
+    const stripeD = 'M12.6 7 H15.2 V36.6 H12.6 Z M18.7 7.5 H21.3 V37 H18.7 Z M24.8 7 H27.4 V36.6 H24.8 Z';
+    return { t: t, rows: rows, bench: bench, tabs: tabs, shanyrakD: shanyrakD, shanyrakTileD: shanyrakTileD, shirtD: shirtD, sleeveD: sleeveD, stripeD: stripeD };
+  }
+}
+</script>
+</body>
+</html>
