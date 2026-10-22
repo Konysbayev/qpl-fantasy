@@ -11,6 +11,8 @@ export const kk = {
   loginFailed: 'Кіру мүмкін болмады. Ботты қайта ашып көріңіз.',
   openInTelegram: 'Ойынды Telegram ішінде, бот арқылы ашыңыз',
   retry: 'Қайталау',
+  captain: 'капитан',
+  vice: 'вице-капитан',
   close: 'Жабу',
   errorGeneric: 'Бірдеңе дұрыс болмады. Қайталап көріңіз.',
   deadlinePassed: 'Дедлайн өтті',

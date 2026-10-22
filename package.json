@@ -11,7 +11,8 @@
     "deploy:migrate": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/migrate-remote.ts",
     "deploy:functions": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/deploy-functions.ts",
     "web:dev": "npm run dev -w @qpl/web",
-    "web:build": "npm run build -w @qpl/web"
+    "web:build": "npm run build -w @qpl/web",
+    "web:screens": "npm run screens -w @qpl/web"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

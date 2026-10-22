@@ -13,6 +13,8 @@ export const ru: Record<keyof typeof kk, string> = {
   loginFailed: 'Не удалось войти. Попробуйте открыть бота заново.',
   openInTelegram: 'Откройте игру в Telegram через бота',
   retry: 'Повторить',
+  captain: 'капитан',
+  vice: 'вице-капитан',
   close: 'Закрыть',
   errorGeneric: 'Что-то пошло не так. Попробуйте ещё раз.',
   deadlinePassed: 'Дедлайн прошёл',
