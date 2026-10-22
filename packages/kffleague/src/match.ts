@@ -57,8 +57,9 @@ function lineupPlayers(side: Raw | undefined, teamSourceId: number): LineupPlaye
 
 // Кейде оқиғада player_id жоқ, тек нөмір бар: ойыншыны құрамнан команда мен нөмір бойынша табамыз
 type Resolve = (id: unknown, number: unknown, teamSourceId: number | null) => number | null;
+type Opponent = (teamSourceId: number) => number;
 
-function toEvent(e: Raw, resolve: Resolve): MatchEvent {
+function toEvent(e: Raw, resolve: Resolve, opponent: Opponent): MatchEvent {
   const minute = num(e.minute);
   const teamSourceId = num(e.team_id);
   const playerSourceId = resolve(e.player_id, e.player_number, teamSourceId);
@@ -73,6 +74,9 @@ function toEvent(e: Raw, resolve: Resolve): MatchEvent {
       const kind = type === 'goal' ? 'goal' : type === 'penalty' ? 'penalty_goal' : 'own_goal';
       return { kind, minute, half, teamSourceId, playerSourceId, assistSourceId: resolve(e.assist_player_id, e.assist_player_number, teamSourceId) };
     }
+    case 'missed_penalty':
+      // player2 — қарсылас командасының қақпашысы
+      return { kind: 'penalty_missed', minute, half, teamSourceId, playerSourceId, savedBySourceId: resolve(e.player2_id, e.player2_number, opponent(teamSourceId)) };
     case 'yellow_card':
       return { kind: 'yellow', minute, half, teamSourceId, playerSourceId };
     case 'second_yellow':
@@ -116,7 +120,7 @@ export function parseMatchPage(html: string, matchId: number): MatchFacts {
       const key = e.id ?? JSON.stringify(e);
       if (seen.has(key)) continue;
       seen.add(key);
-      events.push(toEvent(e, resolve));
+      events.push(toEvent(e, resolve, (t) => (t === home.sourceId ? away.sourceId : home.sourceId)));
     }
   }
 

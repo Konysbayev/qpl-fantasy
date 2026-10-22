@@ -88,6 +88,24 @@ describe('parseMatchPage', () => {
     expect(() => parseMatchPage(fixture(993), 994)).toThrow(ParseError);
   });
 
+  it('missed_penalty: исполнитель и вратарь соперника из второго поля (по номеру в составе)', () => {
+    const html = syntheticPage({
+      match: {
+        id: 6, date: '2026-03-08', time: '16:00', tour: 1, season_id: 200, status: 'finished',
+        home_team: { id: 91, name: 'Астана', name_kz: null, logo_url: null }, away_team: { id: 2, name: 'B', name_kz: null, logo_url: null },
+        home_score: 0, away_score: 0
+      },
+      lineups: {
+        home_team: { team_id: 91, starters: [{ player_id: 60, first_name: 'Әлібек', last_name: 'Қасым', number: 6, position: 'MID', is_captain: false }], substitutes: [] },
+        away_team: { team_id: 2, starters: [{ player_id: 10, first_name: 'Сұлтан', last_name: 'Бусурманов', number: 1, position: 'GK', is_captain: false }], substitutes: [] }
+      },
+      events: [{ id: 1, half: 1, minute: 42, event_type: 'missed_penalty', team_id: 91, player_id: null, player_number: 6, assist_player_id: null, player2_id: null, player2_number: 1 }]
+    });
+    expect(parseMatchPage(html, 6).events).toEqual([
+      { kind: 'penalty_missed', minute: 42, half: 1, teamSourceId: 91, playerSourceId: 60, savedBySourceId: 10 }
+    ]);
+  });
+
   it('неизвестный event_type → unknown', () => {
     const html = syntheticPage({
       match: {

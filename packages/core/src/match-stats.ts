@@ -62,8 +62,8 @@ export function buildPlayerMatchStats(m: MatchFacts): MatchStatsResult {
       yellow: secondYellow > 0 ? 0 : own('yellow'),
       red: secondYellow > 0 || own('red') > 0 ? 1 : 0,
       conceded,
-      penaltiesSaved: 0,
-      penaltiesMissed: 0
+      penaltiesSaved: m.events.filter((e) => e.kind === 'penalty_missed' && e.savedBySourceId === p.sourceId).length,
+      penaltiesMissed: own('penalty_missed')
     };
   });
 

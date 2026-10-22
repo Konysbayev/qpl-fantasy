@@ -25,6 +25,8 @@ export type MatchEvent =
   | { kind: 'goal' | 'penalty_goal' | 'own_goal'; minute: number; half?: number; teamSourceId: number; playerSourceId: number; assistSourceId: number | null }
   | { kind: 'yellow' | 'second_yellow' | 'red'; minute: number; half?: number; teamSourceId: number; playerSourceId: number }
   | { kind: 'sub'; minute: number; half?: number; teamSourceId: number; outSourceId: number; inSourceId: number }
+  // Соққыны орындаған ойыншы; savedBySourceId — қарсыластың қақпашысы (белгілі болса)
+  | { kind: 'penalty_missed'; minute: number; half?: number; teamSourceId: number; playerSourceId: number; savedBySourceId: number | null }
   | { kind: 'unknown'; minute: number | null; rawType: string };
 
 export type MatchStatus = 'upcoming' | 'live' | 'finished' | 'other';
@@ -58,7 +60,6 @@ export interface PlayerMatchStat {
   yellow: number;
   red: number;
   conceded: number;
-  // Бұл деректер әзірге көзде жоқ, сондықтан 0
   penaltiesSaved: number;
   penaltiesMissed: number;
 }

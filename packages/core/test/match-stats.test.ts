@@ -94,6 +94,13 @@ describe('buildPlayerMatchStats', () => {
     expect(buildPlayerMatchStats(m).needsReview).toEqual([]);
   });
 
+  it('незабитый пенальти: исполнителю penaltiesMissed, отбившему вратарю penaltiesSaved', () => {
+    const m = facts([...baseGoals, { kind: 'penalty_missed', minute: 42, teamSourceId: 2, playerSourceId: 22, savedBySourceId: 11 }]);
+    expect(statOf(m, 22).penaltiesMissed).toBe(1);
+    expect(statOf(m, 11).penaltiesSaved).toBe(1);
+    expect(buildPlayerMatchStats(m).needsReview).toEqual([]);
+  });
+
   it('вторая жёлтая: red 1, yellow 0, уход с поля на этой минуте', () => {
     const m = facts([
       ...baseGoals,
