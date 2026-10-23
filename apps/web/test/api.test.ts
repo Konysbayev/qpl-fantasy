@@ -18,6 +18,17 @@ const config = (fetchImpl: typeof fetch) => ({ supabaseUrl: 'https://ref.supabas
 const session = { token: 'session-token', user: { id: 'u1', displayName: 'Ая', lang: 'kk' } };
 
 describe('api', () => {
+  it('функции вызываются в регионе базы: ?forceFunctionRegion=<регион>', async () => {
+    const f = fakeFetch({ 'auth-telegram': { status: 200, body: session }, 'team-view': { status: 200, body: { picks: [] } } });
+    const api = createApi({ ...config(f.fetchImpl), functionRegion: 'ap-northeast-2' });
+    await api.login();
+    await api.teamView();
+    expect(f.calls.map((c) => c.url)).toEqual([
+      'https://ref.supabase.co/functions/v1/auth-telegram?forceFunctionRegion=ap-northeast-2',
+      'https://ref.supabase.co/functions/v1/team-view?forceFunctionRegion=ap-northeast-2'
+    ]);
+  });
+
   it('вход: initData уходит в auth-telegram, ответ — сессия', async () => {
     const f = fakeFetch({ 'auth-telegram': { status: 200, body: session } });
     const api = createApi(config(f.fetchImpl));

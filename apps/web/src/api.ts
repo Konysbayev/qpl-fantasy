@@ -77,6 +77,8 @@ export interface ApiConfig {
   anonKey: string;
   fetchImpl?: typeof fetch;
   initData: () => string;
+  // Функция базамен бір аймақта іске қосылады: әйтпесе әр сұрау құрлықтар арқылы жүріп, экран секундтап күтеді
+  functionRegion?: string;
 }
 
 type Raw = Record<string, unknown>;
@@ -84,6 +86,7 @@ type Raw = Record<string, unknown>;
 export function createApi(config: ApiConfig) {
   const doFetch = config.fetchImpl ?? ((...args: Parameters<typeof fetch>) => fetch(...args));
   let token: string | null = null;
+  const region = config.functionRegion ? `?forceFunctionRegion=${encodeURIComponent(config.functionRegion)}` : '';
 
   async function rest<R>(path: string): Promise<R> {
     const res = await doFetch(`${config.supabaseUrl}/rest/v1/${path}`, { headers: { apikey: config.anonKey, authorization: `Bearer ${config.anonKey}` } });
@@ -113,7 +116,7 @@ export function createApi(config: ApiConfig) {
   async function send<R>(name: string, init: { method: 'GET' | 'POST'; body?: unknown }): Promise<{ status: number; body: R }> {
     const headers: Record<string, string> = { 'content-type': 'application/json' };
     if (token) headers.authorization = `Bearer ${token}`;
-    const res = await doFetch(`${config.supabaseUrl}/functions/v1/${name}`, {
+    const res = await doFetch(`${config.supabaseUrl}/functions/v1/${name}${region}`, {
       method: init.method,
       headers,
       body: init.body === undefined ? undefined : JSON.stringify(init.body)
@@ -213,5 +216,7 @@ export type Api = ReturnType<typeof createApi>;
 export const api: Api = createApi({
   supabaseUrl: (import.meta.env?.VITE_SUPABASE_URL as string | undefined) ?? '',
   anonKey: (import.meta.env?.VITE_SUPABASE_ANON_KEY as string | undefined) ?? '',
+  // Supabase жобасының аймағы (Сеул)
+  functionRegion: (import.meta.env?.VITE_SUPABASE_FUNCTION_REGION as string | undefined) ?? 'ap-northeast-2',
   initData: () => tg().initData
 });

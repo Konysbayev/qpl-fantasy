@@ -31,6 +31,7 @@ cloudflare.com → **Workers & Pages → Create → Pages → Connect to Git** �
 | Root directory | пусто (корень репозитория) |
 | Переменная `NODE_VERSION` | `22` |
 | Переменная `VITE_SUPABASE_URL` | `https://gckotzbfqduksfjxtqwf.supabase.co` |
+| Переменная `VITE_SUPABASE_FUNCTION_REGION` (необязательно) | регион базы; по умолчанию `ap-northeast-2` (Сеул). Функции запускаются рядом с базой, иначе каждый ответ идёт 2–7 секунд |
 | Переменная `VITE_SUPABASE_ANON_KEY` | публичный ключ: Supabase → Project Settings → API Keys → `anon` / `publishable` |
 
 Публичный ключ можно показывать: он и так встроен в приложение, а доступ к данным ограничен правилами базы. Ключ `service_role` / `secret` **не** использовать.

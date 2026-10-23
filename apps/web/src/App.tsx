@@ -1,10 +1,11 @@
 // Қосымша: тема, тіл, Telegram арқылы кіру, деректерді жүктеу және экрандар арасында ауысу.
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api, type ClubRow, type GameweekRow, type PlayerRow, type Session, type TeamView } from './api.js';
 import { BottomNav, type Tab } from './components/BottomNav.js';
 import { Header } from './components/Header.js';
 import { OfflineBanner } from './components/OfflineBanner.js';
 import { useAutoRefresh } from './hooks.js';
+import { applyPicks } from './optimistic.js';
 import { LangProvider, detectLang, useT, type Lang } from './i18n/useT.js';
 import { Builder } from './screens/Builder.js';
 import { LeaguesSoon } from './screens/LeaguesSoon.js';
@@ -99,6 +100,33 @@ function Main({ name, lang, onLang }: { name: string; lang: Lang; onLang: (l: La
     );
   }, []);
   useEffect(load, [load]);
+
+  // Сақтаудан кейін тек құрам қайта жүктеледі (клубтар өзгермейді), экран «жүктелуде» күйіне түспейді
+  const refreshView = useCallback(() => {
+    api.teamView().then((view) => setData((d) => (d ? { ...d, view } : d)), () => {});
+  }, []);
+
+  // Капитан, вице және ауыстыру экранда бірден көрінеді; сервер бас тартса — бұрынғы құрам қайтады
+  const dataRef = useRef(data);
+  dataRef.current = data;
+  const fastApi = useMemo<typeof api>(() => ({
+    ...api,
+    async saveLineup(p) {
+      const before = dataRef.current?.view;
+      const next = before ? applyPicks(before, p.picks) : null;
+      if (next) setData((d) => (d ? { ...d, view: next } : d));
+      const r = await api.saveLineup(p);
+      if (!r.ok && before) setData((d) => (d ? { ...d, view: before } : d));
+      return r;
+    }
+  }), []);
+
+  const [toast, setToast] = useState<string | null>(null);
+  useEffect(() => {
+    if (!toast) return;
+    const id = setTimeout(() => setToast(null), 4000);
+    return () => clearTimeout(id);
+  }, [toast]);
   // Тур жүріп жатқанда ұпайлар 2 минут сайын жаңарады (дерек көзі де 2–3 минутта жаңарады)
   useAutoRefresh(data?.view.last?.status === 'live', load, 120_000);
 
@@ -123,8 +151,8 @@ function Main({ name, lang, onLang }: { name: string; lang: Lang; onLang: (l: La
   else if (!data || (needPlayers && !players)) screen = <Message text={t('loading')} />;
   else if (!data.view.squad && !data.view.next) screen = <Message text={t('seasonOverWait')} />;
   else if (building) screen = <Builder view={data.view} players={players!} clubs={data.clubs} api={api} onDone={reload} />;
-  else if (tab === 'team') screen = <Team view={data.view} clubs={data.clubs} api={api} onPlayer={(id) => setCard(cardPlayer(id, data.view, players))} onChanged={load} />;
-  else if (tab === 'transfer' && data.view.squad) screen = <Transfer key={transferOut ?? ''} view={data.view} players={players!} clubs={data.clubs} api={api} initialOut={transferOut} onDone={load}
+  else if (tab === 'team') screen = <Team view={data.view} clubs={data.clubs} api={fastApi} onPlayer={(id) => setCard(cardPlayer(id, data.view, players))} onChanged={refreshView} />;
+  else if (tab === 'transfer' && data.view.squad) screen = <Transfer key={transferOut ?? ''} view={data.view} players={players!} clubs={data.clubs} api={api} initialOut={transferOut} onDone={refreshView}
       onPlayer={(id) => { const p = players?.find((x) => x.id === id); if (p) setCard({ id: p.id, firstName: p.firstName, lastName: p.lastName, position: p.position, clubId: p.clubId, price: p.price, selectedPct: p.selectedPct }); }} />;
   else if (tab === 'leagues') screen = <LeaguesSoon />;
   else if (tab === 'schedule' && gameweeks) {
@@ -143,10 +171,15 @@ function Main({ name, lang, onLang }: { name: string; lang: Lang; onLang: (l: La
       {tab === 'team' && !building && <Header onProfile={() => setProfile(true)} />}
       <OfflineBanner />
       <main style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>{screen}</main>
+      {toast && (
+        <div role="alert" style={{ margin: '0 16px 8px', padding: '10px 14px', borderRadius: 14, background: th.card, color: th.hard[1], fontWeight: 800, fontSize: 13, boxShadow: `0 3px 0 ${th.lip}` }}>
+          {toast}
+        </div>
+      )}
       {!building && <BottomNav current={tab} onNavigate={navigate} />}
       {profile && <Profile name={name} lang={lang} onLang={onLang} onClose={() => setProfile(false)} />}
       {card && data && (
-        <PlayerCard player={card} view={data.view} clubs={data.clubs} api={api} onClose={() => setCard(null)} onChanged={load}
+        <PlayerCard player={card} view={data.view} clubs={data.clubs} api={fastApi} onClose={() => setCard(null)} onChanged={refreshView} onError={setToast}
           onTransferOut={(id) => {
             setCard(null);
             setTransferOut(id);
