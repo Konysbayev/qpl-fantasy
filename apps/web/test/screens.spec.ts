@@ -78,6 +78,16 @@ for (const size of SIZES) {
       await page.getByRole('button', { name: 'Кесте' }).click();
       await expect(page.getByTestId('fixture').first()).toBeVisible();
       await shot(page, `schedule-${tag}.png`);
+      await page.getByRole('button', { name: 'Алдыңғы тур' }).click();
+      const played = page.locator('[data-testid="fixture"]:not([disabled])').first();
+      await expect(played).toBeVisible();
+      if (await played.count()) {
+        await played.click();
+        await expect(page.getByTestId('event').first()).toBeVisible();
+        await shot(page, `match-${tag}.png`);
+        await page.keyboard.press('Escape');
+        await expect(page.getByTestId('event')).toHaveCount(0);
+      }
 
       await page.getByRole('button', { name: 'Лигалар' }).click();
       await expect(page.getByText('Жақында: мини-лигалар')).toBeVisible();

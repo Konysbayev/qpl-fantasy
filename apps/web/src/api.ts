@@ -69,6 +69,18 @@ export interface PlayerMatchRow {
   kickoff: string;
 }
 
+export type MatchEventKind = 'goal' | 'penalty_goal' | 'own_goal' | 'penalty_missed' | 'yellow' | 'second_yellow' | 'red' | 'sub';
+
+export interface MatchEventRow {
+  minute: number;
+  kind: MatchEventKind;
+  clubId: string;
+  // «А. Фамилия»; ауыстыруда — кірген ойыншы
+  player: string | null;
+  // Гол — пас берген; ауыстыру — шыққан ойыншы
+  other: string | null;
+}
+
 export interface LeaderRow {
   rank: number;
   teamName: string | null;
@@ -226,6 +238,16 @@ export function createApi(config: ApiConfig) {
     async gameweeks(): Promise<GameweekRow[]> {
       const rows = await rest<Raw[]>('gameweeks?select=id,number,deadline,seasons!inner(status)&seasons.status=eq.active&order=number');
       return rows.map((r) => ({ id: r.id as string, number: r.number as number, deadline: (r.deadline as string | null) ?? null }));
+    },
+
+    async matchEvents(fixtureId: string): Promise<MatchEventRow[]> {
+      const rows = await rest<Raw[]>(`match_events?fixture_id=eq.${encodeURIComponent(fixtureId)}&select=minute,kind,club_id,player:player_id(first_name,last_name),other:other_player_id(first_name,last_name)&order=idx`);
+      const name = (p: unknown) => {
+        const n = p as { first_name: string | null; last_name: string } | null;
+        if (!n) return null;
+        return n.first_name ? `${n.first_name.trim()[0]}. ${n.last_name}` : n.last_name;
+      };
+      return rows.map((r) => ({ minute: r.minute as number, kind: r.kind as MatchEventKind, clubId: r.club_id as string, player: name(r.player), other: name(r.other) }));
     },
 
     async fixtures(gw?: number): Promise<FixtureRow[]> {

@@ -238,3 +238,22 @@ describe('reassignGameweeks: только изменения', () => {
     expect(queries - baseline).toBeLessThan(3);
   });
 });
+
+describe('события матча', () => {
+  it('голы с пасом, карточки и замены сохраняются по минутам; повторная загрузка не дублирует', async () => {
+    const html = fixture(993);
+    const facts = parseMatchPage(html, 993);
+    await upsertMatch(sql, seasonId, facts, html);
+    await upsertMatch(sql, seasonId, facts, html);
+    const known = facts.events.filter((e) => e.kind !== 'unknown');
+    const rows = await sql`select e.idx, e.minute, e.kind, p.source_id as player, o.source_id as other from match_events e
+      left join players p on p.id = e.player_id left join players o on o.id = e.other_player_id
+      join fixtures f on f.id = e.fixture_id where f.source_id = 993 order by e.idx`;
+    expect(rows).toHaveLength(known.length);
+    const goal = known.find((e) => e.kind === 'goal')!;
+    expect(rows.find((r) => r.kind === 'goal' && r.minute === goal.minute)).toMatchObject({ player: goal.kind === 'goal' ? goal.playerSourceId : 0 });
+    const sub = known.find((e) => e.kind === 'sub');
+    if (sub && sub.kind === 'sub') expect(rows.find((r) => r.kind === 'sub' && r.minute === sub.minute)).toMatchObject({ player: sub.inSourceId, other: sub.outSourceId });
+    expect(rows.map((r) => r.idx)).toEqual(rows.map((_, i) => i));
+  });
+});

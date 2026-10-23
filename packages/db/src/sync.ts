@@ -6,6 +6,7 @@ import { buildPlayerMatchStats } from '../../core/src/match-stats.js';
 import { scorePlayer } from '../../core/src/scoring.js';
 import { assignGameweeks } from '../../core/src/gameweeks.js';
 import { parseMatchPage } from '../../kffleague/src/match.js';
+import { eventRows } from './events.js';
 import { parseSitemapMatches } from '../../kffleague/src/sitemap.js';
 import { RequestLimitError, type PoliteFetcher } from '../../kffleague/src/fetcher.js';
 
@@ -64,6 +65,22 @@ export async function upsertMatch(sql: postgres.Sql, seasonId: string, facts: Ma
         values (${fixture.id}, ${player.id}, ${s.minutes}, ${s.onMinute}, ${s.offMinute}, ${s.goals}, ${s.assists}, ${s.penaltyGoals}, ${s.ownGoals},
           ${s.yellow}, ${s.red}, ${s.conceded}, ${s.penaltiesSaved}, ${s.penaltiesMissed}, ${pts.total}, ${tx.json(pts.lines as never)})
         on conflict (fixture_id, player_id) do nothing`;
+    }
+
+    // Матч барысы «Кесте» үшін: әр жүктеуде толық ауыстырылады
+    await tx`delete from match_events where fixture_id = ${fixture.id}`;
+    const rows = eventRows(facts.events);
+    const sourceIds = [...new Set(rows.flatMap((r) => [r.playerSourceId, r.otherSourceId]).filter((x): x is number => x !== null))];
+    const playerIds = new Map(
+      (await tx<{ id: string; source_id: number }[]>`select id, source_id from players where source_id = any(${sourceIds}::int[])`).map((p) => [p.source_id, p.id])
+    );
+    for (const r of rows) {
+      const club = clubIds.get(r.teamSourceId);
+      if (!club) continue;
+      await tx`insert into match_events (fixture_id, idx, minute, kind, club_id, player_id, other_player_id)
+        values (${fixture.id}, ${r.idx}, ${r.minute}, ${r.kind}, ${club},
+                ${r.playerSourceId === null ? null : playerIds.get(r.playerSourceId) ?? null},
+                ${r.otherSourceId === null ? null : playerIds.get(r.otherSourceId) ?? null})`;
     }
   });
   return { needsReview };

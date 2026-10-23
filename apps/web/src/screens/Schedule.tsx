@@ -5,12 +5,13 @@ import { almaty, formatDay } from '../format.js';
 import { useLang, useT } from '../i18n/useT.js';
 import { useTheme } from '../theme/ThemeProvider.js';
 import { FONT_NUM } from '../theme/tokens.js';
+import { MatchSheet } from './MatchSheet.js';
 
 export interface ScheduleProps {
   gameweeks: GameweekRow[];
   initial: number;
   clubs: Map<string, ClubRow>;
-  api: Pick<Api, 'fixtures'>;
+  api: Pick<Api, 'fixtures' | 'matchEvents'>;
 }
 
 export function Schedule({ gameweeks, initial, clubs, api }: ScheduleProps) {
@@ -20,6 +21,7 @@ export function Schedule({ gameweeks, initial, clubs, api }: ScheduleProps) {
   const numbers = gameweeks.map((g) => g.number).sort((a, b) => a - b);
   const [gw, setGw] = useState(initial);
   const [fixtures, setFixtures] = useState<FixtureRow[] | null>(null);
+  const [open, setOpen] = useState<FixtureRow | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -90,14 +92,18 @@ export function Schedule({ gameweeks, initial, clubs, api }: ScheduleProps) {
         <section key={day} style={{ margin: '12px 16px 0', background: t.card, borderRadius: 22, padding: '10px 10px 6px', boxShadow: t.cardShadow }}>
           <h2 style={{ margin: '0 6px 6px', fontFamily: FONT_NUM, fontSize: 14, fontWeight: 700, color: t.muted }}>{formatDay(list[0].kickoff, lang)}</h2>
           {list.map((f) => (
-            <div key={f.id} data-testid="fixture" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 6px', borderTop: `1px solid ${t.line}` }}>
+            // Ойналған және жүріп жатқан матчты басса — матч барысы ашылады
+            <button key={f.id} type="button" data-testid="fixture" aria-label={`${clubName(f.homeClubId)} — ${clubName(f.awayClubId)}`}
+              disabled={f.status !== 'finished' && f.status !== 'live'} onClick={() => setOpen(f)}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '10px 6px', border: 0, borderTop: `1px solid ${t.line}`, background: 'transparent', color: 'inherit', font: 'inherit', textAlign: 'inherit', cursor: f.status === 'finished' || f.status === 'live' ? 'pointer' : 'default' }}>
               {team(f.homeClubId, 'right')}
               <span style={{ width: 68, flexShrink: 0, display: 'flex', justifyContent: 'center' }}>{centre(f)}</span>
               {team(f.awayClubId, 'left')}
-            </div>
+            </button>
           ))}
         </section>
       ))}
+      {open && <MatchSheet fixture={open} clubs={clubs} api={api} onClose={() => setOpen(null)} />}
     </div>
   );
 }

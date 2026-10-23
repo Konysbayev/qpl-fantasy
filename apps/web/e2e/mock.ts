@@ -46,6 +46,19 @@ export async function mockBackend(page: Page, data: MockData, opts: { theme: 'li
     if (p === '/functions/v1/team-view') return json(data.view);
     if (p === '/functions/v1/squad-save') return json({ ok: true, value: null });
     if (p === '/functions/v1/transfer-commit') return json({ ok: true, value: { penalty: 0, freeLeft: 0, bank: 0 } });
+    if (p === '/rest/v1/match_events') {
+      const fx = data.fixtures.find((f) => f.id === eq('fixture_id'));
+      const [h, a] = [fx?.home_club_id ?? data.clubs[0]?.id, fx?.away_club_id ?? data.clubs[1]?.id];
+      const pl = (first_name: string, last_name: string) => ({ first_name, last_name });
+      return json([
+        { minute: 9, kind: 'goal', club_id: h, player: pl('Дастан', 'Сатпаев'), other: pl('Ислам', 'Чесноков') },
+        { minute: 27, kind: 'yellow', club_id: a, player: pl('Марин', 'Томасевич'), other: null },
+        { minute: 45, kind: 'penalty_goal', club_id: a, player: pl('Абат', 'Аймбетов'), other: null },
+        { minute: 61, kind: 'sub', club_id: h, player: pl('Жасур', 'Нуриддинов'), other: pl('Дастан', 'Сатпаев') },
+        { minute: 74, kind: 'goal', club_id: h, player: pl('Ислам', 'Чесноков'), other: null },
+        { minute: 88, kind: 'red', club_id: a, player: pl('Карло', 'Бартолец'), other: null }
+      ]);
+    }
     if (p === '/rest/v1/clubs') return json(data.clubs);
     if (p === '/rest/v1/players') return json(data.players);
     if (p === '/rest/v1/player_selection') return json(data.selection);
