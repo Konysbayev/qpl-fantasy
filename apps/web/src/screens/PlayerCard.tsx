@@ -33,6 +33,8 @@ export interface PlayerCardProps {
   onClose: () => void;
   onTransferOut: (playerId: string) => void;
   onChanged: () => void;
+  // Карточка жабылғаннан кейінгі сервер қатесі (App хабарлама ретінде көрсетеді)
+  onError?: (text: string) => void;
 }
 
 const POSITION_NAME: Record<Position, TextKey> = { GK: 'posGK', DEF: 'posDEF', MID: 'posMID', FWD: 'posFWD' };
@@ -55,15 +57,13 @@ function luminance(hex: string): number {
 
 const groupThousands = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
-export function PlayerCard({ player, view, clubs, api, onClose, onTransferOut, onChanged }: PlayerCardProps) {
+export function PlayerCard({ player, view, clubs, api, onClose, onTransferOut, onChanged, onError }: PlayerCardProps) {
   const t = useTheme();
   const tr = useT();
   const lang = useLang();
   const [stats, setStats] = useState<SeasonStats | null>(null);
   const [matches, setMatches] = useState<PlayerMatchRow[]>([]);
   const [fixtures, setFixtures] = useState<FixtureRow[] | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -97,7 +97,7 @@ export function PlayerCard({ player, view, clubs, api, onClose, onTransferOut, o
     .slice(0, 3);
 
   async function setRole(role: 'captain' | 'vice') {
-    if (!view.next || busy) return;
+    if (!view.next) return;
     const current = view.picks.find((p) => (role === 'captain' ? p.isCaptain : p.isVice));
     const wasOther = role === 'captain' ? pick?.isVice : pick?.isCaptain;
     // Вице капитан болса (немесе керісінше) — рөлдер орын алмасады; әйтпесе бұрынғысы қатардағы ойыншы болады
@@ -116,13 +116,12 @@ export function PlayerCard({ player, view, clubs, api, onClose, onTransferOut, o
       }
       return { playerId: p.playerId, slot: p.slot, isCaptain, isVice };
     });
-    setBusy(true);
-    const r = await api.saveLineup({ gameweek: view.next.number, picks });
-    setBusy(false);
-    if (r.ok) {
-      onChanged();
-      onClose();
-    } else setError(errorText(r, tr));
+    // Карточка бірден жабылады, белгі алаңда бірден ауысады; сервер бас тартса — App қатені көрсетеді
+    const pending = api.saveLineup({ gameweek: view.next.number, picks });
+    onClose();
+    const r = await pending;
+    if (!r.ok) onError?.(errorText(r, tr));
+    onChanged();
   }
 
   const statTiles: [TextKey, string][] = [
@@ -135,7 +134,7 @@ export function PlayerCard({ player, view, clubs, api, onClose, onTransferOut, o
     const active = captain ? pick?.isCaptain : pick?.isVice;
     const [bg, lip, color] = captain ? [t.gold, t.goldLip, t.onGold] : [t.soft, t.softLip, t.primaryText];
     return (
-      <button type="button" onClick={() => setRole(role)} disabled={busy || active} aria-pressed={active}
+      <button type="button" onClick={() => setRole(role)} disabled={active} aria-pressed={active}
         style={{ height: 52, borderRadius: 17, border: 0, background: bg, boxShadow: `0 4px 0 ${lip}${captain ? ', inset 0 1px 0 rgba(255,255,255,0.4)' : ''}`, color, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer', opacity: active ? 0.6 : 1 }}>
         <span aria-hidden="true" style={{ width: 20, height: 20, borderRadius: 10, background: color, color: bg, fontFamily: FONT_NUM, fontSize: 11, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{captain ? 'К' : 'В'}</span>
         <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 15 }}>{tr(captain ? 'makeCaptain' : 'makeVice')}</span>
@@ -221,7 +220,6 @@ export function PlayerCard({ player, view, clubs, api, onClose, onTransferOut, o
             {roleButton('vice')}
           </div>
         )}
-        {error && <span role="alert" style={{ fontSize: 13, fontWeight: 800, color: t.hard[1] }}>{error}</span>}
         {pick && view.next && (
           <button type="button" onClick={() => onTransferOut(player.id)}
             style={{ height: 44, borderRadius: 14, border: 0, background: 'transparent', color: t.primaryText, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer' }}>

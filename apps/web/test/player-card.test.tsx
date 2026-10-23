@@ -42,14 +42,15 @@ function setup(player: CardPlayer, saveResult: unknown = { ok: true, value: null
   const onClose = vi.fn();
   const onTransferOut = vi.fn();
   const onChanged = vi.fn();
+  const onError = vi.fn();
   render(
     <ThemeProvider>
       <LangProvider lang="kk">
-        <PlayerCard player={player} view={VIEW} clubs={CLUBS} api={api} onClose={onClose} onTransferOut={onTransferOut} onChanged={onChanged} />
+        <PlayerCard player={player} view={VIEW} clubs={CLUBS} api={api} onClose={onClose} onTransferOut={onTransferOut} onChanged={onChanged} onError={onError} />
       </LangProvider>
     </ThemeProvider>
   );
-  return { api, onClose, onTransferOut, onChanged };
+  return { api, onClose, onTransferOut, onChanged, onError };
 }
 
 const inSquad = (slot: number): CardPlayer => {
@@ -99,6 +100,21 @@ describe('PlayerCard', () => {
     expect(picks.find((p: { playerId: string }) => p.playerId === 'p6')).toMatchObject({ isCaptain: false, isVice: false });
     expect(picks.find((p: { playerId: string }) => p.playerId === 'p10')).toMatchObject({ isVice: true });
     await waitFor(() => expect(onChanged).toHaveBeenCalled());
+  });
+
+  it('карточка закрывается сразу, не дожидаясь ответа сервера', () => {
+    const { api, onClose } = setup(inSquad(2));
+    api.saveLineup.mockReturnValue(new Promise(() => {}));
+    fireEvent.click(screen.getByRole('button', { name: 'Капитан ету' }));
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(api.saveLineup).toHaveBeenCalledOnce();
+  });
+
+  it('сервер отказал — текст ошибки уходит в onError', async () => {
+    const { onError, onChanged } = setup(inSquad(2), { ok: false, error: 'deadline_passed' });
+    fireEvent.click(screen.getByRole('button', { name: 'Капитан ету' }));
+    await waitFor(() => expect(onError).toHaveBeenCalledWith('Дедлайн өтті'));
+    expect(onChanged).toHaveBeenCalled();
   });
 
   it('вице-капитан становится капитаном — роли меняются местами', async () => {
