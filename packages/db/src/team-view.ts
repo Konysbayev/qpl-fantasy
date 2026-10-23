@@ -73,7 +73,7 @@ async function penaltyOf(sql: postgres.Sql, userId: string, gameweekId: string):
 }
 
 // Турдағы әр ойыншының ұпайы (қос турда — қосындысы). Клубы әлі ойнап бітпеген ойыншы «ойнады» саналады: автоауыстыру тур соңында
-async function gameweekPoints(sql: postgres.Sql, gameweekId: string, squadIds: string[]): Promise<Map<string, PlayerGameweek>> {
+export async function gameweekPoints(sql: postgres.Sql, gameweekId: string, squadIds: string[]): Promise<Map<string, PlayerGameweek>> {
   const rows = await sql<{ id: string; position: Position; points: number; played: boolean; pending: boolean }[]>`
     select p.id, p.position,
            coalesce((select sum(s.points) from player_match_stats s join fixtures f on f.id = s.fixture_id
