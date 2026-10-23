@@ -8,7 +8,7 @@ import { envOpts, runQuery, type ManagementOpts } from './management.js';
 // source_raw (сайттың шикі беттері) үлкен және қайта жүктеледі — көшірмеге кірмейді
 export const BACKUP_TABLES = [
   'seasons', 'clubs', 'players', 'gameweeks', 'fixtures', 'player_match_stats', 'users', 'squads', 'squad_picks',
-  'transfers', 'transfer_requests', 'leagues', 'league_members', 'gameweek_scores', 'audit_log', 'source_usage', 'source_skip', 'schema_migrations'
+  'transfers', 'transfer_requests', 'leagues', 'league_members', 'gameweek_scores', 'audit_log', 'source_usage', 'source_skip', 'schema_migrations', 'price_changes', 'notifications_sent', 'sync_state'
 ] as const;
 
 export async function backupRemote(opts: ManagementOpts, dir: string): Promise<Record<string, number>> {

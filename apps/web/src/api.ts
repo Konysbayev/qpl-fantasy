@@ -8,7 +8,7 @@ export type { PickInput, Result, TeamView, TransferRequest, TransferResult };
 
 export interface Session {
   token: string;
-  user: { id: string; displayName: string; lang: Lang };
+  user: { id: string; displayName: string; lang: Lang; notify: boolean };
 }
 
 export interface ClubRow {
@@ -150,6 +150,10 @@ export function createApi(config: ApiConfig) {
 
     transfer(r: TransferRequest): Promise<ApiResult<TransferResult>> {
       return command('transfer-commit', r);
+    },
+
+    saveProfile(p: { lang?: Lang; notify?: boolean }): Promise<ApiResult<{ lang: Lang; notify: boolean }>> {
+      return command('profile-save', p);
     },
 
     async clubs(): Promise<ClubRow[]> {

@@ -84,6 +84,7 @@ export const kk = {
   language: 'Тіл',
   theme: 'Тема',
   themeTelegram: 'Telegram-дағыдай',
+  notifications: 'Боттағы хабарламалар',
   soon: 'Жақында',
   leaguesSoonTitle: 'Жақында: мини-лигалар',
   leaguesSoonText: 'Достарыңмен өз лигаңды құрып, жарысатын боласың. Келесі кезеңде қосылады.',

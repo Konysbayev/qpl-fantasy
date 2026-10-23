@@ -16,7 +16,9 @@
     "deploy:secrets": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/set-secrets.ts",
     "deploy:seed": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/seed-remote.ts",
     "typecheck": "tsc -p . && tsc -p apps/web",
-    "deploy:backup": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/backup-remote.ts"
+    "deploy:backup": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/backup-remote.ts",
+    "deploy:cron": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/setup-cron.ts",
+    "admin:override": "NODE_USE_ENV_PROXY=1 tsx scripts/admin/override-stat.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

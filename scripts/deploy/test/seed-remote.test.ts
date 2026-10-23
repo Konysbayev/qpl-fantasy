@@ -7,7 +7,7 @@ import { DEFAULT_RULES } from '../../../packages/core/src/rules.js';
 import { parseMatchPage } from '../../../packages/kffleague/src/match.js';
 import { upsertMatch } from '../../../packages/db/src/sync.js';
 import { freshDb } from '../../../packages/db/test/helpers.js';
-import { buildSeed, renderPricesReport, upsertSql, type ClubMeta } from '../seed-remote.js';
+import { seedBlocked, buildSeed, renderPricesReport, upsertSql, type ClubMeta } from '../seed-remote.js';
 
 describe('upsertSql', () => {
   it('экранирует кавычки, null, JSON и массивы; режет на пачки по 500', () => {
@@ -110,5 +110,14 @@ describe('renderPricesReport', () => {
     expect(md).toContain('| Марк Гуаль | ПЗ | 10.0 | 100 | 1089 |');
     expect(md.indexOf('Марк Гуаль')).toBeLessThan(md.indexOf('Темирлан Анарбеков'));
     expect(md).toContain('## Тобыл');
+  });
+});
+
+describe('seedBlocked', () => {
+  it('после первого изменения цен посев запрещён (иначе он затрёт цены), до него и без таблицы — разрешён', async () => {
+    const run = (rows: Record<string, unknown>[]) => async () => rows;
+    expect(await seedBlocked(run([{ n: 3 }]))).toBe(true);
+    expect(await seedBlocked(run([{ n: 0 }]))).toBe(false);
+    expect(await seedBlocked(run([{ n: null }]))).toBe(false);
   });
 });

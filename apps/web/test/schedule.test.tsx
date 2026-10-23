@@ -70,7 +70,7 @@ describe('Profile', () => {
       return (
         <ThemeProvider>
           <LangProvider lang={lang}>
-            <Profile name="Нұрлан" lang={lang} onLang={(l) => { onLang(l); setLang(l); }} onClose={() => {}} />
+            <Profile name="Нұрлан" lang={lang} notify onNotify={() => {}} api={{ saveProfile: vi.fn().mockResolvedValue({ ok: true, value: { lang, notify: true } }) }} onLang={(l) => { onLang(l); setLang(l); }} onClose={() => {}} />
           </LangProvider>
         </ThemeProvider>
       );

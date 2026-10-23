@@ -126,36 +126,62 @@ export async function syncSeason(
       report.skipped.push(id);
       continue;
     }
-    let page: { status: number; body: string };
-    try {
-      page = await fetcher.get(`/ru/matches/${id}`);
-    } catch (err) {
-      if (err instanceof RequestLimitError) {
-        report.failed.push({ id, error: err.message });
-        break;
-      }
-      throw err;
-    }
-    if (page.status !== 200) {
-      report.failed.push({ id, error: `HTTP ${page.status}` });
-      continue;
-    }
-    try {
-      const facts = parseMatchPage(page.body, id);
-      if (facts.seasonSourceId !== opts.sourceSeasonId) {
-        await sql`insert into source_skip (source_id, reason) values (${id}, ${`сезон ${facts.seasonSourceId}`}) on conflict do nothing`;
-        report.skipped.push(id);
-        continue;
-      }
-      const { needsReview } = await upsertMatch(sql, opts.seasonId, facts, page.body);
-      report.stored.push(id);
-      known.add(id);
-      if (needsReview.length > 0) report.needsReview.push({ id, reasons: needsReview });
-    } catch (err) {
-      report.failed.push({ id, error: err instanceof Error ? err.message : String(err) });
-    }
+    const outcome = await fetchAndStore(sql, fetcher, opts, id, report);
+    if (outcome === 'limit') break;
+    if (outcome === 'stored') known.add(id);
   }
   return report;
+}
+
+// Бір матч беті: жүктеу → талдау → сақтау. Нәтиже есепке жазылады; сұрау лимиті біткенде 'limit'
+export async function fetchAndStore(
+  sql: postgres.Sql,
+  fetcher: PoliteFetcher,
+  opts: { seasonId: string; sourceSeasonId: number },
+  id: number,
+  report: SyncReport
+): Promise<'stored' | 'skipped' | 'failed' | 'limit'> {
+  let page: { status: number; body: string };
+  try {
+    page = await fetcher.get(`/ru/matches/${id}`);
+  } catch (err) {
+    if (err instanceof RequestLimitError) {
+      report.failed.push({ id, error: err.message });
+      return 'limit';
+    }
+    throw err;
+  }
+  if (page.status !== 200) {
+    report.failed.push({ id, error: `HTTP ${page.status}` });
+    return 'failed';
+  }
+  try {
+    const facts = parseMatchPage(page.body, id);
+    if (facts.seasonSourceId !== opts.sourceSeasonId) {
+      await sql`insert into source_skip (source_id, reason) values (${id}, ${`сезон ${facts.seasonSourceId}`}) on conflict do nothing`;
+      report.skipped.push(id);
+      return 'skipped';
+    }
+    // Бұрын статистикасы бар матчтың бетінде құрам жоқ болса — сайт белгілеуін өзгерткен: сақталғанды өшірмейміз
+    if (facts.lineups.length === 0) {
+      const [{ has }] = await sql<{ has: boolean }[]>`select exists (select 1 from player_match_stats s join fixtures f on f.id = s.fixture_id
+        where f.source_id = ${id}) as has`;
+      if (has) {
+        report.failed.push({ id, error: 'на странице нет составов — сохранённые данные оставлены' });
+        report.needsReview.push({ id, reasons: ['lineups_missing'] });
+        return 'failed';
+      }
+    }
+    const { needsReview } = await upsertMatch(sql, opts.seasonId, facts, page.body);
+    // Тек сайттан нақты жүктелгенде белгіленеді (rebuildFromRaw бұл уақытты өзгертпейді)
+    await sql`update fixtures set fetched_at = now() where source_id = ${id}`;
+    report.stored.push(id);
+    if (needsReview.length > 0) report.needsReview.push({ id, reasons: needsReview });
+    return 'stored';
+  } catch (err) {
+    report.failed.push({ id, error: err instanceof Error ? err.message : String(err) });
+    return 'failed';
+  }
 }
 
 // Сақталған шикі беттерден матчтарды қайта құрады (ереже немесе талдағыш өзгергенде; сайтқа сұрау жоқ)

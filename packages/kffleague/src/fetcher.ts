@@ -21,7 +21,10 @@ export function createPoliteFetcher(opts: {
   now?: () => number;
   sleep?: (ms: number) => Promise<void>;
   onRequest?: () => void | Promise<void>;
+  // Сайт жауап бермей тұрып қалса, сұрау осыдан кейін үзіледі
+  timeoutMs?: number;
 } = {}): PoliteFetcher {
+  const timeoutMs = opts.timeoutMs ?? 10_000;
   const minInterval = opts.minIntervalMs ?? 3000;
   const maxRequests = opts.maxRequests ?? Infinity;
   const doFetch = opts.fetchImpl ?? fetch;
@@ -45,7 +48,7 @@ export function createPoliteFetcher(opts: {
     count++;
     await opts.onRequest?.();
     try {
-      const res = await doFetch(url.toString(), { headers: { 'user-agent': USER_AGENT, 'accept-language': 'ru' } });
+      const res = await doFetch(url.toString(), { headers: { 'user-agent': USER_AGENT, 'accept-language': 'ru' }, signal: AbortSignal.timeout(timeoutMs) });
       return { status: res.status, body: await res.text() };
     } catch (err) {
       return { status: 0, body: err instanceof Error ? err.message : String(err) };

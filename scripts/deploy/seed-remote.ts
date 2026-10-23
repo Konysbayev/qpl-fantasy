@@ -139,6 +139,15 @@ export function renderPricesReport(date: string, prices: PriceRow[]): string {
   return lines.join('\n');
 }
 
+// Бағалар турлар арасында өзгере бастаған соң посев оларды жобалық бағаға қайтарып жібереді — тыйым салынады
+export const SEED_GUARD_SQL = `select case when to_regclass('public.price_changes') is null then 0
+  else (xpath('/row/n/text()', query_to_xml('select count(*) as n from price_changes', false, true, '')))[1]::text::int end as n`;
+
+export async function seedBlocked(run: (query: string) => Promise<Record<string, unknown>[]>): Promise<boolean> {
+  const [row] = await run(SEED_GUARD_SQL);
+  return Number(row?.n ?? 0) > 0;
+}
+
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const local = postgres(process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5432/qpl_rehearsal', { onnotice: () => {} });
   const clubs = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, '..', '..', 'supabase', 'seed', 'clubs.json'), 'utf-8')) as ClubMeta[];
@@ -152,6 +161,9 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
   if (process.argv.includes('--report-only')) process.exit(0);
   const opts = envOpts();
+  if (!process.argv.includes('--force') && (await seedBlocked((q) => runQuery(opts, q, 'проверка цен')))) {
+    throw new Error('Цены уже менялись между турами (price_changes): посев их затрёт. Запустите с --force, только если это нужно.');
+  }
   for (const [i, s] of statements.entries()) await runQuery(opts, s, `пачка ${i + 1}/${statements.length}`);
   const counts = await runQuery(opts, `select (select count(*) from clubs) as clubs, (select count(*) from players) as players,
     (select count(*) from fixtures) as fixtures, (select count(*) from player_match_stats) as stats`);

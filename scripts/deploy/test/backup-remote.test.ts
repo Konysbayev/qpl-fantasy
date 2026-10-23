@@ -17,6 +17,7 @@ describe('backupRemote', () => {
     const summary = await backupRemote({ projectRef: 'abc', token: '', fetchImpl }, dir);
 
     expect(BACKUP_TABLES).toContain('squads');
+    expect(BACKUP_TABLES).toEqual(expect.arrayContaining(['price_changes', 'notifications_sent', 'sync_state']));
     expect(BACKUP_TABLES).not.toContain('source_raw');
     expect(queries).toHaveLength(BACKUP_TABLES.length);
     expect(JSON.parse(fs.readFileSync(path.join(dir, 'clubs.json'), 'utf-8'))).toEqual([{ id: 'c1', name_ru: 'Кайрат' }]);

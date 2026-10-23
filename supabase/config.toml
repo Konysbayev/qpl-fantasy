@@ -21,3 +21,12 @@ entrypoint = "./functions/squad-save/dist/index.js"
 [functions.transfer-commit]
 verify_jwt = false
 entrypoint = "./functions/transfer-commit/dist/index.js"
+
+# Кесте шақырады (pg_cron → pg_net); x-cron-secret тақырыбын функцияның өзі тексереді
+[functions.cron-tick]
+verify_jwt = false
+entrypoint = "./functions/cron-tick/dist/index.js"
+
+[functions.profile-save]
+verify_jwt = false
+entrypoint = "./functions/profile-save/dist/index.js"

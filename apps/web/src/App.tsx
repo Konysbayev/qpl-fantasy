@@ -63,7 +63,7 @@ export function App() {
     <ThemeProvider>
       <LangProvider lang={lang}>
         {boot.state === 'ready' ? (
-          <Main name={boot.session.user.displayName} lang={lang} onLang={(l) => {
+          <Main name={boot.session.user.displayName} initialNotify={boot.session.user.notify ?? true} lang={lang} onLang={(l) => {
             saveLang(l);
             setLang(l);
           }} />
@@ -80,7 +80,8 @@ interface Data {
   clubs: Map<string, ClubRow>;
 }
 
-function Main({ name, lang, onLang }: { name: string; lang: Lang; onLang: (l: Lang) => void }) {
+function Main({ name, initialNotify, lang, onLang }: { name: string; initialNotify: boolean; lang: Lang; onLang: (l: Lang) => void }) {
+  const [notify, setNotify] = useState(initialNotify);
   const th = useTheme();
   const t = useT();
   const [tab, setTab] = useState<Tab>('team');
@@ -177,7 +178,7 @@ function Main({ name, lang, onLang }: { name: string; lang: Lang; onLang: (l: La
         </div>
       )}
       {!building && <BottomNav current={tab} onNavigate={navigate} />}
-      {profile && <Profile name={name} lang={lang} onLang={onLang} onClose={() => setProfile(false)} />}
+      {profile && <Profile name={name} lang={lang} notify={notify} onNotify={setNotify} api={api} onLang={onLang} onClose={() => setProfile(false)} />}
       {card && data && (
         <PlayerCard player={card} view={data.view} clubs={data.clubs} api={fastApi} onClose={() => setCard(null)} onChanged={refreshView} onError={setToast}
           onTransferOut={(id) => {

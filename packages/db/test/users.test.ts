@@ -1,6 +1,6 @@
 import type postgres from 'postgres';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { upsertTelegramUser } from '../src/users.js';
+import { saveProfile, upsertTelegramUser } from '../src/users.js';
 import { freshDb } from './helpers.js';
 
 let sql: postgres.Sql;
@@ -28,11 +28,24 @@ describe('upsertTelegramUser', () => {
     const first = await upsertTelegramUser(sql, { id: 504, first_name: 'Old', language_code: 'ru' });
     await sql`update users set lang = 'kk' where id = ${first.id}`;
     const again = await upsertTelegramUser(sql, { id: 504, first_name: 'New', username: 'nn', language_code: 'ru' });
-    expect(again).toEqual({ id: first.id, displayName: 'New', lang: 'kk' });
+    expect(again).toEqual({ id: first.id, displayName: 'New', lang: 'kk', notify: true });
     expect((await sql`select count(*)::int as n from users where telegram_id = 504`)[0].n).toBe(1);
   });
 
   it('нет имени → логин', async () => {
     expect((await upsertTelegramUser(sql, { id: 505, first_name: ' ', username: 'qpl_fan' })).displayName).toBe('qpl_fan');
+  });
+});
+
+describe('saveProfile', () => {
+  it('меняет язык и уведомления; включение снимает отметку «бот заблокирован»', async () => {
+    const u = await upsertTelegramUser(sql, { id: 601, first_name: 'А', language_code: 'ru' });
+    expect(await saveProfile(sql, u.id, { notify: false })).toEqual({ lang: 'ru', notify: false });
+    expect((await upsertTelegramUser(sql, { id: 601, first_name: 'А' })).notify).toBe(false);
+    expect(await saveProfile(sql, u.id, { lang: 'kk' })).toEqual({ lang: 'kk', notify: false });
+    await sql`update users set notify = '{"enabled": false, "blocked": true}' where id = ${u.id}`;
+    expect(await saveProfile(sql, u.id, { notify: true })).toEqual({ lang: 'kk', notify: true });
+    const [row] = await sql`select notify from users where id = ${u.id}`;
+    expect(row.notify).toEqual({ enabled: true });
   });
 });
