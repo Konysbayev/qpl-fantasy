@@ -97,6 +97,18 @@ describe('cron-tick', () => {
     expect(sent).toEqual(expect.arrayContaining([expect.stringContaining('1-тур аяқталды')]));
   });
 
+  it('календарь за один вызов берёт не больше 5 страниц', async () => {
+    const urls = Array.from({ length: 12 }, (_, i) => `<url><loc>https://kffleague.kz/matches/${7000 + i}</loc><lastmod>2026-03-07T00:00:00.000Z</lastmod></url>`).join('');
+    const paths: string[] = [];
+    const f = quietFetcher(async (p) => {
+      paths.push(p);
+      return p === '/sitemap.xml' ? { status: 200, body: `<urlset>${urls}</urlset>` } : { status: 500, body: '' };
+    });
+    const body = await (await cronTick(req(), deps({ fetcher: () => f }))).json();
+    expect(paths.filter((p) => p.startsWith('/ru/matches/'))).toHaveLength(5);
+    expect(body.calendar.complete).toBe(false);
+  });
+
   it('ошибка загрузки календаря не мешает подсчёту очков', async () => {
     const res = await cronTick(req(), deps({ fetcher: () => quietFetcher(async () => { throw new Error('boom'); }) }));
     expect(res.status).toBe(200);
