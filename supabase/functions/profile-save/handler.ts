@@ -12,8 +12,16 @@ export async function profileSave(req: Request, deps: FnDeps): Promise<Response>
   const body = await readJson(req);
   const lang = body?.lang;
   const notify = body?.notify;
-  if (lang === undefined && notify === undefined) return badRequest();
+  const rawTeam = body?.teamName;
+  if (lang === undefined && notify === undefined && rawTeam === undefined) return badRequest();
   if (lang !== undefined && lang !== 'kk' && lang !== 'ru') return badRequest();
   if (notify !== undefined && typeof notify !== 'boolean') return badRequest();
-  return json({ ok: true, value: await saveProfile(deps.sql, session.sub, { lang, notify }) });
+  let teamName: string | undefined;
+  if (rawTeam !== undefined) {
+    if (typeof rawTeam !== 'string') return badRequest();
+    teamName = rawTeam.trim();
+    // Рейтингте бір жолға сыятын атау: 3–24 таңба, басқару таңбаларынсыз
+    if ([...teamName].length < 3 || [...teamName].length > 24 || /[\u0000-\u001f\u007f]/.test(teamName)) return badRequest();
+  }
+  return json({ ok: true, value: await saveProfile(deps.sql, session.sub, { lang, notify, teamName }) });
 }

@@ -1,15 +1,17 @@
-// «Лигалар»: мини-лигалар 3-кезеңде, әзірге — хабарлама.
+// «Лигалар»: жалпы рейтинг (children) және мини-лигалар туралы хабарлама.
+import type { ReactNode } from 'react';
 import { SHANYRAK_D } from '../components/shapes.js';
 import { useT } from '../i18n/useT.js';
 import { useTheme } from '../theme/ThemeProvider.js';
 import { FONT_NUM } from '../theme/tokens.js';
 
-export function LeaguesSoon() {
+export function LeaguesSoon({ children }: { children?: ReactNode }) {
   const t = useTheme();
   const tr = useT();
   return (
     <div style={{ display: 'flex', flexDirection: 'column', padding: '14px 16px' }}>
       <h1 style={{ margin: '0 0 12px', fontFamily: FONT_NUM, fontWeight: 800, fontSize: 26, lineHeight: 1 }}>{tr('navLeagues')}</h1>
+      {children && <div style={{ marginBottom: 14 }}>{children}</div>}
       <section style={{ position: 'relative', overflow: 'hidden', background: t.card, borderRadius: 26, padding: '22px 18px', boxShadow: t.cardShadow, display: 'flex', flexDirection: 'column', gap: 10 }}>
         <svg width="170" height="170" viewBox="0 0 24 24" aria-hidden="true" style={{ position: 'absolute', right: -50, bottom: -64, opacity: t.watermarkOp }}>
           <circle cx="12" cy="12" r="9" fill="none" stroke={t.primaryText} strokeWidth={1} />

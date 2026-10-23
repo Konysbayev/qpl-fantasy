@@ -37,7 +37,12 @@ export async function mockBackend(page: Page, data: MockData, opts: { theme: 'li
     const p = url.pathname;
     const eq = (k: string) => url.searchParams.get(k)?.replace(/^eq\./, '') ?? null;
     const json = (body: unknown, status = 200) => route.fulfill({ status, headers: { ...CORS, 'content-type': 'application/json' }, body: JSON.stringify(body) });
-    if (p === '/functions/v1/auth-telegram') return json({ token: 'mock-token', user: { id: 'u1', displayName: 'Скриншот', lang: opts.lang } });
+    if (p === '/functions/v1/auth-telegram') return json({ token: 'mock-token', user: { id: 'u1', displayName: 'Скриншот', lang: opts.lang, notify: true, teamName: 'Сарыарқа FC' } });
+    if (p === '/functions/v1/leaderboard') {
+      const names = ['Ертіс Ultras', 'Алматы Барс', 'Тобыл Фан', null, 'Қайрат 1954', 'Сарыарқа FC', 'Кызылжар SK', 'Ақтөбе Жүрек'];
+      const rows = names.map((teamName, i) => ({ rank: i + 1, teamName, gwPoints: 70 - i * 6, total: 1480 - i * 23, me: teamName === 'Сарыарқа FC' }));
+      return json({ gameweek: 29, status: 'played', total: 214, rows, me: rows[5] });
+    }
     if (p === '/functions/v1/team-view') return json(data.view);
     if (p === '/functions/v1/squad-save') return json({ ok: true, value: null });
     if (p === '/functions/v1/transfer-commit') return json({ ok: true, value: { penalty: 0, freeLeft: 0, bank: 0 } });

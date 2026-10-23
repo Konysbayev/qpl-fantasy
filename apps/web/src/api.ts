@@ -8,7 +8,7 @@ export type { PickInput, Result, TeamView, TransferRequest, TransferResult };
 
 export interface Session {
   token: string;
-  user: { id: string; displayName: string; lang: Lang; notify: boolean };
+  user: { id: string; displayName: string; lang: Lang; notify: boolean; teamName: string | null };
 }
 
 export interface ClubRow {
@@ -69,6 +69,24 @@ export interface PlayerMatchRow {
   kickoff: string;
 }
 
+export interface LeaderRow {
+  rank: number;
+  teamName: string | null;
+  gwPoints: number;
+  total: number;
+  me: boolean;
+}
+
+export interface Leaderboard {
+  gameweek: number | null;
+  status: string | null;
+  total: number;
+  rows: LeaderRow[];
+  me: LeaderRow | null;
+}
+
+export const LEADERBOARD_PAGE = 50;
+
 // Сервердің пән саласындағы қатесінен басқа: сессия жоқ немесе желі үзілді
 export type ApiResult<T> = Result<T> | { ok: false; error: 'unauthorized' | 'network' | 'rate_limited' };
 
@@ -86,7 +104,6 @@ type Raw = Record<string, unknown>;
 export function createApi(config: ApiConfig) {
   const doFetch = config.fetchImpl ?? ((...args: Parameters<typeof fetch>) => fetch(...args));
   let token: string | null = null;
-  const region = config.functionRegion ? `?forceFunctionRegion=${encodeURIComponent(config.functionRegion)}` : '';
 
   async function rest<R>(path: string): Promise<R> {
     const res = await doFetch(`${config.supabaseUrl}/rest/v1/${path}`, { headers: { apikey: config.anonKey, authorization: `Bearer ${config.anonKey}` } });
@@ -116,7 +133,9 @@ export function createApi(config: ApiConfig) {
   async function send<R>(name: string, init: { method: 'GET' | 'POST'; body?: unknown }): Promise<{ status: number; body: R }> {
     const headers: Record<string, string> = { 'content-type': 'application/json' };
     if (token) headers.authorization = `Bearer ${token}`;
-    const res = await doFetch(`${config.supabaseUrl}/functions/v1/${name}${region}`, {
+    const url = new URL(`${config.supabaseUrl}/functions/v1/${name}`);
+    if (config.functionRegion) url.searchParams.set('forceFunctionRegion', config.functionRegion);
+    const res = await doFetch(url.toString(), {
       method: init.method,
       headers,
       body: init.body === undefined ? undefined : JSON.stringify(init.body)
@@ -152,8 +171,14 @@ export function createApi(config: ApiConfig) {
       return command('transfer-commit', r);
     },
 
-    saveProfile(p: { lang?: Lang; notify?: boolean }): Promise<ApiResult<{ lang: Lang; notify: boolean }>> {
+    saveProfile(p: { lang?: Lang; notify?: boolean; teamName?: string }): Promise<ApiResult<{ lang: Lang; notify: boolean; teamName: string | null }>> {
       return command('profile-save', p);
+    },
+
+    async leaderboard(offset: number): Promise<Leaderboard> {
+      const res = await call<Leaderboard>(`leaderboard?offset=${offset}&limit=${LEADERBOARD_PAGE}`, { method: 'GET' });
+      if (res.status !== 200) throw new Error(`leaderboard: HTTP ${res.status}`);
+      return res.body;
     },
 
     async clubs(): Promise<ClubRow[]> {
