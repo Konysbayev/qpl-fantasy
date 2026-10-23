@@ -26,3 +26,7 @@ entrypoint = "./functions/transfer-commit/dist/index.js"
 [functions.cron-tick]
 verify_jwt = false
 entrypoint = "./functions/cron-tick/dist/index.js"
+
+[functions.profile-save]
+verify_jwt = false
+entrypoint = "./functions/profile-save/dist/index.js"

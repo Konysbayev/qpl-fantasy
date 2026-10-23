@@ -86,6 +86,7 @@ export const ru: Record<keyof typeof kk, string> = {
   language: 'Язык',
   theme: 'Тема',
   themeTelegram: 'Как в Telegram',
+  notifications: 'Уведомления в боте',
   soon: 'Скоро',
   leaguesSoonTitle: 'Скоро: мини-лиги',
   leaguesSoonText: 'Создавайте свои лиги и соревнуйтесь с друзьями. Появится на следующем этапе.',
