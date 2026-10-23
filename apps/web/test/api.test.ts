@@ -18,6 +18,20 @@ const config = (fetchImpl: typeof fetch) => ({ supabaseUrl: 'https://ref.supabas
 const session = { token: 'session-token', user: { id: 'u1', displayName: 'Ая', lang: 'kk' } };
 
 describe('api', () => {
+  it('ход матча: события по порядку с именами игроков', async () => {
+    const f = fakeFetch({ match_events: { status: 200, body: [
+      { minute: 12, kind: 'goal', club_id: 'c1', player: { first_name: 'Дастан', last_name: 'Сатпаев' }, other: { first_name: 'Ислам', last_name: 'Чесноков' } },
+      { minute: 60, kind: 'sub', club_id: 'c2', player: { first_name: 'А', last_name: 'Вход' }, other: null }
+    ] } });
+    const api = createApi(config(f.fetchImpl));
+    expect(await api.matchEvents('fx1')).toEqual([
+      { minute: 12, kind: 'goal', clubId: 'c1', player: 'Д. Сатпаев', other: 'И. Чесноков' },
+      { minute: 60, kind: 'sub', clubId: 'c2', player: 'А. Вход', other: null }
+    ]);
+    expect(f.calls[0].url).toContain('/rest/v1/match_events?fixture_id=eq.fx1');
+    expect(f.calls[0].url).toContain('order=idx');
+  });
+
   it('рейтинг: страница в параметрах запроса вместе с регионом', async () => {
     const f = fakeFetch({ 'auth-telegram': { status: 200, body: session }, leaderboard: { status: 200, body: { gameweek: 1, status: 'played', total: 0, rows: [], me: null } } });
     const api = createApi({ ...config(f.fetchImpl), functionRegion: 'ap-northeast-2' });

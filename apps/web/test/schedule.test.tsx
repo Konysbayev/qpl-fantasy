@@ -30,7 +30,7 @@ function wrap(node: JSX.Element, lang: Lang = 'kk') {
 }
 
 describe('Schedule', () => {
-  const api = { fixtures: vi.fn(async (gw?: number) => BY_GW[gw ?? 0] ?? []) };
+  const api = { fixtures: vi.fn(async (gw?: number) => BY_GW[gw ?? 0] ?? []), matchEvents: vi.fn(async () => []) };
 
   it('сыгранный матч — счёт, идущий — LIVE; стрелкой переключается тур, будущий матч — время по Алматы', async () => {
     wrap(<Schedule gameweeks={GWS} initial={2} clubs={CLUBS} api={api} />);
