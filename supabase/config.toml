@@ -30,3 +30,7 @@ entrypoint = "./functions/cron-tick/dist/index.js"
 [functions.profile-save]
 verify_jwt = false
 entrypoint = "./functions/profile-save/dist/index.js"
+
+[functions.leaderboard]
+verify_jwt = false
+entrypoint = "./functions/leaderboard/dist/index.js"

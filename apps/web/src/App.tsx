@@ -11,9 +11,11 @@ import { LangProvider, detectLang, useT, type Lang } from './i18n/useT.js';
 import { Builder } from './screens/Builder.js';
 import { LeaguesSoon } from './screens/LeaguesSoon.js';
 import { PlayerCard, type CardPlayer } from './screens/PlayerCard.js';
+import { Leaderboard } from './screens/Leaderboard.js';
 import { Profile } from './screens/Profile.js';
 import { Schedule } from './screens/Schedule.js';
 import { Team } from './screens/Team.js';
+import { TeamNameSheet } from './screens/TeamNameSheet.js';
 import { Transfer } from './screens/Transfer.js';
 import { tg } from './telegram.js';
 import { ThemeProvider, useTheme } from './theme/ThemeProvider.js';
@@ -65,7 +67,7 @@ export function App() {
     <ThemeProvider>
       <LangProvider lang={lang}>
         {boot.state === 'ready' ? (
-          <Main name={boot.session.user.displayName} initialNotify={boot.session.user.notify ?? true} lang={lang} onLang={(l) => {
+          <Main name={boot.session.user.displayName} initialNotify={boot.session.user.notify ?? true} initialTeamName={boot.session.user.teamName ?? null} lang={lang} onLang={(l) => {
             saveLang(l);
             setLang(l);
           }} />
@@ -82,8 +84,10 @@ interface Data {
   clubs: Map<string, ClubRow>;
 }
 
-function Main({ name, initialNotify, lang, onLang }: { name: string; initialNotify: boolean; lang: Lang; onLang: (l: Lang) => void }) {
+function Main({ name, initialNotify, initialTeamName, lang, onLang }: { name: string; initialNotify: boolean; initialTeamName: string | null; lang: Lang; onLang: (l: Lang) => void }) {
   const [notify, setNotify] = useState(initialNotify);
+  const [teamName, setTeamName] = useState(initialTeamName);
+  const [editTeam, setEditTeam] = useState(false);
   const th = useTheme();
   const t = useT();
   const [tab, setTab] = useState<Tab>('team');
@@ -157,7 +161,7 @@ function Main({ name, initialNotify, lang, onLang }: { name: string; initialNoti
   else if (tab === 'team') screen = <Team view={data.view} clubs={data.clubs} api={fastApi} onPlayer={(id) => setCard(cardPlayer(id, data.view, players))} onChanged={refreshView} />;
   else if (tab === 'transfer' && data.view.squad) screen = <Transfer key={transferOut ?? ''} view={data.view} players={players!} clubs={data.clubs} api={api} initialOut={transferOut} onDone={refreshView}
       onPlayer={(id) => { const p = players?.find((x) => x.id === id); if (p) setCard({ id: p.id, firstName: p.firstName, lastName: p.lastName, position: p.position, clubId: p.clubId, price: p.price, selectedPct: p.selectedPct }); }} />;
-  else if (tab === 'leagues') screen = <LeaguesSoon />;
+  else if (tab === 'leagues') screen = <LeaguesSoon><Leaderboard api={api} /></LeaguesSoon>;
   else if (tab === 'schedule' && gameweeks) {
     const initial = data.view.next?.number ?? data.view.last?.number ?? gameweeks[0]?.number ?? 1;
     screen = <Schedule gameweeks={gameweeks} initial={initial} clubs={data.clubs} api={api} />;
@@ -180,7 +184,12 @@ function Main({ name, initialNotify, lang, onLang }: { name: string; initialNoti
         </div>
       )}
       {!building && <BottomNav current={tab} onNavigate={navigate} />}
-      {profile && <Profile name={name} lang={lang} notify={notify} onNotify={setNotify} api={api} onLang={onLang} onClose={() => setProfile(false)} />}
+      {profile && <Profile name={name} lang={lang} notify={notify} onNotify={setNotify} api={api} onLang={onLang} onClose={() => setProfile(false)}
+        teamName={teamName} onEditTeam={() => { setProfile(false); setEditTeam(true); }} />}
+      {/* Атауы жоқ ойыншыдан бір рет сұралады; профильден өзгертуге болады */}
+      {(teamName === null || editTeam) && data && (
+        <TeamNameSheet api={api} initial={teamName} onSaved={(n) => { setTeamName(n); setEditTeam(false); }} onClose={teamName === null ? undefined : () => setEditTeam(false)} />
+      )}
       {card && data && (
         <PlayerCard player={card} view={data.view} clubs={data.clubs} api={fastApi} onClose={() => setCard(null)} onChanged={refreshView} onError={setToast}
           onTransferOut={(id) => {

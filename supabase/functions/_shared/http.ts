@@ -69,4 +69,4 @@ export const badRequest = (): Response => json({ ok: false, error: 'bad_request'
 export const tooMany = (): Response => json({ ok: false, error: 'rate_limited' }, 429);
 
 // Пайдаланушы мен функция бойынша минутына шектеу
-export const LIMITS = { 'team-view': 60, 'squad-save': 20, 'transfer-commit': 20, 'profile-save': 20 } as const;
+export const LIMITS = { 'team-view': 60, 'squad-save': 20, 'transfer-commit': 20, 'profile-save': 20, leaderboard: 60 } as const;

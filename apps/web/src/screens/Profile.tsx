@@ -17,9 +17,11 @@ export interface ProfileProps {
   api: Pick<Api, 'saveProfile'>;
   onLang: (l: Lang) => void;
   onClose: () => void;
+  teamName?: string | null;
+  onEditTeam?: () => void;
 }
 
-export function Profile({ name, lang, notify, onNotify, api, onLang, onClose }: ProfileProps) {
+export function Profile({ name, lang, notify, onNotify, api, onLang, onClose, teamName, onEditTeam }: ProfileProps) {
   const t = useTheme();
   const tr = useT();
   const [error, setError] = useState(false);
@@ -45,6 +47,18 @@ export function Profile({ name, lang, notify, onNotify, api, onLang, onClose }: 
     <Sheet open onClose={onClose} label={tr('profile')}>
       <div style={{ padding: '4px 16px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
         <h1 style={{ margin: 0, fontFamily: FONT_NUM, fontWeight: 800, fontSize: 24 }}>{name}</h1>
+        {onEditTeam && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <span style={label}>{tr('teamName')}</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <span style={{ fontSize: 16, fontWeight: 800, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: teamName ? t.ink : t.muted }}>{teamName ?? tr('noTeamName')}</span>
+              <button type="button" onClick={onEditTeam}
+                style={{ flexShrink: 0, height: 36, padding: '0 14px', borderRadius: 12, border: 0, background: t.soft, color: t.primaryText, boxShadow: `0 2px 0 ${t.softLip}`, fontFamily: FONT_NUM, fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
+                {tr('teamNameEdit')}
+              </button>
+            </div>
+          </div>
+        )}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <span style={label}>{tr('language')}</span>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8 }}>

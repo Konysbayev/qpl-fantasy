@@ -18,6 +18,14 @@ const config = (fetchImpl: typeof fetch) => ({ supabaseUrl: 'https://ref.supabas
 const session = { token: 'session-token', user: { id: 'u1', displayName: 'Ая', lang: 'kk' } };
 
 describe('api', () => {
+  it('рейтинг: страница в параметрах запроса вместе с регионом', async () => {
+    const f = fakeFetch({ 'auth-telegram': { status: 200, body: session }, leaderboard: { status: 200, body: { gameweek: 1, status: 'played', total: 0, rows: [], me: null } } });
+    const api = createApi({ ...config(f.fetchImpl), functionRegion: 'ap-northeast-2' });
+    await api.login();
+    expect(await api.leaderboard(50)).toMatchObject({ gameweek: 1 });
+    expect(f.calls[1].url).toBe('https://ref.supabase.co/functions/v1/leaderboard?offset=50&limit=50&forceFunctionRegion=ap-northeast-2');
+  });
+
   it('функции вызываются в регионе базы: ?forceFunctionRegion=<регион>', async () => {
     const f = fakeFetch({ 'auth-telegram': { status: 200, body: session }, 'team-view': { status: 200, body: { picks: [] } } });
     const api = createApi({ ...config(f.fetchImpl), functionRegion: 'ap-northeast-2' });

@@ -31,7 +31,15 @@ describe('profile-save', () => {
   it('сохраняет язык и уведомления', async () => {
     const res = await profileSave(req({ lang: 'ru', notify: false }), deps());
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true, value: { lang: 'ru', notify: false } });
+    expect(await res.json()).toEqual({ ok: true, value: { lang: 'ru', notify: false, teamName: null } });
+  });
+
+  it('название команды: обрезаются пробелы; короче 3, длиннее 24 или с переводом строки — 400', async () => {
+    expect(await (await profileSave(req({ teamName: '  Ертіс Ultras ' }), deps())).json()).toMatchObject({ value: { teamName: 'Ертіс Ultras' } });
+    expect((await profileSave(req({ teamName: 'аб' }), deps())).status).toBe(400);
+    expect((await profileSave(req({ teamName: 'я'.repeat(25) }), deps())).status).toBe(400);
+    expect((await profileSave(req({ teamName: 'Кайрат\nFC' }), deps())).status).toBe(400);
+    expect((await profileSave(req({ teamName: 42 }), deps())).status).toBe(400);
   });
 
   it('без сессии → 401; неверные значения или пустое тело → 400', async () => {

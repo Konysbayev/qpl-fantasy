@@ -10,25 +10,32 @@ export interface AppUser {
   lang: Lang;
   // Боттағы хабарламалар қосулы ма (әдепкі — иә)
   notify: boolean;
+  // Жалпы рейтингтегі атауы; әлі таңдалмаса — null
+  teamName: string | null;
 }
 
 export async function upsertTelegramUser(sql: postgres.Sql, tg: TelegramUser): Promise<AppUser> {
   const name = [tg.first_name, tg.last_name].filter(Boolean).join(' ').trim() || tg.username || String(tg.id);
   const lang: Lang = tg.language_code === 'ru' ? 'ru' : 'kk';
-  const [row] = await sql<{ id: string; display_name: string; lang: Lang; notify: boolean }[]>`
+  const [row] = await sql<{ id: string; display_name: string; lang: Lang; notify: boolean; team_name: string | null }[]>`
     insert into users (telegram_id, display_name, lang) values (${tg.id}, ${name}, ${lang})
     on conflict (telegram_id) do update set display_name = excluded.display_name
-    returning id, display_name, lang, coalesce(notify->>'enabled', 'true') <> 'false' as notify`;
-  return { id: row.id, displayName: row.display_name, lang: row.lang, notify: row.notify };
+    returning id, display_name, lang, coalesce(notify->>'enabled', 'true') <> 'false' as notify, team_name`;
+  return { id: row.id, displayName: row.display_name, lang: row.lang, notify: row.notify, teamName: row.team_name };
 }
 
 // Профиль: тіл және хабарламалар. Қосқанда «ботты бұғаттаған» белгісі алынады
-export async function saveProfile(sql: postgres.Sql, userId: string, p: { lang?: Lang; notify?: boolean }): Promise<{ lang: Lang; notify: boolean }> {
-  const [row] = await sql<{ lang: Lang; notify: boolean }[]>`
+export async function saveProfile(
+  sql: postgres.Sql,
+  userId: string,
+  p: { lang?: Lang; notify?: boolean; teamName?: string }
+): Promise<{ lang: Lang; notify: boolean; teamName: string | null }> {
+  const [row] = await sql<{ lang: Lang; notify: boolean; teamName: string | null }[]>`
     update users set
       lang = coalesce(${p.lang ?? null}::text, lang),
+      team_name = coalesce(${p.teamName?.trim() ?? null}::text, team_name),
       notify = case when ${p.notify ?? null}::boolean is null then notify else jsonb_build_object('enabled', ${p.notify ?? null}::boolean) end
     where id = ${userId}
-    returning lang, coalesce(notify->>'enabled', 'true') <> 'false' as notify`;
+    returning lang, coalesce(notify->>'enabled', 'true') <> 'false' as notify, team_name as "teamName"`;
   return row;
 }
