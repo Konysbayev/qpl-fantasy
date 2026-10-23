@@ -65,4 +65,21 @@ describe('схема базы', () => {
     await sql`update gameweeks set deadline = now() - interval '1 minute' where id = ${gw.id}`;
     expect((await visibleToA()).sort()).toEqual([a.id, b.id].sort());
   });
+
+  it('0007: новые таблицы закрыты для anon и authenticated, колонки на месте', async () => {
+    const [season] = await sql`insert into seasons (year, source_season_id, scoring_rules) values (2027, 700, '{}') returning id`;
+    const [gw] = await sql`insert into gameweeks (season_id, number, deadline) values (${season.id}, 1, now()) returning id`;
+    const [f] = await sql`select column_name from information_schema.columns where table_name = 'fixtures' and column_name = 'fetched_at'`;
+    expect(f).toBeTruthy();
+    const [s] = await sql`select price_steps from seasons where id = ${season.id}`;
+    expect(s.price_steps).toEqual([[0.05, 1], [0.1, 2], [0.2, 3]]);
+    for (const table of ['sync_state', 'notifications_sent', 'price_changes']) {
+      for (const role of ['anon', 'authenticated'] as const) {
+        await expect(asRole(sql, role, null, (tx) => tx.unsafe(`select * from ${table}`))).rejects.toThrow(/permission denied/i);
+      }
+    }
+    await sql`insert into notifications_sent (gameweek_id, kind) values (${gw.id}, 'results')`;
+    await expect(sql`insert into notifications_sent (gameweek_id, kind) values (${gw.id}, 'results')`).rejects.toMatchObject({ code: '23505' });
+    await expect(sql`insert into notifications_sent (gameweek_id, kind) values (${gw.id}, 'other')`).rejects.toThrow(/check/i);
+  });
 });
