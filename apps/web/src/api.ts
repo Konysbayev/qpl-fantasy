@@ -218,6 +218,12 @@ export function createApi(config: ApiConfig) {
       }));
     },
 
+    // Фото тек player_photo көрінісі арқылы: жалауша өшсе, бос (карточкада бос орын)
+    async playerPhoto(playerId: string): Promise<string | null> {
+      const [r] = await rest<Raw[]>(`player_photo?player_id=eq.${encodeURIComponent(playerId)}&select=url`);
+      return (r?.url as string | undefined) ?? null;
+    },
+
     async seasonStats(playerId: string): Promise<SeasonStats | null> {
       const [r] = await rest<Raw[]>(`player_season_stats?player_id=eq.${encodeURIComponent(playerId)}`);
       if (!r) return null;

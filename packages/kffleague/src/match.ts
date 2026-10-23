@@ -32,6 +32,12 @@ function findMatchObject(text: string, matchId: number): Raw {
   throw new ParseError(`На странице нет матча с id ${matchId}`);
 }
 
+// Фото тек лига сайтынан қабылданады
+const photo = (v: unknown): string | null => {
+  const url = str(v);
+  return url && url.startsWith('https://kffleague.kz/') ? url : null;
+};
+
 function lineupPlayers(side: Raw | undefined, teamSourceId: number): LineupPlayer[] {
   if (!side) return [];
   const toPlayer = (raw: unknown, starter: boolean): LineupPlayer | null => {
@@ -47,7 +53,8 @@ function lineupPlayers(side: Raw | undefined, teamSourceId: number): LineupPlaye
       position: POSITIONS.includes(pos as Position) ? (pos as Position) : null,
       teamSourceId,
       starter,
-      isCaptain: p.is_captain === true
+      isCaptain: p.is_captain === true,
+      photoUrl: photo(p.photo_url)
     };
   };
   const starters = Array.isArray(side.starters) ? side.starters : [];

@@ -18,6 +18,15 @@ const config = (fetchImpl: typeof fetch) => ({ supabaseUrl: 'https://ref.supabas
 const session = { token: 'session-token', user: { id: 'u1', displayName: 'Ая', lang: 'kk' } };
 
 describe('api', () => {
+  it('фото игрока: из представления player_photo; нет строки — null', async () => {
+    const f = fakeFetch({ player_photo: { status: 200, body: [{ url: 'https://kffleague.kz/x.png' }] } });
+    const api = createApi(config(f.fetchImpl));
+    expect(await api.playerPhoto('p1')).toBe('https://kffleague.kz/x.png');
+    expect(f.calls[0].url).toContain('/rest/v1/player_photo?player_id=eq.p1');
+    const empty = createApi(config(fakeFetch({ player_photo: { status: 200, body: [] } }).fetchImpl));
+    expect(await empty.playerPhoto('p1')).toBeNull();
+  });
+
   it('ход матча: события по порядку с именами игроков', async () => {
     const f = fakeFetch({ match_events: { status: 200, body: [
       { minute: 12, kind: 'goal', club_id: 'c1', player: { first_name: 'Дастан', last_name: 'Сатпаев' }, other: { first_name: 'Ислам', last_name: 'Чесноков' } },

@@ -36,6 +36,12 @@ describe('parseMatchPage', () => {
     expect(m.lineups.find((p) => p.sourceId === 445)).toMatchObject({ position: 'GK', teamSourceId: 87, lastName: 'Челядник', starter: true });
   });
 
+  it('матч 993: ссылка на фото игрока — только с kffleague.kz, иначе null', () => {
+    const m = parseMatchPage(fixture(993), 993);
+    expect(m.lineups.find((p) => p.sourceId === 445)?.photoUrl).toBe('https://kffleague.kz/storage/qfl-files/player_photos/18159_leaderboard_9c6d8ab8.png');
+    expect(m.lineups.every((p) => p.photoUrl === null || p.photoUrl!.startsWith('https://kffleague.kz/'))).toBe(true);
+  });
+
   it('матч 993: гол Оксанена с ассистом Юкколы на 9-й', () => {
     const m = parseMatchPage(fixture(993), 993);
     expect(m.events).toContainEqual({ kind: 'goal', minute: 9, half: 1, playerSourceId: 2560, assistSourceId: 2562, teamSourceId: 13 });
