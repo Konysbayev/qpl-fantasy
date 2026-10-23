@@ -1,0 +1,35 @@
+# Апта сайынғы көшірме (спецификация 8): дүйсенбі 03:17 Алматы уақытымен; артефакт 90 күн сақталады
+name: Weekly backup
+
+on:
+  schedule:
+    - cron: '17 22 * * 0'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: gckotzbfqduksfjxtqwf
+    steps:
+      - name: Токен бар ма
+        id: check
+        run: echo "ready=${{ env.SUPABASE_ACCESS_TOKEN != '' }}" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.ready == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.ready == 'true'
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        if: steps.check.outputs.ready == 'true'
+      - run: npx tsx scripts/deploy/backup-remote.ts
+        if: steps.check.outputs.ready == 'true'
+      - uses: actions/upload-artifact@v4
+        if: steps.check.outputs.ready == 'true'
+        with:
+          name: qpl-backup-${{ github.run_id }}
+          path: backups/
+          retention-days: 90

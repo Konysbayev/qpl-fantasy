@@ -65,3 +65,8 @@ export function result(r: { ok: boolean }): Response {
 
 export const unauthorized = (): Response => json({ ok: false, error: 'unauthorized' }, 401);
 export const badRequest = (): Response => json({ ok: false, error: 'bad_request' }, 400);
+
+export const tooMany = (): Response => json({ ok: false, error: 'rate_limited' }, 429);
+
+// Пайдаланушы мен функция бойынша минутына шектеу
+export const LIMITS = { 'team-view': 60, 'squad-save': 20, 'transfer-commit': 20 } as const;

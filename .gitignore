@@ -5,3 +5,4 @@ supabase/functions/*/dist/
 apps/web/dist/
 apps/web/e2e/data.json
 apps/web/test-results/
+backups/

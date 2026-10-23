@@ -102,6 +102,14 @@ describe('Team', () => {
     await waitFor(() => expect(onChanged).toHaveBeenCalled());
   });
 
+  it('если капитан ушёл в запас, подсказка говорит, кому перешла повязка', async () => {
+    setup();
+    fireEvent.click(screen.getByRole('button', { name: 'Ауыстыру' }));
+    fireEvent.click(player(5));
+    fireEvent.click(player(15));
+    expect(await screen.findByText('Капитан белгісі Фамилия15 ойыншысына өтті')).toBeTruthy();
+  });
+
   it('ошибка deadline_passed показывает «Дедлайн өтті»', async () => {
     setup(view(), { ok: false, error: 'deadline_passed' });
     fireEvent.click(screen.getByRole('button', { name: 'Ауыстыру' }));

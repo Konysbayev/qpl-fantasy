@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { api, type ClubRow, type GameweekRow, type PlayerRow, type Session, type TeamView } from './api.js';
 import { BottomNav, type Tab } from './components/BottomNav.js';
 import { Header } from './components/Header.js';
+import { OfflineBanner } from './components/OfflineBanner.js';
+import { useAutoRefresh } from './hooks.js';
 import { LangProvider, detectLang, useT, type Lang } from './i18n/useT.js';
 import { Builder } from './screens/Builder.js';
 import { LeaguesSoon } from './screens/LeaguesSoon.js';
@@ -97,6 +99,8 @@ function Main({ name, lang, onLang }: { name: string; lang: Lang; onLang: (l: La
     );
   }, []);
   useEffect(load, [load]);
+  // Тур жүріп жатқанда ұпайлар 2 минут сайын жаңарады (дерек көзі де 2–3 минутта жаңарады)
+  useAutoRefresh(data?.view.last?.status === 'live', load, 120_000);
 
   // Ойыншылар тізімі трансфер мен алғашқы құрамға ғана керек
   const building = data !== null && data.view.squad === null && data.view.next !== null;
@@ -117,9 +121,11 @@ function Main({ name, lang, onLang }: { name: string; lang: Lang; onLang: (l: La
   let screen;
   if (failed) screen = <Message text={t('errorGeneric')} onRetry={reload} />;
   else if (!data || (needPlayers && !players)) screen = <Message text={t('loading')} />;
+  else if (!data.view.squad && !data.view.next) screen = <Message text={t('seasonOverWait')} />;
   else if (building) screen = <Builder view={data.view} players={players!} clubs={data.clubs} api={api} onDone={reload} />;
   else if (tab === 'team') screen = <Team view={data.view} clubs={data.clubs} api={api} onPlayer={(id) => setCard(cardPlayer(id, data.view, players))} onChanged={load} />;
-  else if (tab === 'transfer' && data.view.squad) screen = <Transfer key={transferOut ?? ''} view={data.view} players={players!} clubs={data.clubs} api={api} initialOut={transferOut} onDone={load} />;
+  else if (tab === 'transfer' && data.view.squad) screen = <Transfer key={transferOut ?? ''} view={data.view} players={players!} clubs={data.clubs} api={api} initialOut={transferOut} onDone={load}
+      onPlayer={(id) => { const p = players?.find((x) => x.id === id); if (p) setCard({ id: p.id, firstName: p.firstName, lastName: p.lastName, position: p.position, clubId: p.clubId, price: p.price, selectedPct: p.selectedPct }); }} />;
   else if (tab === 'leagues') screen = <LeaguesSoon />;
   else if (tab === 'schedule' && gameweeks) {
     const initial = data.view.next?.number ?? data.view.last?.number ?? gameweeks[0]?.number ?? 1;
@@ -135,6 +141,7 @@ function Main({ name, lang, onLang }: { name: string; lang: Lang; onLang: (l: La
     // Telegram терезесінің нақты биіктігі (жартылай ашылғанда да мәзір мен батырмалар көрінеді)
     <div style={{ height: 'var(--tg-viewport-stable-height, 100vh)', maxWidth: 480, margin: '0 auto', background: th.bg, color: th.ink, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {tab === 'team' && !building && <Header onProfile={() => setProfile(true)} />}
+      <OfflineBanner />
       <main style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>{screen}</main>
       {!building && <BottomNav current={tab} onNavigate={navigate} />}
       {profile && <Profile name={name} lang={lang} onLang={onLang} onClose={() => setProfile(false)} />}

@@ -46,13 +46,15 @@ cloudflare.com → **Workers & Pages → Create → Pages → Connect to Git** �
 Команды из корня репозитория, `SUPABASE_PROJECT_REF=gckotzbfqduksfjxtqwf`:
 
 ```bash
-npm run deploy:migrate        # таблицы и правила доступа: миграции 0001–0005
+npm run deploy:migrate        # таблицы и правила доступа: миграции 0001–0006
 npm run deploy:seed           # сезон 2026: 16 клубов, 519 игроков с ценами, 30 туров, 240 матчей, статистика
 npm run deploy:functions -- health auth-telegram team-view squad-save transfer-commit
 npm run deploy:secrets        # TELEGRAM_BOT_TOKEN из окружения и новый SESSION_SECRET
 ```
 
-Проверка: `curl https://gckotzbfqduksfjxtqwf.supabase.co/functions/v1/health` → `{"ok":true,"time":…}`.
+Проверка: `curl https://gckotzbfqduksfjxtqwf.supabase.co/functions/v1/health` → `{"ok":true,"time":…,"db":true,"secrets":{"TELEGRAM_BOT_TOKEN":true,"SESSION_SECRET":true}}`. Если что-то не так — `"ok":false` и код 503.
+
+Бэкап: `npm run deploy:backup` → `backups/<дата>/` (каждая таблица — JSON). Раз в неделю его делает GitHub Actions, если в настройках репозитория (Settings → Secrets and variables → Actions) добавлен секрет `SUPABASE_ACCESS_TOKEN`; хватает токена с правом чтения.
 
 `deploy:seed` берёт данные из локальной базы репетиции (`npm run rehearsal` пересобирает её с kffleague.kz) и пишет отчёт с ценами `docs/research/<дата>-prices-draft.md`.
 

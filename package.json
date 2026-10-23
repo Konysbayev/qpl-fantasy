@@ -14,7 +14,9 @@
     "web:build": "npm run build -w @qpl/web",
     "web:screens": "npm run screens -w @qpl/web",
     "deploy:secrets": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/set-secrets.ts",
-    "deploy:seed": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/seed-remote.ts"
+    "deploy:seed": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/seed-remote.ts",
+    "typecheck": "tsc -p . && tsc -p apps/web",
+    "deploy:backup": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/backup-remote.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

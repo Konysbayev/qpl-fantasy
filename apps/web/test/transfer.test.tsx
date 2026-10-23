@@ -157,6 +157,22 @@ describe('Transfer', () => {
     await waitFor(() => expect(onDone).toHaveBeenCalled());
   });
 
+  it('Wildcard: «Жоқ» в подтверждении оставляет его выключенным', () => {
+    setup(view({ freeTransfers: 0 }));
+    fireEvent.click(screen.getByRole('button', { name: /Wildcard/ }));
+    expect(screen.getByText(/бір рет қана/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Жоқ' }));
+    expect(screen.queryByText(/бір рет қана/)).toBeNull();
+    expect(screen.getByRole('button', { name: /Wildcard/ }).getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('нажатие на фамилию в списке открывает карточку игрока', () => {
+    const onPlayer = vi.fn();
+    wrap(<Transfer view={view()} players={PLAYERS} clubs={CLUBS} api={{ transfer: vi.fn() }} initialOut="DEF-4-0" onDone={() => {}} onPlayer={onPlayer} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Ойыншы картасы: DEF50' }));
+    expect(onPlayer).toHaveBeenCalledWith('DEF-5-0');
+  });
+
   it('ошибка сервера deadline_passed показывается текстом', async () => {
     setup(view(), vi.fn().mockResolvedValue({ ok: false, error: 'deadline_passed' }));
     fireEvent.click(screen.getByRole('button', { name: 'Шығару: DEF40' }));
@@ -174,6 +190,9 @@ describe('Transfer', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Қосу: DEF50' }));
     expect(confirmButton().textContent).toContain('−4');
     fireEvent.click(screen.getByRole('button', { name: /Wildcard/ }));
+    // Wildcard бір рет қана беріледі — алдымен сұрайды
+    expect(confirmButton().textContent).toContain('−4');
+    fireEvent.click(screen.getByRole('button', { name: 'Иә, қосу' }));
     expect(confirmButton().textContent).toContain('шегерім жоқ');
     fireEvent.click(confirmButton());
     expect(transfer.mock.calls[0][0].wildcard).toBe(true);

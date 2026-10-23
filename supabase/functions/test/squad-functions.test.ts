@@ -76,6 +76,15 @@ describe('squad-save', () => {
   });
 });
 
+describe('ограничение частоты', () => {
+  it('слишком много сохранений за минуту → 429, состав не трогается', async () => {
+    const statuses: number[] = [];
+    for (let i = 0; i < 21; i++) statuses.push((await squadSave(req('POST', { gameweek: 1, picks: standardPicks(L) }), deps())).status);
+    expect(statuses.slice(0, 20).every((s) => s !== 429)).toBe(true);
+    expect(statuses[20]).toBe(429);
+  });
+});
+
 describe('transfer-commit', () => {
   it('трансфер проходит; повтор того же requestId возвращает тот же ответ', async () => {
     await squadSave(req('POST', { gameweek: 1, picks: standardPicks(L) }), deps());

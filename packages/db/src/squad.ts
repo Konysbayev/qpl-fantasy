@@ -14,7 +14,7 @@ export interface Gameweek {
 }
 
 type Tx = postgres.TransactionSql;
-type PlayerRow = { id: string; position: Position; club_id: string; price: number };
+type PlayerRow = { id: string; position: Position; club_id: string; price: number; status: string };
 
 const ok = <T>(value: T): Result<T> => ({ ok: true, value });
 const fail = (error: SquadFailure, details?: string[]): Result<never> => (details ? { ok: false, error, details } : { ok: false, error });
@@ -100,7 +100,7 @@ function lineupErrors(picks: PickInput[], positions: Map<string, Position>): str
 }
 
 async function loadPlayers(tx: Tx, ids: string[]): Promise<PlayerRow[]> {
-  return tx<PlayerRow[]>`select id, position, club_id, price from players where id = any(${ids}::uuid[])`;
+  return tx<PlayerRow[]>`select id, position, club_id, price, status from players where id = any(${ids}::uuid[])`;
 }
 
 const asSquadPlayers = (rows: PlayerRow[]): SquadPlayer[] => rows.map((p) => ({ id: p.id, position: p.position, clubId: p.club_id, price: p.price }));
@@ -118,7 +118,7 @@ export async function createFirstSquad(sql: postgres.Sql, userId: string, now: D
   const open = await openGameweek(sql, now, gameweek);
   if (!open.ok) return open;
   const gw = open.value;
-  return run(sql, async (tx) => {
+  const create = run(sql, async (tx) => {
     const [had] = await tx`select 1 from squads s join gameweeks g on g.id = s.gameweek_id
       join gameweeks cur on cur.id = ${gw.id} where s.user_id = ${userId} and g.season_id = cur.season_id limit 1`;
     if (had) return fail('invalid_squad', ['squad_exists']);
@@ -126,6 +126,8 @@ export async function createFirstSquad(sql: postgres.Sql, userId: string, now: D
     const ids = [...new Set(picks.map((p) => p.playerId))];
     const players = await loadPlayers(tx, ids);
     if (ids.length !== picks.length || players.length !== ids.length) return fail('invalid_squad', ['size']);
+    // Лигадан кеткен ойыншыны алуға болмайды
+    if (players.some((p) => p.status === 'left')) return fail('invalid_squad', ['unavailable']);
     const squadErrors = validateSquad(asSquadPlayers(players));
     if (squadErrors.length > 0) return fail('invalid_squad', squadErrors);
     const lineup = lineupErrors(picks, new Map(players.map((p) => [p.id, p.position])));
@@ -137,6 +139,11 @@ export async function createFirstSquad(sql: postgres.Sql, userId: string, now: D
       values (${userId}, ${gw.id}, ${bank}, 0) returning id`;
     await insertPicks(tx, squad.id, picks);
     return ok({ squadId: squad.id });
+  });
+  // Екі сұрау қатар келсе, екіншісі бірегейлік шектеуіне тіреледі — 500 емес, түсінікті жауап
+  return create.catch((err: { code?: string }) => {
+    if (err?.code === '23505') return fail('invalid_squad', ['squad_exists']);
+    throw err;
   });
 }
 
@@ -207,6 +214,7 @@ async function applyTransfers(tx: Tx, userId: string, gw: Gameweek, req: Transfe
   const players = await loadPlayers(tx, [...owned, ...req.in]);
   const byId = new Map(players.map((p) => [p.id, p]));
   if (req.in.some((id) => !byId.has(id))) return fail('invalid_squad', ['unknown_player']);
+  if (req.in.some((id) => byId.get(id)!.status === 'left')) return fail('invalid_squad', ['unavailable']);
   if (req.out.some((id, i) => byId.get(id)!.position !== byId.get(req.in[i])!.position)) return fail('invalid_squad', ['positions']);
 
   // Сату — ағымдағы бағамен (спецификация 4.3)

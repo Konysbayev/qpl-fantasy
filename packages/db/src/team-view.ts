@@ -28,7 +28,9 @@ export async function loadTeamView(sql: postgres.Sql, userId: string, now: Date)
   const shown = nextSquad ?? lastSquad;
 
   const view: TeamView = { ...empty, next: next ? { id: next.id, number: next.number, deadline: next.deadline.toISOString() } : null };
-  const points = lastGw ? await gameweekPoints(sql, lastGw.id) : null;
+  // Ұпай тек көрсетілетін екі құрамның ойыншыларына есептеледі
+  const shownIds = [nextSquad?.id, lastSquad?.id].filter((x): x is string => Boolean(x));
+  const points = lastGw ? await gameweekPoints(sql, lastGw.id, shownIds) : null;
 
   if (lastGw && points) {
     const [{ unfinished }] = await sql<{ unfinished: number }[]>`select count(*)::int as unfinished from fixtures
@@ -71,7 +73,7 @@ async function penaltyOf(sql: postgres.Sql, userId: string, gameweekId: string):
 }
 
 // Турдағы әр ойыншының ұпайы (қос турда — қосындысы). Клубы әлі ойнап бітпеген ойыншы «ойнады» саналады: автоауыстыру тур соңында
-async function gameweekPoints(sql: postgres.Sql, gameweekId: string): Promise<Map<string, PlayerGameweek>> {
+async function gameweekPoints(sql: postgres.Sql, gameweekId: string, squadIds: string[]): Promise<Map<string, PlayerGameweek>> {
   const rows = await sql<{ id: string; position: Position; points: number; played: boolean; pending: boolean }[]>`
     select p.id, p.position,
            coalesce((select sum(s.points) from player_match_stats s join fixtures f on f.id = s.fixture_id
@@ -81,7 +83,6 @@ async function gameweekPoints(sql: postgres.Sql, gameweekId: string): Promise<Ma
            exists (select 1 from fixtures f where f.gameweek_id = ${gameweekId} and f.status <> 'finished'
                    and p.club_id in (f.home_club_id, f.away_club_id)) as pending
     from players p
-    where p.id in (select sp.player_id from squad_picks sp join squads sq on sq.id = sp.squad_id
-                   where sq.gameweek_id in (select id from gameweeks where season_id = (select season_id from gameweeks where id = ${gameweekId})))`;
+    where p.id in (select player_id from squad_picks where squad_id = any(${squadIds}::uuid[]))`;
   return new Map(rows.map((r) => [r.id, { position: r.position, points: r.points, played: r.played || r.pending }]));
 }

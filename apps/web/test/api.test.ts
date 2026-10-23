@@ -45,6 +45,21 @@ describe('api', () => {
     expect(new Headers(f.calls[0].init.headers).get('apikey')).toBe('anon-key');
   });
 
+  it('сессия истекла (401) — входит заново через initData и повторяет запрос один раз', async () => {
+    let views = 0;
+    const calls: string[] = [];
+    const fetchImpl = (async (url: string) => {
+      calls.push(url.replace('https://ref.supabase.co', ''));
+      if (url.endsWith('/auth-telegram')) return new Response(JSON.stringify({ ...session, token: `t${calls.length}` }), { status: 200 });
+      views++;
+      return views === 1 ? new Response('{"ok":false,"error":"unauthorized"}', { status: 401 }) : new Response('{"picks":[]}', { status: 200 });
+    }) as typeof fetch;
+    const api = createApi(config(fetchImpl));
+    await api.login();
+    expect(await api.teamView()).toEqual({ picks: [] });
+    expect(calls).toEqual(['/functions/v1/auth-telegram', '/functions/v1/team-view', '/functions/v1/auth-telegram', '/functions/v1/team-view']);
+  });
+
   it('без входа или при 401 → ошибка unauthorized, а не исключение', async () => {
     const f = fakeFetch({ 'squad-save': { status: 401, body: { ok: false, error: 'unauthorized' } } });
     const api = createApi(config(f.fetchImpl));

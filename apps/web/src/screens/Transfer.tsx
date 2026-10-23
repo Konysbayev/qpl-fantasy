@@ -21,6 +21,7 @@ export interface TransferProps {
   api: Pick<Api, 'transfer'>;
   initialOut: string | null;
   onDone: () => void;
+  onPlayer?: (playerId: string) => void;
 }
 
 type Owned = { id: string; lastName: string; position: PlayerRow['position']; clubId: string; price: number };
@@ -28,7 +29,7 @@ type Note = { kind: 'ok' | 'error'; text: string } | null;
 
 const minus = (n: number) => (n < 0 ? `−${Math.abs(n)}` : String(n));
 
-export function Transfer({ view, players, clubs, api, initialOut, onDone }: TransferProps) {
+export function Transfer({ view, players, clubs, api, initialOut, onDone, onPlayer }: TransferProps) {
   const t = useTheme();
   const tr = useT();
   const lang = useLang();
@@ -39,6 +40,8 @@ export function Transfer({ view, players, clubs, api, initialOut, onDone }: Tran
   const [penaltyTotal, setPenaltyTotal] = useState(squad.penalty);
   const [wildcardActive, setWildcardActive] = useState(squad.wildcardActive);
   const [wildcardOn, setWildcardOn] = useState(false);
+  // Wildcard жартысезонға бір-ақ рет: қосар алдында сұраймыз
+  const [wildcardAsk, setWildcardAsk] = useState(false);
   const [outId, setOutId] = useState<string | null>(initialOut);
   const [inId, setInId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -169,11 +172,22 @@ export function Transfer({ view, players, clubs, api, initialOut, onDone }: Tran
           {wildcardActive ? (
             <span style={{ height: 32, padding: '0 12px', borderRadius: 12, background: t.gold, color: t.onGold, boxShadow: `0 2px 0 ${t.goldLip}`, fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center' }}>{tr('wildcardActive')}</span>
           ) : (
-            <button type="button" aria-pressed={wildcardOn} onClick={() => setWildcardOn(!wildcardOn)}
+            <button type="button" aria-pressed={wildcardOn} onClick={() => (wildcardOn ? setWildcardOn(false) : setWildcardAsk(true))}
               style={{ height: 32, padding: '0 12px', borderRadius: 12, border: 0, background: wildcardOn ? t.gold : t.soft, color: wildcardOn ? t.onGold : t.primaryText, boxShadow: `0 2px 0 ${wildcardOn ? t.goldLip : t.softLip}`, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
               {tr('wildcard')}
             </button>
           )}
+        </div>
+      )}
+      {wildcardAsk && (
+        <div role="alertdialog" aria-label={tr('wildcard')} style={{ margin: '8px 16px 0', padding: 12, borderRadius: 16, background: t.card, boxShadow: t.cardShadow, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <span style={{ fontSize: 13, fontWeight: 700 }}>{tr('wildcardConfirm')}</span>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button type="button" onClick={() => { setWildcardOn(true); setWildcardAsk(false); }}
+              style={{ flex: 1, height: 40, borderRadius: 12, border: 0, background: t.gold, color: t.onGold, boxShadow: `0 2px 0 ${t.goldLip}`, fontWeight: 800, cursor: 'pointer' }}>{tr('yesEnable')}</button>
+            <button type="button" onClick={() => setWildcardAsk(false)}
+              style={{ flex: 1, height: 40, borderRadius: 12, border: 0, background: t.card2, color: t.ink, fontWeight: 800, cursor: 'pointer' }}>{tr('no')}</button>
+          </div>
         </div>
       )}
       <section ref={swapRef} data-testid="swap-card" style={{ scrollMarginTop: 12, margin: '10px 16px 0', background: t.card, borderRadius: 22, padding: 10, display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 30px minmax(0, 1fr)', alignItems: 'center', gap: 4, boxShadow: t.cardShadow }}>
@@ -184,7 +198,7 @@ export function Transfer({ view, players, clubs, api, initialOut, onDone }: Tran
         {swapCard('in', inn)}
       </section>
       <span style={{ margin: '10px 20px 0', fontSize: 12, fontWeight: 700, color: t.muted }}>{tr(out ? 'chooseIn' : 'chooseOut')}</span>
-      <PlayerPicker players={candidates} clubs={clubs} lockPosition={out?.position ?? null} stateOf={stateOf} onAction={onAction} />
+      <PlayerPicker players={candidates} clubs={clubs} lockPosition={out?.position ?? null} stateOf={stateOf} onAction={onAction} onInfo={onPlayer ? (p) => onPlayer(p.id) : undefined} />
       {note && (
         <span role={note.kind === 'ok' ? 'status' : 'alert'} style={{ margin: '10px 20px 0', fontSize: 13, fontWeight: 800, color: note.kind === 'ok' ? t.primaryText : t.hard[1] }}>{note.text}</span>
       )}

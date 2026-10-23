@@ -11,6 +11,8 @@ export function errorText(r: Extract<ApiResult<unknown>, { ok: false }>, t: T): 
       return t('errWildcard');
     case 'invalid_lineup':
       return t('formationHint');
+    case 'rate_limited':
+      return t('rateLimited');
     case 'unauthorized':
       return t('loginFailed');
     case 'invalid_squad':

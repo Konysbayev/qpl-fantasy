@@ -70,7 +70,7 @@ export interface PlayerMatchRow {
 }
 
 // Сервердің пән саласындағы қатесінен басқа: сессия жоқ немесе желі үзілді
-export type ApiResult<T> = Result<T> | { ok: false; error: 'unauthorized' | 'network' };
+export type ApiResult<T> = Result<T> | { ok: false; error: 'unauthorized' | 'network' | 'rate_limited' };
 
 export interface ApiConfig {
   supabaseUrl: string;
@@ -91,7 +91,26 @@ export function createApi(config: ApiConfig) {
     return (await res.json()) as R;
   }
 
+  async function login(): Promise<Session> {
+    const res = await send<Session>('auth-telegram', { method: 'POST', body: { initData: config.initData() } });
+    if (res.status !== 200) throw new Error(`login: HTTP ${res.status}`);
+    token = res.body.token;
+    return res.body;
+  }
+
+  // Сессия мерзімі өтсе (401) — initData арқылы қайта кіріп, сұрауды бір рет қайталаймыз
   async function call<R>(name: string, init: { method: 'GET' | 'POST'; body?: unknown }): Promise<{ status: number; body: R }> {
+    const res = await send<R>(name, init);
+    if (res.status !== 401 || !token) return res;
+    try {
+      await login();
+    } catch {
+      return res;
+    }
+    return send<R>(name, init);
+  }
+
+  async function send<R>(name: string, init: { method: 'GET' | 'POST'; body?: unknown }): Promise<{ status: number; body: R }> {
     const headers: Record<string, string> = { 'content-type': 'application/json' };
     if (token) headers.authorization = `Bearer ${token}`;
     const res = await doFetch(`${config.supabaseUrl}/functions/v1/${name}`, {
@@ -114,12 +133,7 @@ export function createApi(config: ApiConfig) {
   }
 
   return {
-    async login(): Promise<Session> {
-      const res = await call<Session>('auth-telegram', { method: 'POST', body: { initData: config.initData() } });
-      if (res.status !== 200) throw new Error(`login: HTTP ${res.status}`);
-      token = res.body.token;
-      return res.body;
-    },
+    login,
 
     async teamView(): Promise<TeamView> {
       const res = await call<TeamView>('team-view', { method: 'GET' });
