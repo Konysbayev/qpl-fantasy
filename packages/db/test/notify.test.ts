@@ -57,7 +57,7 @@ describe('sendNotification', () => {
     const send = fakeSend([103]);
     const n = { gameweekId: L.gws[1].id, number: 2, kind: 'deadline_24h' as const, deadline: new Date('2026-03-14T09:00:00Z') };
     expect(await sendNotification(sql, send, n)).toEqual({ sent: 1, failed: 1 });
-    expect(send.sent).toEqual([{ chatId: 101, text: '⏰ 2-й тур: дедлайн завтра, 14.03 в 14:00. Проверьте состав и капитана.' }]);
+    expect(send.sent).toEqual([{ chatId: 101, text: '⏰ 2-й тур: дедлайн 14.03 в 14:00, меньше суток. Проверьте состав и капитана.' }]);
     const [u] = await sql`select notify from users where id = ${blocked}`;
     expect(u.notify).toEqual({ enabled: false, blocked: true });
     expect(await sendNotification(sql, send, n)).toBeNull();
@@ -72,9 +72,24 @@ describe('sendNotification', () => {
     const send = fakeSend();
     await sendNotification(sql, send, { gameweekId: L.gws[0].id, number: 1, kind: 'results' });
     expect(send.sent).toEqual(expect.arrayContaining([
-      { chatId: 201, text: '🏁 1-й тур сыгран: 36 очк., место 2 из 2.' },
-      { chatId: 202, text: '🏁 1-тур аяқталды: 50 ұпай, 2 ішінен 1-орын.' }
+      { chatId: 201, text: '🏁 1-й тур сыгран: 36 очк. В общем зачёте — 2-е место из 2.' },
+      { chatId: 202, text: '🏁 1-тур аяқталды: 50 ұпай. Жалпы кестеде 2 ішінен 1-орын.' }
     ]));
+  });
+});
+
+describe('отказ Telegram', () => {
+  it('не нажимал Start — уведомления не выключаем; заблокировал бота — выключаем', async () => {
+    const never = await user(301, 'ru');
+    const blocked = await user(302, 'ru');
+    const send: Send = async (chatId) =>
+      chatId === 301
+        ? { ok: false, status: 403, description: "Forbidden: bot can't initiate conversation with a user" }
+        : { ok: false, status: 403, description: 'Forbidden: bot was blocked by the user' };
+    await sendNotification(sql, send, { gameweekId: L.gws[1].id, number: 2, kind: 'deadline_2h', deadline: new Date() });
+    const rows = await sql`select id, notify from users where id in (${never}, ${blocked})`;
+    expect(rows.find((r) => r.id === never)!.notify).toEqual({});
+    expect(rows.find((r) => r.id === blocked)!.notify).toEqual({ enabled: false, blocked: true });
   });
 });
 
@@ -83,10 +98,13 @@ describe('telegramSender', () => {
     const calls: { url: string; body: unknown }[] = [];
     const fetchImpl = (async (url: string, init: RequestInit) => {
       calls.push({ url, body: JSON.parse(String(init.body)) });
-      return new Response('{"ok":true}', { status: 200 });
+      return calls.length === 1
+        ? new Response('{"ok":true}', { status: 200 })
+        : new Response('{"ok":false,"description":"Forbidden: bot was blocked by the user"}', { status: 403 });
     }) as typeof fetch;
     const send = telegramSender('123:ABC', 'https://qpl.pages.dev', fetchImpl, async () => {});
     expect(await send(7, 'привет')).toEqual({ ok: true, status: 200 });
+    expect(await send(8, 'привет')).toEqual({ ok: false, status: 403, description: 'Forbidden: bot was blocked by the user' });
     expect(calls[0]).toEqual({
       url: 'https://api.telegram.org/bot123:ABC/sendMessage',
       body: { chat_id: 7, text: 'привет', reply_markup: { inline_keyboard: [[{ text: 'Ойнау', web_app: { url: 'https://qpl.pages.dev' } }]] } }
