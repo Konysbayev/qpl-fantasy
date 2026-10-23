@@ -25,6 +25,8 @@ const LOCK_STALE = '10 minutes';
 const RECENT_MS = 7 * 86_400_000;
 // Функция 150 секундта тоқтатылады: күнтізбе тек алғашқы 60 секундта басталады
 const CALENDAR_BEFORE_MS = 60_000;
+// Бір шақыруда күнтізбенің 5 беті: бұлттағы CPU шегіне сыю үшін (қалғаны келесі шақыруларда)
+const CALENDAR_PAGES = 5;
 
 function sameSecret(a: string, b: string): boolean {
   if (!a || a.length !== b.length) return false;
@@ -96,7 +98,7 @@ export async function cronTick(req: Request, deps: CronDeps): Promise<Response> 
     // 5. Күнтізбе соңында: уақыт пен сұрау қалса ғана (карта сайтқа 1 сұрау және кемінде 1 бет)
     const left = fetcher ? budget - fetcher.requestCount() : 0;
     if (fetcher && left >= 2 && Date.now() - started < CALENDAR_BEFORE_MS) {
-      report.calendar = await step('calendar', () => syncCalendar(sql, fetcher, { ...opts, year: season.year, now, maxPages: left - 1 }));
+      report.calendar = await step('calendar', () => syncCalendar(sql, fetcher, { ...opts, year: season.year, now, maxPages: Math.min(left - 1, CALENDAR_PAGES) }));
     }
     return json(report);
   } finally {

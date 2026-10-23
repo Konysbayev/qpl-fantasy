@@ -2,7 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { gunzipSync } from 'node:zlib';
-import type postgres from 'postgres';
+import postgres from 'postgres';
 import { parseMatchPage } from '../../kffleague/src/match.js';
 import type { PoliteFetcher } from '../../kffleague/src/fetcher.js';
 import { buildPlayerMatchStats } from '../../core/src/match-stats.js';
@@ -212,5 +212,29 @@ describe('recordRequest', () => {
     await recordRequest(sql);
     const [row] = await sql`select requests from source_usage where day = current_date`;
     expect(row.requests).toBe(2);
+  });
+});
+
+describe('reassignGameweeks: только изменения', () => {
+  it('повторная загрузка того же матча не переписывает туры всех матчей сезона', async () => {
+    const html = fixture(993);
+    const facts = parseMatchPage(html, 993);
+    await upsertMatch(sql, seasonId, facts, html);
+    let queries = 0;
+    const counted = postgres({ ...sql.options, debug: () => queries++ } as never);
+    await upsertMatch(counted as never, seasonId, facts, html);
+    queries = 0;
+    await upsertMatch(counted as never, seasonId, facts, html);
+    const baseline = queries;
+    for (let i = 0; i < 30; i++) {
+      await counted`insert into fixtures (source_id, season_id, source_tour, home_club_id, away_club_id, kickoff, status)
+        select ${5000 + i}, ${seasonId}, 14, home_club_id, away_club_id, kickoff, 'upcoming' from fixtures where source_id = 993`;
+    }
+    await upsertMatch(counted as never, seasonId, facts, html);
+    queries = 0;
+    await upsertMatch(counted as never, seasonId, facts, html);
+    await counted.end();
+    // Матч саны өссе де, сұраулар саны өспеуі керек (бұрын әр матчқа бір UPDATE)
+    expect(queries - baseline).toBeLessThan(3);
   });
 });

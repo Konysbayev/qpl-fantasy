@@ -71,16 +71,21 @@ export async function upsertMatch(sql: postgres.Sql, seasonId: string, facts: Ma
 
 // Маусымның барлық матчын турларға күні бойынша қайта бөледі, бекітілмеген дедлайндарды жаңартады
 async function reassignGameweeks(tx: postgres.TransactionSql, seasonId: string): Promise<void> {
-  const fixtures = await tx<{ id: string; source_tour: number | null; kickoff: Date }[]>`
-    select id, source_tour, kickoff from fixtures where season_id = ${seasonId}`;
-  const lockedRows = await tx<{ number: number; deadline: Date }[]>`
-    select number, deadline from gameweeks where season_id = ${seasonId} and deadline_locked and deadline is not null`;
+  const fixtures = await tx<{ id: string; source_tour: number | null; kickoff: Date; gameweek_id: string | null }[]>`
+    select id, source_tour, kickoff, gameweek_id from fixtures where season_id = ${seasonId}`;
+  const existing = await tx<{ id: string; number: number; deadline: Date | null; deadline_locked: boolean }[]>`
+    select id, number, deadline, deadline_locked from gameweeks where season_id = ${seasonId}`;
+  const lockedRows = existing.filter((g) => g.deadline_locked && g.deadline !== null) as { number: number; deadline: Date }[];
   const { deadlines, assignment } = assignGameweeks(
     fixtures.map((f) => ({ id: f.id, sourceTour: f.source_tour, kickoff: f.kickoff.toISOString() })),
     new Map(lockedRows.map((r) => [r.number, r.deadline]))
   );
-  const ids = new Map<number, string>();
+  // Тек өзгергені жазылады: бұрын әр бетте маусымның 240 матчы мен 30 туры қайта жазылатын (бұлттағы CPU шегі)
+  const ids = new Map(existing.map((g) => [g.number, g.id]));
+  const byNumber = new Map(existing.map((g) => [g.number, g]));
   for (const [number, deadline] of deadlines) {
+    const cur = byNumber.get(number);
+    if (cur && (cur.deadline_locked || (cur.deadline?.getTime() ?? null) === (deadline?.getTime() ?? null))) continue;
     const [gw] = await tx`insert into gameweeks (season_id, number, deadline) values (${seasonId}, ${number}, ${deadline})
       on conflict (season_id, number) do update set deadline = case when gameweeks.deadline_locked then gameweeks.deadline else excluded.deadline end
       returning id`;
@@ -88,7 +93,8 @@ async function reassignGameweeks(tx: postgres.TransactionSql, seasonId: string):
   }
   for (const f of fixtures) {
     const n = assignment.get(f.id);
-    await tx`update fixtures set gameweek_id = ${n == null ? null : ids.get(n) ?? null} where id = ${f.id}`;
+    const target = n == null ? null : ids.get(n) ?? null;
+    if (target !== f.gameweek_id) await tx`update fixtures set gameweek_id = ${target} where id = ${f.id}`;
   }
 }
 
