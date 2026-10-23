@@ -19,7 +19,8 @@
     "deploy:backup": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/backup-remote.ts",
     "deploy:cron": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/setup-cron.ts",
     "admin:override": "NODE_USE_ENV_PROXY=1 tsx scripts/admin/override-stat.ts",
-    "deploy:events": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/backfill-events.ts"
+    "deploy:events": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/backfill-events.ts",
+    "deploy:photos": "NODE_USE_ENV_PROXY=1 tsx scripts/deploy/backfill-photos.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

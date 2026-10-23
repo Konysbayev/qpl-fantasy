@@ -32,8 +32,9 @@ const PICKS: TeamPick[] = LAYOUT.map((position, i) => ({
 }));
 const VIEW: TeamView = { next: { id: 'g4', number: 4, deadline: '2026-04-14T09:00:00.000Z' }, last: null, squad: { gameweek: 4, bank: 0, freeTransfers: 1, unlimited: false, wildcardActive: false, wildcardAvailable: true, penalty: 0 }, picks: PICKS };
 
-function setup(player: CardPlayer, saveResult: unknown = { ok: true, value: null }) {
+function setup(player: CardPlayer, saveResult: unknown = { ok: true, value: null }, photo: string | null = null) {
   const api = {
+    playerPhoto: vi.fn().mockResolvedValue(photo),
     seasonStats: vi.fn().mockResolvedValue({ points: 64, minutes: 1020, appearances: 12, goals: 2, assists: 3, cleanSheets: 5, yellow: 1, red: 0 }),
     playerMatches: vi.fn().mockResolvedValue([1, 2, 3].map((gw) => ({ gameweek: gw, points: gw * 3, minutes: 90, kickoff: FIXTURES[gw - 1].kickoff }))),
     fixtures: vi.fn().mockResolvedValue(FIXTURES),
@@ -88,6 +89,15 @@ describe('PlayerCard', () => {
     expect(within(rows[0]).getByText('Қиын')).toBeTruthy();
     expect(within(rows[1]).getByText('үйде')).toBeTruthy();
     expect(within(rows[1]).getByText('Орташа')).toBeTruthy();
+  });
+
+  it('есть фото — показывается в карточке; не загрузилось — снова заглушка', async () => {
+    setup(inSquad(2), undefined, 'https://kffleague.kz/storage/qfl-files/player_photos/1.png');
+    const img = await screen.findByRole('img', { name: 'Ерасыл Фамилия2' });
+    expect(img.getAttribute('src')).toBe('https://kffleague.kz/storage/qfl-files/player_photos/1.png');
+    fireEvent.error(img);
+    expect(screen.queryByRole('img', { name: 'Ерасыл Фамилия2' })).toBeNull();
+    expect(screen.getByText('Фото')).toBeTruthy();
   });
 
   it('«Капитан ету» отправляет состав с новым капитаном, прежний капитан — обычный игрок', async () => {

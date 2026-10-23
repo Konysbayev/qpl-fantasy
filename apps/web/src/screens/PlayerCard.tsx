@@ -29,7 +29,7 @@ export interface PlayerCardProps {
   player: CardPlayer;
   view: TeamView;
   clubs: Map<string, ClubRow>;
-  api: Pick<Api, 'seasonStats' | 'playerMatches' | 'fixtures' | 'saveLineup'>;
+  api: Pick<Api, 'seasonStats' | 'playerMatches' | 'fixtures' | 'saveLineup' | 'playerPhoto'>;
   onClose: () => void;
   onTransferOut: (playerId: string) => void;
   onChanged: () => void;
@@ -64,12 +64,16 @@ export function PlayerCard({ player, view, clubs, api, onClose, onTransferOut, o
   const [stats, setStats] = useState<SeasonStats | null>(null);
   const [matches, setMatches] = useState<PlayerMatchRow[]>([]);
   const [fixtures, setFixtures] = useState<FixtureRow[] | null>(null);
+  // Лига сайтындағы фото; жүктелмесе — қайтадан бос орын
+  const [photo, setPhoto] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     api.seasonStats(player.id).then((s) => alive && setStats(s), () => {});
     api.playerMatches(player.id).then((m) => alive && setMatches(m), () => {});
     api.fixtures().then((f) => alive && setFixtures(f), () => alive && setFixtures([]));
+    setPhoto(null);
+    api.playerPhoto(player.id).then((u) => alive && setPhoto(u), () => {});
     return () => {
       alive = false;
     };
@@ -146,13 +150,18 @@ export function PlayerCard({ player, view, clubs, api, onClose, onTransferOut, o
     <Sheet open onClose={onClose} label={`${tr('playerCard')}: ${player.firstName} ${player.lastName}`}>
       <div style={{ position: 'relative', overflow: 'hidden', margin: '8px 16px 0', height: 150, borderRadius: 22, background: `linear-gradient(135deg, ${kit.shirt} 0%, ${shade(kit.shirt, 0.45)} 100%)`, boxShadow: `0 4px 0 ${shade(kit.shirt, 0.6)}`, display: 'flex', alignItems: 'flex-end', gap: 14, padding: '0 16px' }}>
         {club?.logoUrl && <img src={club.logoUrl} alt="" style={{ position: 'absolute', right: -34, top: -26, width: 170, height: 170, objectFit: 'contain', opacity: 0.16 }} />}
-        <div style={{ position: 'relative', width: 104, height: 128, flexShrink: 0, borderRadius: '18px 18px 0 0', border: `2px dashed ${light ? 'rgba(15,28,38,0.4)' : 'rgba(255,255,255,0.5)'}`, borderBottom: 0, background: 'rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-          <svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="8.5" r="4" fill="none" stroke={fg} strokeWidth={1.6} />
-            <path d={ICONS.person} fill="none" stroke={fg} strokeWidth={1.6} strokeLinecap="round" />
-          </svg>
-          <span style={{ fontSize: 11, fontWeight: 800, color: fg }}>{tr('photo')}</span>
-        </div>
+        {photo ? (
+          <img src={photo} alt={`${player.firstName} ${player.lastName}`} onError={() => setPhoto(null)} referrerPolicy="no-referrer"
+            style={{ position: 'relative', width: 104, height: 136, flexShrink: 0, objectFit: 'contain', objectPosition: 'bottom' }} />
+        ) : (
+          <div style={{ position: 'relative', width: 104, height: 128, flexShrink: 0, borderRadius: '18px 18px 0 0', border: `2px dashed ${light ? 'rgba(15,28,38,0.4)' : 'rgba(255,255,255,0.5)'}`, borderBottom: 0, background: 'rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="8.5" r="4" fill="none" stroke={fg} strokeWidth={1.6} />
+              <path d={ICONS.person} fill="none" stroke={fg} strokeWidth={1.6} strokeLinecap="round" />
+            </svg>
+            <span style={{ fontSize: 11, fontWeight: 800, color: fg }}>{tr('photo')}</span>
+          </div>
+        )}
         <div style={{ position: 'relative', flex: 1, minWidth: 0, paddingBottom: 16, display: 'flex', flexDirection: 'column', gap: 5, color: fg }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: fg2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{player.firstName}</span>
           <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 23, lineHeight: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{player.lastName}</span>

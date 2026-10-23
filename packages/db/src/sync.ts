@@ -54,9 +54,10 @@ export async function upsertMatch(sql: postgres.Sql, seasonId: string, facts: Ma
     for (const s of stats) {
       const lp = facts.lineups.find((p) => p.sourceId === s.playerSourceId)!;
       if (lp.position === null) continue;
-      const [player] = await tx<{ id: string; position: Position }[]>`insert into players (source_id, first_name, last_name, club_id, position, needs_review)
-        values (${lp.sourceId}, ${lp.firstName}, ${lp.lastName}, ${clubIds.get(lp.teamSourceId)!}, ${lp.position}, true)
-        on conflict (source_id) do update set first_name = excluded.first_name, last_name = excluded.last_name, club_id = excluded.club_id
+      const [player] = await tx<{ id: string; position: Position }[]>`insert into players (source_id, first_name, last_name, club_id, position, needs_review, photo_url)
+        values (${lp.sourceId}, ${lp.firstName}, ${lp.lastName}, ${clubIds.get(lp.teamSourceId)!}, ${lp.position}, true, ${lp.photoUrl ?? null})
+        on conflict (source_id) do update set first_name = excluded.first_name, last_name = excluded.last_name, club_id = excluded.club_id,
+          photo_url = coalesce(excluded.photo_url, players.photo_url)
         returning id, position`;
       // Позиция базадан алынады: әкімші оны өзгертуі мүмкін
       const pts = scorePlayer(s, player.position, season.scoring_rules);

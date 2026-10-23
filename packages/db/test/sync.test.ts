@@ -257,3 +257,16 @@ describe('события матча', () => {
     expect(rows.map((r) => r.idx)).toEqual(rows.map((_, i) => i));
   });
 });
+
+describe('фото игроков', () => {
+  it('ссылка сохраняется; видна через player_photo только при включённом флаге', async () => {
+    const html = fixture(993);
+    await upsertMatch(sql, seasonId, parseMatchPage(html, 993), html);
+    const [p] = await sql`select id, photo_url from players where source_id = 445`;
+    expect(p.photo_url).toMatch(/^https:\/\/kffleague\.kz\/storage\/qfl-files\/player_photos\//);
+    expect(await sql`select url from player_photo where player_id = ${p.id}`).toHaveLength(1);
+    await sql`update app_flags set enabled = false where key = 'player_photos'`;
+    expect(await sql`select url from player_photo where player_id = ${p.id}`).toHaveLength(0);
+    await sql`update app_flags set enabled = true where key = 'player_photos'`;
+  });
+});

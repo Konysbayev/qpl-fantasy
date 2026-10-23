@@ -59,6 +59,7 @@ export async function mockBackend(page: Page, data: MockData, opts: { theme: 'li
         { minute: 88, kind: 'red', club_id: a, player: pl('Карло', 'Бартолец'), other: null }
       ]);
     }
+    if (p === '/rest/v1/player_photo') return json([]);
     if (p === '/rest/v1/clubs') return json(data.clubs);
     if (p === '/rest/v1/players') return json(data.players);
     if (p === '/rest/v1/player_selection') return json(data.selection);

@@ -18,6 +18,8 @@ export interface LineupPlayer {
   teamSourceId: number;
   starter: boolean;
   isCaptain: boolean;
+  // Лига сайтындағы фото (тек kffleague.kz); жоқ болса — null
+  photoUrl?: string | null;
 }
 
 // half — тайм (1 немесе 2). Жоқ болса, минуттан шығарылады: 45-ке дейін — бірінші тайм
