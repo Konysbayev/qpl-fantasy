@@ -68,7 +68,9 @@ export async function syncCalendar(
     if (!date.startsWith(`${opts.year}-`) || skip.has(id)) continue;
     const row = known.get(id);
     if (row) {
-      if (row.status !== 'finished' && date >= from && date <= to) candidates.push({ id, order: row.fetched_at?.getTime() ?? 0 });
+      // Соңғы 3 сағатта жүктелгені бұл айналымда қайта алынбайды: әйтпесе бөлшектеп айналу ешқашан аяқталмайды
+      const fresh = row.fetched_at !== null && opts.now.getTime() - row.fetched_at.getTime() < CALENDAR_EVERY_MS;
+      if (row.status !== 'finished' && !fresh && date >= from && date <= to) candidates.push({ id, order: row.fetched_at?.getTime() ?? 0 });
     } else if (knownCount >= SEASON_MATCHES) {
       await sql`insert into source_skip (source_id, reason) values (${id}, 'не Премьер-лига: все матчи сезона уже собраны') on conflict do nothing`;
       report.skipped.push(id);

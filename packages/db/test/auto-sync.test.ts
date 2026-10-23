@@ -144,6 +144,22 @@ describe('syncCalendar', () => {
     expect(r).toMatchObject({ complete: true });
   });
 
+  it('обход по частям завершается: недавно загруженные матчи не берутся снова, и календарь отмечается', async () => {
+    await store(993);
+    await store(896);
+    await store(1109);
+    await sql`update fixtures set status = 'upcoming', fetched_at = null`;
+    const known = sitemapXml([[993, '2026-06-21'], [896, '2026-06-22'], [1109, '2026-06-23']]);
+    const r1 = await run(fakeFetcher(pages(known)), now);
+    expect(r1).toMatchObject({ complete: false });
+    // Страницы в тестах — сыгранные матчи; в жизни это предстоящие, поэтому статус возвращаем
+    await sql`update fixtures set status = 'upcoming'`;
+    const f2 = fakeFetcher(pages(known));
+    const r2 = await run(f2, new Date(now.getTime() + 15 * 60_000));
+    expect(f2.paths.filter((p) => p.startsWith('/ru/matches/'))).toHaveLength(1);
+    expect(r2).toMatchObject({ complete: true });
+  });
+
   it('карта сайта недоступна — ошибка в отчёте, без исключения и без отметки', async () => {
     const r = await run(fakeFetcher({ '/sitemap.xml': { status: 503, body: '' } }), now);
     expect(r.failed).toEqual([{ id: 0, error: 'sitemap HTTP 503' }]);

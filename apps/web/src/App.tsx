@@ -5,6 +5,7 @@ import { BottomNav, type Tab } from './components/BottomNav.js';
 import { Header } from './components/Header.js';
 import { OfflineBanner } from './components/OfflineBanner.js';
 import { useAutoRefresh } from './hooks.js';
+import { syncServerLang } from './lang-sync.js';
 import { applyPicks } from './optimistic.js';
 import { LangProvider, detectLang, useT, type Lang } from './i18n/useT.js';
 import { Builder } from './screens/Builder.js';
@@ -52,6 +53,7 @@ export function App() {
     api.login().then(
       (session) => {
         setLang(savedLang() ?? session.user.lang);
+        syncServerLang(savedLang(), session.user.lang, api);
         setBoot({ state: 'ready', session });
       },
       () => setBoot({ state: 'error' })

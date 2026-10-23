@@ -3,7 +3,7 @@ import type postgres from 'postgres';
 import { notifyText, type NotifyKind } from '../../core/src/notify-texts.js';
 
 export type { NotifyKind };
-export type Send = (chatId: number, text: string) => Promise<{ ok: boolean; status: number }>;
+export type Send = (chatId: number, text: string) => Promise<{ ok: boolean; status: number; description?: string }>;
 
 const H = 3_600_000;
 // Telegram шегі — секундына 30 хабарлама; аралықта 40 мс
@@ -24,8 +24,13 @@ export function telegramSender(
         body: JSON.stringify({ chat_id: chatId, text, reply_markup: { inline_keyboard: [[{ text: 'Ойнау', web_app: { url: appUrl } }]] } }),
         signal: AbortSignal.timeout(timeoutMs)
       });
-      await res.body?.cancel();
-      return { ok: res.ok, status: res.status };
+      if (res.ok) {
+        await res.body?.cancel();
+        return { ok: true, status: res.status };
+      }
+      // Telegram қатенің себебін description өрісінде береді (мысалы, ботты бұғаттау)
+      const body = (await res.json().catch(() => null)) as { description?: string } | null;
+      return { ok: false, status: res.status, ...(body?.description ? { description: body.description } : {}) };
     } catch {
       return { ok: false, status: 0 };
     } finally {
@@ -89,8 +94,8 @@ export async function sendNotification(
       continue;
     }
     failed++;
-    // Ботты бұғаттаған пайдаланушыға енді жазбаймыз
-    if (res.status === 403) await sql`update users set notify = notify || '{"enabled": false, "blocked": true}'::jsonb where id = ${r.id}`;
+    // Ботты бұғаттаған пайдаланушыға енді жазбаймыз; Start баспағанның хабарламасын өшірмейміз (кейін басуы мүмкін)
+    if (res.status === 403 && !/can't initiate/i.test(res.description ?? '')) await sql`update users set notify = notify || '{"enabled": false, "blocked": true}'::jsonb where id = ${r.id}`;
   }
   return { sent, failed };
 }
