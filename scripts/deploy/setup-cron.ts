@@ -8,8 +8,9 @@ export const JOB = 'qpl-cron-tick';
 export const SCHEDULE = '*/15 * * * *';
 const VAULT_NAME = 'qpl_cron_secret';
 
-export function buildCronSql(projectRef: string): string {
-  const url = `https://${projectRef}.supabase.co/functions/v1/cron-tick`;
+// Функция базамен бір аймақта іске қосылады (Сеул): әйтпесе әр SQL сұрауы құрлықтар арқылы жүреді
+export function buildCronSql(projectRef: string, region = 'ap-northeast-2'): string {
+  const url = `https://${projectRef}.supabase.co/functions/v1/cron-tick?forceFunctionRegion=${region}`;
   return `create extension if not exists pg_cron;
 create extension if not exists pg_net;
 select cron.unschedule(jobid) from cron.job where jobname = '${JOB}';
