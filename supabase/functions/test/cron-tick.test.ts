@@ -2,6 +2,7 @@ import type postgres from 'postgres';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { PoliteFetcher } from '../../../packages/kffleague/src/fetcher.js';
 import type { Send } from '../../../packages/db/src/notify.js';
+import { scoreGameweek } from '../../../packages/db/src/finalize.js';
 import { createFirstSquad } from '../../../packages/db/src/squad.js';
 import { freshDb } from '../../../packages/db/test/helpers.js';
 import { START, newUser, seedLeague, standardPicks, type League } from '../../../packages/db/test/league.js';
@@ -77,6 +78,23 @@ describe('cron-tick', () => {
     expect(body.transitions.map((t: { number: number; to: string }) => [t.number, t.to])).toEqual([[1, 'closed'], [2, 'closed'], [3, 'closed']]);
     expect(sent).toEqual([]);
     expect(await sql`select 1 from price_changes`).toHaveLength(0);
+  });
+
+  it('прошлый вызов упал после закрытия тура — итоги и цены всё равно делаются, по одному разу', async () => {
+    // Прошлый вызов успел посчитать очки и закрыть тур, но упал до рассылки и цен
+    await scoreGameweek(sql, L.gws[0].id);
+    await sql`update gameweeks set status = 'closed' where id = ${L.gws[0].id}`;
+    await (await cronTick(req(), deps({ now: new Date(START.getTime() + 30 * H) }))).json();
+    expect(sent).toEqual([expect.stringContaining('1-тур аяқталды')]);
+    expect(await sql`select 1 from price_changes where gameweek_id = ${L.gws[0].id}`).toHaveLength(1);
+    await cronTick(req(), deps({ now: new Date(START.getTime() + 31 * H) }));
+    expect(sent).toHaveLength(1);
+  });
+
+  it('тур закрылся позже чем через 7 дней после дедлайна (поздний матч) — итоги всё равно приходят', async () => {
+    await sql`update fixtures set kickoff = ${new Date(START.getTime() + 9 * 86_400_000)} where gameweek_id = ${L.gws[0].id}`;
+    await cronTick(req(), deps({ now: new Date(START.getTime() + 9 * 86_400_000 + 3 * H) }));
+    expect(sent).toEqual(expect.arrayContaining([expect.stringContaining('1-тур аяқталды')]));
   });
 
   it('ошибка загрузки календаря не мешает подсчёту очков', async () => {

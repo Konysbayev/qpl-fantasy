@@ -92,4 +92,12 @@ describe('telegramSender', () => {
       body: { chat_id: 7, text: 'привет', reply_markup: { inline_keyboard: [[{ text: 'Ойнау', web_app: { url: 'https://qpl.pages.dev' } }]] } }
     });
   });
+
+  it('зависший Telegram: отправка прерывается по тайм-ауту', async () => {
+    const hang = ((_url: string, init: RequestInit) =>
+      new Promise((_, reject) => init.signal?.addEventListener('abort', () => reject(new Error('aborted'))))) as typeof fetch;
+    const send = telegramSender('1:x', 'https://a', hang, async () => {}, 20);
+    expect(await send(1, 'x')).toEqual({ ok: false, status: 0 });
+  });
 });
+

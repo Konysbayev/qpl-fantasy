@@ -70,23 +70,37 @@ export interface Transition {
   to: GwStatus;
 }
 
-// Дедлайны өткен, әлі жабылмаған турлар: күйі жаңарады және ұпайлары қайта есептеледі
-export async function advanceGameweeks(sql: postgres.Sql, seasonId: string, now: Date): Promise<Transition[]> {
+// Дедлайны өткен, әлі жабылмаған турлар: күйі жаңарады және ұпайлары қайта есептеледі.
+// Бір турдың қатесі қалғандарын тоқтатпайды: audit_log-қа жазылады, келесі шақыру қайталайды.
+export async function advanceGameweeks(
+  sql: postgres.Sql,
+  seasonId: string,
+  now: Date,
+  score: (sql: postgres.Sql, gameweekId: string) => Promise<{ scored: number }> = scoreGameweek
+): Promise<Transition[]> {
+  // Өткен дедлайн бекітіледі: матчтардың кейін ауыстырылуы оны жылжытып, турды қайта ашпауы керек
+  await sql`update gameweeks set deadline_locked = true
+    where season_id = ${seasonId} and deadline is not null and deadline <= ${now} and not deadline_locked`;
   const gws = await sql<{ id: string; number: number; deadline: Date; status: GwStatus }[]>`
     select id, number, deadline, status from gameweeks
     where season_id = ${seasonId} and deadline is not null and deadline <= ${now} and status <> 'closed' order by deadline`;
   const out: Transition[] = [];
   for (const g of gws) {
-    const fixtures = await sql<{ id: string; kickoff: Date; status: string }[]>`select id, kickoff, status from fixtures where gameweek_id = ${g.id}`;
-    const to = gameweekPhase({ deadline: g.deadline, fixtures }, now);
-    await scoreGameweek(sql, g.id);
-    if (to === g.status) continue;
-    await sql`update gameweeks set status = ${to} where id = ${g.id}`;
-    const stuck = fixtures.filter((f) => f.status !== 'finished').map((f) => f.id);
-    if (to === 'closed' && stuck.length > 0) {
-      await sql`insert into audit_log (action, payload) values ('fixture_stuck', ${sql.json({ gameweek: g.number, fixtureIds: stuck })})`;
+    try {
+      const fixtures = await sql<{ id: string; kickoff: Date; status: string }[]>`select id, kickoff, status from fixtures where gameweek_id = ${g.id}`;
+      const to = gameweekPhase({ deadline: g.deadline, fixtures }, now);
+      await score(sql, g.id);
+      if (to === g.status) continue;
+      await sql`update gameweeks set status = ${to} where id = ${g.id}`;
+      const stuck = fixtures.filter((f) => f.status !== 'finished').map((f) => f.id);
+      if (to === 'closed' && stuck.length > 0) {
+        await sql`insert into audit_log (action, payload) values ('fixture_stuck', ${sql.json({ gameweek: g.number, fixtureIds: stuck })})`;
+      }
+      out.push({ gameweekId: g.id, number: g.number, from: g.status, to });
+    } catch (err) {
+      const error = err instanceof Error ? err.message : String(err);
+      await sql`insert into audit_log (action, payload) values ('cron_error', ${sql.json({ step: `gameweek ${g.number}`, error })})`.catch(() => {});
     }
-    out.push({ gameweekId: g.id, number: g.number, from: g.status, to });
   }
   return out;
 }

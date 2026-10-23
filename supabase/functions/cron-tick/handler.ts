@@ -3,7 +3,7 @@
 import type postgres from 'postgres';
 import type { PoliteFetcher } from '../../../packages/kffleague/src/fetcher.js';
 import { matchesToRefresh, refreshMatches, syncCalendar } from '../../../packages/db/src/auto-sync.js';
-import { advanceGameweeks, type Transition } from '../../../packages/db/src/finalize.js';
+import { advanceGameweeks } from '../../../packages/db/src/finalize.js';
 import { dueReminders, sendNotification, type Send } from '../../../packages/db/src/notify.js';
 import { applyPriceChanges } from '../../../packages/db/src/prices.js';
 import { json } from '../_shared/http.js';
@@ -23,6 +23,8 @@ const REQUESTS_PER_DAY = 300;
 const LOCK_STALE = '10 minutes';
 // Бұдан ескі турлар (мысалы, алғашқы іске қосуда) хабарламасыз және бағаны өзгертпей жабылады
 const RECENT_MS = 7 * 86_400_000;
+// Функция 150 секундта тоқтатылады: күнтізбе тек алғашқы 60 секундта басталады
+const CALENDAR_BEFORE_MS = 60_000;
 
 function sameSecret(a: string, b: string): boolean {
   if (!a || a.length !== b.length) return false;
@@ -33,6 +35,7 @@ function sameSecret(a: string, b: string): boolean {
 
 export async function cronTick(req: Request, deps: CronDeps): Promise<Response> {
   const { sql, now } = deps;
+  const started = Date.now();
   if (!sameSecret(req.headers.get('x-cron-secret') ?? '', deps.cronSecret)) return json({ error: 'unauthorized' }, 401);
 
   // Пулер транзакция режимінде advisory lock сенімсіз, сондықтан құлып — sync_state жолы
@@ -59,33 +62,41 @@ export async function cronTick(req: Request, deps: CronDeps): Promise<Response> 
 
     const [{ used }] = await sql<{ used: number }[]>`select coalesce((select requests from source_usage where day = current_date), 0)::int as used`;
     const budget = Math.min(PAGES_PER_TICK, REQUESTS_PER_DAY - used);
-    if (budget > 0 && season.source_season_id !== null) {
-      const fetcher = deps.fetcher(budget);
-      const opts = { seasonId: season.id, sourceSeasonId: season.source_season_id };
-      // Жүріп жатқан матчтар бірінші: олардың ұпайы ойыншыларға маңыздырақ
-      report.matches = await step('matches', async () => refreshMatches(sql, fetcher, { ...opts, ids: await matchesToRefresh(sql, season.id, now) }));
-      // Карта сайтқа 1 сұрау және кемінде 1 бет қалуы керек
-      const left = budget - fetcher.requestCount();
-      if (left >= 2) report.calendar = await step('calendar', () => syncCalendar(sql, fetcher, { ...opts, year: season.year, now, maxPages: left - 1 }));
+    const fetcher = budget > 0 && season.source_season_id !== null ? deps.fetcher(budget) : null;
+    const opts = { seasonId: season.id, sourceSeasonId: season.source_season_id ?? 0 };
+    // 1. Жүріп жатқан матчтар бірінші: олардың ұпайы ойыншыларға ең маңызды
+    if (fetcher) report.matches = await step('matches', async () => refreshMatches(sql, fetcher, { ...opts, ids: await matchesToRefresh(sql, season.id, now) }));
+
+    // 2. Тур күйлері және ұпайлар
+    report.transitions = (await step('gameweeks', () => advanceGameweeks(sql, season.id, now))) ?? [];
+
+    // 3. Қорытынды мен бағалар өткен ауысуларға емес, базадағы күйге қарап: құлаған шақырудан кейін келесісі жалғастырады.
+    // Соңғы матчы 7 күннен ескі турлар (алғашқы іске қосудағы өткен маусым) үнсіз қалады
+    const recentFrom = new Date(now.getTime() - RECENT_MS);
+    const pending = await sql<{ id: string; number: number; status: string; results: boolean; prices: boolean }[]>`
+      select g.id, g.number, g.status,
+             exists (select 1 from notifications_sent n where n.gameweek_id = g.id and n.kind = 'results') as results,
+             exists (select 1 from price_changes p where p.gameweek_id = g.id) as prices
+      from gameweeks g
+      where g.season_id = ${season.id} and g.status in ('played', 'closed')
+        and coalesce((select max(f.kickoff) from fixtures f where f.gameweek_id = g.id), g.deadline) >= ${recentFrom}
+      order by g.deadline`;
+    report.notifications = [];
+    report.prices = [];
+    for (const g of pending) {
+      if (!g.results) (report.notifications as unknown[]).push(await step('results', () => sendNotification(sql, deps.send, { gameweekId: g.id, number: g.number, kind: 'results' })));
+      if (g.status === 'closed' && !g.prices) (report.prices as unknown[]).push(await step('prices', () => applyPriceChanges(sql, season.id, g.id, now)));
     }
 
-    const transitions = (await step('gameweeks', () => advanceGameweeks(sql, season.id, now))) ?? [];
-    report.transitions = transitions;
-    report.prices = [];
-    report.notifications = [];
-    const recent = new Set(
-      (await sql<{ id: string }[]>`select id from gameweeks where id = any(${transitions.map((t) => t.gameweekId)}::uuid[])
-        and deadline >= ${new Date(now.getTime() - RECENT_MS)}`).map((r) => r.id)
-    );
-    for (const t of (transitions as Transition[]).filter((x) => recent.has(x.gameweekId))) {
-      // Кесте өткізіп алса (live → closed), қорытынды бәрібір жіберіледі; қайталанбайды
-      if (t.to === 'played' || (t.to === 'closed' && t.from !== 'played')) {
-        (report.notifications as unknown[]).push(await step('results', () => sendNotification(sql, deps.send, { gameweekId: t.gameweekId, number: t.number, kind: 'results' })));
-      }
-      if (t.to === 'closed') (report.prices as unknown[]).push(await step('prices', () => applyPriceChanges(sql, season.id, t.gameweekId, now)));
-    }
+    // 4. Дедлайн еске салғыштары
     for (const r of (await step('reminders', () => dueReminders(sql, season.id, now))) ?? []) {
       (report.notifications as unknown[]).push(await step('reminders', () => sendNotification(sql, deps.send, r)));
+    }
+
+    // 5. Күнтізбе соңында: уақыт пен сұрау қалса ғана (карта сайтқа 1 сұрау және кемінде 1 бет)
+    const left = fetcher ? budget - fetcher.requestCount() : 0;
+    if (fetcher && left >= 2 && Date.now() - started < CALENDAR_BEFORE_MS) {
+      report.calendar = await step('calendar', () => syncCalendar(sql, fetcher, { ...opts, year: season.year, now, maxPages: left - 1 }));
     }
     return json(report);
   } finally {

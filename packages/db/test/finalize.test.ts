@@ -112,4 +112,24 @@ describe('advanceGameweeks', () => {
     const [log] = await sql`select payload from audit_log where action = 'fixture_stuck'`;
     expect(log.payload).toEqual({ gameweek: 1, fixtureIds: [f] });
   });
+
+  it('прошедший дедлайн закрепляется: перенос матчей его больше не сдвигает', async () => {
+    await advanceGameweeks(sql, L.seasonId, new Date(START.getTime() + H));
+    const rows = await sql`select number, deadline_locked from gameweeks order by number`;
+    expect(rows.map((r) => [r.number, r.deadline_locked])).toEqual([[1, true], [2, false], [3, false]]);
+  });
+
+  it('ошибка подсчёта одного тура не останавливает остальные и попадает в журнал', async () => {
+    await squad();
+    const now = new Date(L.gws[1].deadline.getTime() + 30 * H);
+    const failing = async (_sql: postgres.Sql, id: string) => {
+      if (id === L.gws[0].id) throw new Error('pooler timeout');
+      return { scored: 0 };
+    };
+    const t = await advanceGameweeks(sql, L.seasonId, now, failing);
+    expect(t.map((x) => x.number)).toEqual([2]);
+    const [log] = await sql`select payload from audit_log where action = 'cron_error'`;
+    expect(log.payload).toEqual({ step: 'gameweek 1', error: 'pooler timeout' });
+  });
 });
+

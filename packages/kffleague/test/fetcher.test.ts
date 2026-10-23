@@ -78,4 +78,12 @@ describe('createPoliteFetcher', () => {
     await f.get('/b');
     expect(n).toBe(2);
   });
+
+  it('зависший сайт: запрос прерывается по тайм-ауту и возвращает статус 0', async () => {
+    const hang = ((_url: string, init: RequestInit) =>
+      new Promise((_, reject) => init.signal?.addEventListener('abort', () => reject(new Error('aborted'))))) as typeof fetch;
+    const f = createPoliteFetcher({ fetchImpl: hang, timeoutMs: 20 });
+    expect((await f.get('/ru/matches/1')).status).toBe(0);
+  });
 });
+

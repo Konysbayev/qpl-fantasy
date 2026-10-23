@@ -9,13 +9,20 @@ const H = 3_600_000;
 // Telegram шегі — секундына 30 хабарлама; аралықта 40 мс
 const PAUSE_MS = 40;
 
-export function telegramSender(botToken: string, appUrl: string, fetchImpl: typeof fetch = fetch, sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))): Send {
+export function telegramSender(
+  botToken: string,
+  appUrl: string,
+  fetchImpl: typeof fetch = fetch,
+  sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms)),
+  timeoutMs = 10_000
+): Send {
   return async (chatId, text) => {
     try {
       const res = await fetchImpl(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, text, reply_markup: { inline_keyboard: [[{ text: 'Ойнау', web_app: { url: appUrl } }]] } })
+        body: JSON.stringify({ chat_id: chatId, text, reply_markup: { inline_keyboard: [[{ text: 'Ойнау', web_app: { url: appUrl } }]] } }),
+        signal: AbortSignal.timeout(timeoutMs)
       });
       await res.body?.cancel();
       return { ok: res.ok, status: res.status };

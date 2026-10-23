@@ -162,6 +162,16 @@ export async function fetchAndStore(
       report.skipped.push(id);
       return 'skipped';
     }
+    // Бұрын статистикасы бар матчтың бетінде құрам жоқ болса — сайт белгілеуін өзгерткен: сақталғанды өшірмейміз
+    if (facts.lineups.length === 0) {
+      const [{ has }] = await sql<{ has: boolean }[]>`select exists (select 1 from player_match_stats s join fixtures f on f.id = s.fixture_id
+        where f.source_id = ${id}) as has`;
+      if (has) {
+        report.failed.push({ id, error: 'на странице нет составов — сохранённые данные оставлены' });
+        report.needsReview.push({ id, reasons: ['lineups_missing'] });
+        return 'failed';
+      }
+    }
     const { needsReview } = await upsertMatch(sql, opts.seasonId, facts, page.body);
     // Тек сайттан нақты жүктелгенде белгіленеді (rebuildFromRaw бұл уақытты өзгертпейді)
     await sql`update fixtures set fetched_at = now() where source_id = ${id}`;

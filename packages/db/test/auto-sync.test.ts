@@ -80,6 +80,18 @@ describe('refreshMatches', () => {
     expect(f.paths).not.toContain('/ru/matches/1109');
   });
 
+  it('страница без составов (сайт поменял разметку) не стирает уже сохранённые очки', async () => {
+    await store(993);
+    const before = await sql`select count(*)::int as n, sum(points)::int as pts from player_match_stats`;
+    const broken = matchPage(993).replaceAll('lineups', 'lineupz');
+    const report = await refreshMatches(sql, fakeFetcher({ '/ru/matches/993': { status: 200, body: broken } }), { ...opts(), ids: [993] });
+    expect(report.stored).toEqual([]);
+    expect(report.failed).toEqual([{ id: 993, error: 'на странице нет составов — сохранённые данные оставлены' }]);
+    expect(await sql`select count(*)::int as n, sum(points)::int as pts from player_match_stats`).toEqual(before);
+    const [raw] = await sql`select body from source_raw where fixture_source_id = 993`;
+    expect(raw.body.includes('lineupz')).toBe(false);
+  });
+
   it('ручная правка (manual_override) переживает перезагрузку страницы', async () => {
     await store(993);
     await sql`update player_match_stats set goals = 5, points = 99, manual_override = true where player_id = (select id from players where source_id = 2560)`;
