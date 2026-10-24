@@ -91,3 +91,28 @@ describe('LeaguesSoon', () => {
     expect(screen.getByText('Жақында: мини-лигалар')).toBeTruthy();
   });
 });
+
+describe('перенесённый тур', () => {
+  // 23-й тур целиком перенесли на 17 октября: он идёт после 28-го (10 октября) и перед 29-м
+  const MOVED: GameweekRow[] = [
+    { id: 'g22', number: 22, deadline: '2026-08-15T12:00:00.000Z' },
+    { id: 'g23', number: 23, deadline: '2026-10-17T09:00:00.000Z' },
+    { id: 'g24', number: 24, deadline: '2026-08-29T11:00:00.000Z' },
+    { id: 'g28', number: 28, deadline: '2026-10-10T09:00:00.000Z' },
+    { id: 'g29', number: 29, deadline: '2026-10-24T09:00:00.000Z' }
+  ];
+  it('туры листаются в порядке игры: 28 → 23 (с пометкой «перенесён») → 29', async () => {
+    const api = { fixtures: vi.fn(async () => []), matchEvents: vi.fn(async () => []) };
+    wrap(<Schedule gameweeks={MOVED} initial={28} clubs={CLUBS} api={api} />, 'ru');
+    expect(screen.getByRole('heading', { name: 'Тур 28' })).toBeTruthy();
+    expect(screen.queryByText(/Перенесён/)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Следующий тур' }));
+    expect(screen.getByRole('heading', { name: 'Тур 23' })).toBeTruthy();
+    expect(screen.getByText('Перенесён · 17 окт')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Следующий тур' }));
+    expect(screen.getByRole('heading', { name: 'Тур 29' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Предыдущий тур' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Предыдущий тур' }));
+    expect(screen.getByRole('heading', { name: 'Тур 28' })).toBeTruthy();
+  });
+});
