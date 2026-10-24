@@ -18,7 +18,14 @@ export function Schedule({ gameweeks, initial, clubs, api }: ScheduleProps) {
   const t = useTheme();
   const tr = useT();
   const lang = useLang();
-  const numbers = gameweeks.map((g) => g.number).sort((a, b) => a - b);
+  // Турлар нақты ойналған ретпен (дедлайн бойынша): толық ауыстырылған тур (мысалы, 23-тур 17 қазанда) 28 мен 29 арасында тұрады
+  const ordered = [...gameweeks].sort((a, b) => (a.deadline ?? '9999').localeCompare(b.deadline ?? '9999') || a.number - b.number);
+  const numbers = ordered.map((g) => g.number);
+  // Ауыстырылған тур: нөмірі үлкенірек турдан кейін ойналады
+  const moved = (n: number) => {
+    const g = ordered.find((x) => x.number === n);
+    return Boolean(g?.deadline && ordered.some((x) => x.number > n && x.deadline !== null && x.deadline < g.deadline!));
+  };
   const [gw, setGw] = useState(initial);
   const [fixtures, setFixtures] = useState<FixtureRow[] | null>(null);
   const [open, setOpen] = useState<FixtureRow | null>(null);
@@ -83,6 +90,11 @@ export function Schedule({ gameweeks, initial, clubs, api }: ScheduleProps) {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
           <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: t.muted }}>{tr('scheduleTitle')}</span>
           <h1 style={{ margin: 0, fontFamily: FONT_NUM, fontWeight: 800, fontSize: 24, lineHeight: 1 }}>{tr('tourN', { n: gw })}</h1>
+          {moved(gw) && (
+            <span style={{ fontSize: 11, fontWeight: 800, color: t.hard[1] }}>
+              {`${tr('postponed')} · ${formatDay(ordered.find((x) => x.number === gw)!.deadline!, lang)}`}
+            </span>
+          )}
         </div>
         {arrow(1)}
       </header>
